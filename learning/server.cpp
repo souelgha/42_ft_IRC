@@ -4,16 +4,18 @@
 #include<netinet/in.h>
 #include<sys/socket.h>
 #include<unistd.h>
+#include <poll.h>
 
 #define LISTENING_PORT 5094
-#define PENDING_QUEUE_MAXLENGTH 2
+#define PENDING_QUEUE_MAXLENGTH 10
 #define BUFFER_SIZE 1024
+#define MAX_CLIENTS 100
 
 int main()
 {
    //initialisation du socket
-    int socketFD = socket(AF_INET, SOCK_STREAM, 0);
-    if(socketFD==-1)
+    int listen_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if(listen_fd==-1)
     {
         std::cerr << "Echec Init du socket "<< std::endl;
         return(1);
@@ -26,49 +28,95 @@ int main()
 
     //etablir la connection a l aide du bind()
     int socketAdressLenght = sizeof(socketAdress);
-    int bindReturnCode = bind(socketFD, (struct sockaddr*) &socketAdress, socketAdressLenght);
+    int bindReturnCode = bind(listen_fd, (struct sockaddr*) &socketAdress, socketAdressLenght);
     if(bindReturnCode==-1)
     {
         std::cerr << "Echec de liaison pour le socket/ failed to bind socket "<< std::endl;
         return(1);
     }
     // on ecoute et attente de nouvelles connexions
-    if(listen(socketFD, PENDING_QUEUE_MAXLENGTH) == -1)
+    if(listen(listen_fd, PENDING_QUEUE_MAXLENGTH) == -1)
      {
         std::cerr << "Echec demarrage de l ecoute des connexions "<< std::endl;
         return(1);
     }
     std::cout << "En attente de nouvelles connexions..." << std::endl;
 
-    // on cree un autre socket pour nous connecter
-    int connectedSocketFD = accept(socketFD, (struct sockaddr*) &socketAdress, (socklen_t *) &socketAdressLenght);
-    if(connectedSocketFD ==-1)
+    struct pollfd   fds[MAX_CLIENTS];
+    int             nfds = 1;
+    int             conn_fd;
+
+    fds[0].fd = listen_fd;
+    fds[0].events = POLLIN;
+    fds[0].revents = 0;
+
+    while (1)
     {
-        std::cerr << "<server> Echec etablissement de la connection "<< std::endl;
-        return(1);
+        int ret = poll(fds, nfds, -1);
+        if (ret < 0)
+        {
+            std::cerr << "Poll erreur"<< std::endl;
+            break ;
+        }
+        if (fds[0].revents & POLLIN)
+        {
+            conn_fd = accept(listen_fd, (struct sockaddr*) &socketAdress, (socklen_t *) &socketAdressLenght);
+            if(conn_fd ==-1)
+            {
+                std::cerr << "<server> Echec etablissement de la connection "<< std::endl;
+                continue ;
+            }
+            std::cout<< "on est la "<< std::endl;
+            if (nfds < MAX_CLIENTS)
+            {
+                fds[nfds].fd = conn_fd;
+                fds[nfds].events = POLLIN;
+                nfds++;
+            }
+            else
+            {
+                std::cerr << "Trop de clients"<< std::endl;
+                close(conn_fd) ;
+            }
+        }
+        std::cout<< "nfds:"<<nfds<< std::endl;
+        for (int i = 1; i < nfds; i++)
+        {
+            std::cout<< "on est dans le for"<< std::endl;
+            char buffer[BUFFER_SIZE] = {0};
+            int receivedBytes = recv(fds[i].fd, buffer, BUFFER_SIZE, 0);
+            if(receivedBytes ==-1)
+            {
+                std::cerr << "<server> Echec de la reception du message du client "<< std::endl;
+                close (fds[i].fd);
+                fds[i] = fds[--nfds];
+            }
+            else
+            {
+                // buffer[receivedBytes] = '\0';
+                std::cout<<"client: "<< buffer<< std::endl;
+            }
+            //envoie d un message
+            // const char msg[]="Bonjour Client, je suis server. ";
+            // int sentBytes = send(conn_fd, msg, strlen(msg), 0);
+            // if(sentBytes ==-1)
+            // {
+            //     std::cerr << "<server> Echec envoi du message pour le client "<< std::endl;
+            //     return(1);
+            // }
+        std::cout<< "on sort du for"<< std::endl;
+        std::cout<< "i de for:"<<i<< std::endl;
+
+        }
+        std::cout<< "apres for"<< std::endl;
+
     }
+    // on cree un autre socket pour nous connecter
 
     // reception d un message /* on a besoin d une memoire tampon et conversion en bytes*/
-    char buffer[BUFFER_SIZE] = {0};
-    int receivedBytes = recv(connectedSocketFD, buffer, BUFFER_SIZE, 0);
-     if(receivedBytes ==-1)
-    {
-        std::cerr << "<server> Echec de la reception du message du client "<< std::endl;
-        return(1);
-    }
-    std::cout<<"client: "<< buffer<< std::endl;
-
-    //envoie d un message
-    const char msg[]="Bonjour Client, je suis server. ";
-    int sentBytes = send(connectedSocketFD, msg, strlen(msg), 0);
-    if(sentBytes ==-1)
-    {
-        std::cerr << "<server> Echec envoi du message pour le client "<< std::endl;
-        return(1);
-    }
     //Fermeture des sockets et liberation des ressources
-    close(connectedSocketFD);
-    close(socketFD);
+    close(conn_fd);
+    close(listen_fd);
 
 
     return(0);

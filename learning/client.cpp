@@ -12,8 +12,8 @@
 int main()
 {
    //initialisation du socket
-    int socketFD = socket(AF_INET, SOCK_STREAM, 0);
-    if(socketFD==-1)
+    int listen_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if(listen_fd==-1)
     {
         std::cerr << "<client> Echec Init du socket "<< std::endl;
         return(1);
@@ -32,7 +32,7 @@ int main()
 
     //etablir la connection 
     int socketAdressLenght = sizeof(socketAdress);
-    int connectionStatus = connect(socketFD, (struct sockaddr*) &socketAdress, socketAdressLenght);
+    int connectionStatus = connect(listen_fd, (struct sockaddr*) &socketAdress, socketAdressLenght);
     if(connectionStatus ==-1)
     {
         std::cerr << "<client> Echec de la connection au server "<< std::endl;
@@ -42,7 +42,7 @@ int main()
 
     //envoie d un message
     const char msg[]="Bonjour Server, je suis client. ";
-    int sentBytes = send(socketFD, msg, strlen(msg), 0);
+    int sentBytes = send(listen_fd, msg, strlen(msg), 0);
     if(sentBytes ==-1)
     {
         std::cerr << "<server> Echec envoi du message au server "<< std::endl;
@@ -50,7 +50,7 @@ int main()
     }
        // reception d un message /* on a besoin d une memoire tampon et conversion en bytes*/
     char buffer[BUFFER_SIZE] = {0};
-    int receivedBytes = recv(socketFD, buffer, BUFFER_SIZE, 0);
+    int receivedBytes = recv(listen_fd, buffer, BUFFER_SIZE, 0);
      if(receivedBytes ==-1)
     {
         std::cerr << "<client> Echec de la reception du message du server "<< std::endl;
@@ -59,7 +59,7 @@ int main()
     std::cout<< "server : "<< buffer<< std::endl;
 
     //Fermeture des sockets et liberation des ressources
-    close(socketFD);
+    close(listen_fd);
 
 
     return(0);
