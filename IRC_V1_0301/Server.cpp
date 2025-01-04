@@ -5,7 +5,6 @@
 Server::Server()
 {
     listen_fd = -1;
-
 }
 Server::~Server(){}
 
@@ -28,54 +27,25 @@ void Server::ServerInit()
                 if(fds[i].fd == listen_fd)   // Accept New Client
                 {
                     std::cout<< "New Client "<< std::endl;
-                    conn_fd = accept(listen_fd, (struct sockaddr*) &socketAdress, (socklen_t *) &socketAdressLenght);
-                    if(conn_fd ==-1)
-                    {
-                        std::cerr << "<server> Echec etablissement de la connection "<< std::endl;
-                        continue ;
-                    }                    
-                    if (fds.size() < MAX_CLIENTS)
-                    {
-                        std::cout<<"nfds connect:"<< fds.size()<<std::endl;
-                        fds[nfds].fd = conn_fd;
-                        fds[nfds].events = POLLIN;
-                        nfds++;
-                    }
-                    else
-                    {
-                        std::cerr << "Trop de clients"<< std::endl;
-                        close(conn_fd) ;
-                    }
+                    NewClient();
+                
                 }
-                 else //receive new data
+                 else
                 {
                     std::cout<< "received data"<< std::endl;
-                    char buffer[BUFFER_SIZE] = {0};
-                    int receivedBytes = recv(fds[i].fd, buffer, BUFFER_SIZE, 0);
-                    if(receivedBytes ==-1)
-                    {
-                        std::cerr << "<server> Echec de la reception du message du client "<< std::endl;
-                        close (fds[i].fd);
-                        fds[i] = fds[--nfds];
-                    }
-                    else
-                    {
-                        // buffer[receivedBytes] = '\0';
-                        std::cout<<"IRSSI : "<< buffer<< std::endl;
-                    }
+                    ReceiveMessage(fds[i].fd);
                 }
             }
         }
         std::cout<< "nfds:"<<fds.size()<< std::endl;
        
-    }
-    
+    }    
 }
 
 void Server::Serverconnect()
 {
-    struct pollfd   Newpoll;
-    struct sockaddr_in sockAddr;
+    // struct pollfd   Newpoll;
+    // struct sockaddr_in sockAddr;
     sockAddr.sin_family = AF_INET;
     sockAddr.sin_port = htons(this->port);
     sockAddr.sin_addr.s_addr = INADDR_ANY;
@@ -97,22 +67,56 @@ void Server::Serverconnect()
     fds.push_back(Newpoll);
 
 }
-int main()
+void Server::NewClient()
 {
-  
-    /*************** boucle while a partir d ici  **************/
+    // struct sockaddr_in CliAddr;
+    // struct pollfd   Newpoll;
+    int CliAddrLength=sizeof(CliAddr);
+    int conn_fd = accept(listen_fd, (struct sockaddr*) &CliAddr, (socklen_t *) &CliAddrLength);
+    if(conn_fd ==-1)
+        throw(std::runtime_error("Failed to accept")); 
 
-       int             nfds = 1;
-    int             conn_fd;
-
-    
-               
-    // on cree un autre socket pour nous connecter
-
-    // reception d un message /* on a besoin d une memoire tampon et conversion en bytes*/
-    //Fermeture des sockets et liberation des ressources
-    close(conn_fd);
-    close(listen_fd);
-    return(0);
+    if (fds.size() < MAX_CLIENTS)
+    {
+        std::cout<<"nb connections :"<< fds.size()<<std::endl;
+        Newpoll.fd = conn_fd;
+        Newpoll.events = POLLIN;
+        Newpoll.revents = 0;
+        fds.push_back(Newpoll);
+        std::cout << "Connexion acceptée : adresse IP <" << inet_ntoa(CliAddr.sin_addr)<< "> port <" <<
+           ntohs(CliAddr.sin_port) << ">"<<std::endl;
+    }
+    else
+    {
+        std::cerr << "Trop de clients"<< std::endl;
+        close(conn_fd);
+    }
 }
+
+void Server::ReceiveMessage(int fd)
+{
+    
+    char buffer[BUFFER_SIZE] = {0};
+    int receivedBytes = recv(fd, buffer, BUFFER_SIZE, 0);
+    if(receivedBytes ==-1)
+    {
+        std::cerr << "<server> Echec de la reception du message du client "<< std::endl;
+        //detruire le client . clearclient
+        close (fd);
+    }
+    else
+    {
+        buffer[receivedBytes] = '\0';
+        std::cout<<"IRSSI <"<<fd<< "> message: " << buffer<< std::endl;
+    }
+
+}
+void Server::CloseFds()
+{
+    for(size_t i = 1; i< fds.size() ; i++)
+        close(fds[i].fd);
+    if(listen_fd != -1)
+        close(listen_fd);
+}
+
 
