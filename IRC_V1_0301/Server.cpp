@@ -37,7 +37,7 @@ void Server::ServerInit()
                 }
             }
         }
-        std::cout<< "nfds:"<<fds.size()<< std::endl;
+        std::cout<< "nombre de fds:"<<fds.size()<< std::endl;
        
     }    
 }
@@ -66,11 +66,13 @@ void Server::Serverconnect()
     Newpoll.revents = 0;
     fds.push_back(Newpoll);
 
+
 }
 void Server::NewClient()
 {
     // struct sockaddr_in CliAddr;
     // struct pollfd   Newpoll;
+    Client Newcli;
     int CliAddrLength=sizeof(CliAddr);
     int conn_fd = accept(listen_fd, (struct sockaddr*) &CliAddr, (socklen_t *) &CliAddrLength);
     if(conn_fd ==-1)
@@ -83,6 +85,9 @@ void Server::NewClient()
         Newpoll.events = POLLIN;
         Newpoll.revents = 0;
         fds.push_back(Newpoll);
+        Newcli.setFd(conn_fd);
+        Newcli.setIpAdd(inet_ntoa(CliAddr.sin_addr));
+        clients.push_back(Newcli);
         std::cout << "Connexion acceptée : adresse IP <" << inet_ntoa(CliAddr.sin_addr)<< "> port <" <<
            ntohs(CliAddr.sin_port) << ">"<<std::endl;
     }
@@ -101,7 +106,7 @@ void Server::ReceiveMessage(int fd)
     if(receivedBytes ==-1)
     {
         std::cerr << "<server> Echec de la reception du message du client "<< std::endl;
-        //detruire le client . clearclient
+        ClearClients(fd); //detruire le client . clearclient
         close (fd);
     }
     else
@@ -117,6 +122,26 @@ void Server::CloseFds()
         close(fds[i].fd);
     if(listen_fd != -1)
         close(listen_fd);
+}
+void Server::ClearClients(int fd) //retrait du vector client & du vector sockets.
+{
+    for(size_t i = 0; i < clients.size(); i++)
+    {
+        if(clients[i].getFd() == fd)
+        {
+            clients.erase(clients.begin() + i);
+            break;
+        }
+    }
+    for(size_t i = 0; i< fds.size(); i++)
+    {
+        if(fds[i].fd == fd)
+        {
+            fds.erase(fds.begin() + i);
+            break;
+        }
+    }
+
 }
 
 
