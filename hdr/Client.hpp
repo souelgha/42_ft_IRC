@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:27 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/06 13:13:37 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/06 16:57:32 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ class   Client
         std::string userName;
         std::string nickName;
         std::string serverName;
+        std::string mode;
 
     public:
 
@@ -44,6 +45,7 @@ class   Client
         std::string const   &getUserName() const;
         std::string const   &getNickName() const;
         std::string const   &getServerName() const;
+        std::string const   &getMode() const ;
 
         /* SETTERS */
         void                setFd(int fd);
@@ -53,4 +55,5 @@ class   Client
         void                setUserName(std::string const &userName);
         void                setNickName(std::string const &nickName);
         void                setServerName(std::string const &serverName);
+        void                setMode(std::string const &mode);
 };

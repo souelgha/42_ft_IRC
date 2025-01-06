@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/06 15:43:04 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/06 16:58:03 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,10 @@ std::string const   &Client::getServerName() const {
     return(this->serverName);
 }
 
+std::string const   &Client::getMode() const {
+    return(this->mode);
+}
+
 void    Client::setFd(int fd) {
 
     this->cliFd = fd;
@@ -77,4 +81,9 @@ void    Client::setNickName(std::string const &nickName) {
 void    Client::setServerName(std::string const &serverName) {
 
     this->serverName = serverName;
+}
+
+void    Client::setMode(std::string const &mode) {
+
+    this->mode = mode;
 }
