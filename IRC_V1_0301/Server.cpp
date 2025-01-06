@@ -5,61 +5,66 @@
 Server::Server()
 {
     listen_fd = -1;
+    
 }
 Server::~Server(){}
-
+bool Server::signal = false;
 void Server::ServerInit()
 {
-    this->port = 5094;
+    this->port = 5095;
     Serverconnect();
     
     std::cout << "En attente de nouvelles connexions..." << std::endl;
-    while (1)
+    while (Server::signal== false)//signaux a ajouter
     {
-        if (poll(&fds[0], fds.size(), -1) == -1)
-            throw(std::runtime_error("Failed to bind socket"));  
+        std::cout<<  "signal :"<< Server::signal <<std::endl;      
+        if (poll(&fds[0], fds.size(), -1) == -1 )
+            throw(std::runtime_error("Failed to bind pool\n"));  
         
         for (size_t i = 0; i < fds.size(); i++)
         {
-            std::cout<< "i de for :"<<i<< std::endl;
+            // std::cout<< "i de for :"<<i<< std::endl;
             if (fds[i].revents & POLLIN)
             {
                 if(fds[i].fd == listen_fd)   // Accept New Client
                 {
-                    std::cout<< "New Client "<< std::endl;
+                    std::cout<< BLUE << "New Client "<< WHITE<< std::endl;
                     NewClient();
                 
                 }
                  else
                 {
-                    std::cout<< "received data"<< std::endl;
+                    std::cout<<YELLOW<< "received data"<< WHITE<<std::endl;
                     ReceiveMessage(fds[i].fd);
                 }
             }
         }
         std::cout<< "nombre de fds:"<<fds.size()<< std::endl;
        
-    }    
+    }   
+    std::cout<<" sortie du while" << std::endl;
+    CloseFds();
 }
 
 void Server::Serverconnect()
 {
-    // struct pollfd   Newpoll;
-    // struct sockaddr_in sockAddr;
     sockAddr.sin_family = AF_INET;
     sockAddr.sin_port = htons(this->port);
     sockAddr.sin_addr.s_addr = INADDR_ANY;
-
+    socklen_t sockAdLenght = sizeof(sockAddr);
    
     listen_fd = socket(AF_INET, SOCK_STREAM, 0);
     if(listen_fd == -1)
-        throw(std::runtime_error("Echec Init du socket"));
+        throw(std::runtime_error("Echec Init du socket\n"));
    
-    int sockAdLenght = sizeof(sockAddr);
-    if(bind(listen_fd, (struct sockaddr*) &sockAddr, sockAdLenght) == -1);
-        throw(std::runtime_error("Failed to bind socket"));     
+   int en = 1;
+	if(setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(en)) == -1) //-> set the socket option (SO_REUSEADDR) to reuse the address
+		throw(std::runtime_error("faild to set option (SO_REUSEADDR) on socket\n"));
+	
+    if(bind(listen_fd, (struct sockaddr*) &sockAddr, sockAdLenght) == -1)
+        throw(std::runtime_error("Failed to bind socket " + std::string(strerror(errno))));     
     if(listen(listen_fd, MAX_CLIENTS) == -1)
-        throw(std::runtime_error("Failed to listen()"));    
+        throw(std::runtime_error("Failed to listen()\n"));    
      
     Newpoll.fd = listen_fd;
     Newpoll.events = POLLIN;
@@ -70,13 +75,12 @@ void Server::Serverconnect()
 }
 void Server::NewClient()
 {
-    // struct sockaddr_in CliAddr;
-    // struct pollfd   Newpoll;
+
     Client Newcli;
     int CliAddrLength=sizeof(CliAddr);
     int conn_fd = accept(listen_fd, (struct sockaddr*) &CliAddr, (socklen_t *) &CliAddrLength);
     if(conn_fd ==-1)
-        throw(std::runtime_error("Failed to accept")); 
+        throw(std::runtime_error("Failed to accept\n")); 
 
     if (fds.size() < MAX_CLIENTS)
     {
@@ -112,16 +116,22 @@ void Server::ReceiveMessage(int fd)
     else
     {
         buffer[receivedBytes] = '\0';
-        std::cout<<"IRSSI <"<<fd<< "> message: " << buffer<< std::endl;
+        std::cout << YELLOW <<"IRSSI avec fd <"<<fd<< "> envoie le message: " << buffer<< YELLOW<< std::endl;
     }
 
 }
 void Server::CloseFds()
 {
     for(size_t i = 1; i< fds.size() ; i++)
+    {
         close(fds[i].fd);
+        std::cout<<"fd<" << fds[i].fd << "> closed "<< std::endl;
+    }
     if(listen_fd != -1)
+    {
         close(listen_fd);
+        std::cout<<"listen_fd<" << listen_fd << "> closed "<< std::endl;
+    }
 }
 void Server::ClearClients(int fd) //retrait du vector client & du vector sockets.
 {
@@ -141,6 +151,14 @@ void Server::ClearClients(int fd) //retrait du vector client & du vector sockets
             break;
         }
     }
+
+}
+void Server::SignalCatch(int signum)
+{
+    (void)signum;
+    std::cout << "Signal recu! " << std::endl;
+    signal = true;
+    throw(std::runtime_error("Signal recu "));
 
 }
 
