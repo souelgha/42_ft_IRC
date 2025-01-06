@@ -2,7 +2,8 @@ NAME = ircserv
 
 
 SRC_DIR = src
-SRC = main.cpp
+SRC = main.cpp \
+	Client.cpp
 
 
 OBJ_DIR = obj
@@ -10,7 +11,7 @@ OBJ = ${addprefix ${OBJ_DIR}/, ${SRC:.cpp=.o}}
 
 
 HDR_DIR = hdr
-HDR = 
+HDR = Client.hpp
 INCLUDE = ${addprefix ${HDR_DIR}/, ${HDR}}
 
 TPL_DIR = tpl
