@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:23 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/06 14:19:20 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/06 14:32:20 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,9 +95,7 @@ void handleReceivedMessage(char *buff, Client client) {
     while ((end = buffer.find(DELIMITER, start)) != std::string::npos)
     {
         message = buffer.substr(start, end - start);
-        std::cout << "Message: " << message << std::endl;
         command = getCommand(message);
-        std::cout << "Command: " << command << std::endl;
         try {
             if (command == "NICK")
                 commandNick(message, client);
@@ -181,7 +179,6 @@ int main(void)
                 std::cerr << "<server> Echec etablissement de la connection " << std::endl;
                 continue;
             }
-            std::cout << "on est la" << std::endl;
             if (nfds < MAX_CLIENTS)
             {
                 fds[nfds].fd = conn_fd;
@@ -194,10 +191,8 @@ int main(void)
                 close(conn_fd);
             }
         }
-        std::cout << "nfds:" << nfds << std::endl;
         for (int i = 1; i < nfds; i++)
         {
-            std::cout << "on est dans le for" << std::endl;
             char buffer[BUFFER_SIZE] = {0};
             int receivedBytes = recv(fds[i].fd, buffer, BUFFER_SIZE, 0);
             if (receivedBytes == -1)
@@ -211,7 +206,6 @@ int main(void)
                 Client newClient;
 
                 buffer[receivedBytes] = '\0';
-                std::cout << buffer << std::endl;
                 newClient.setFd(conn_fd);
                 try {
                     handleReceivedMessage(buffer, newClient);
