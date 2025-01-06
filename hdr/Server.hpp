@@ -26,6 +26,7 @@
 #include <poll.h>
 
 #include "Client.hpp"
+#include "Channel.hpp"
 
 #ifndef BUFFER_SIZE
 # define BUFFER_SIZE 512
@@ -61,6 +62,7 @@ class Server
         struct sockaddr_in          CliAddr;    // socket client        
         struct sockaddr_in          sockAddr;   // socket server
         struct pollfd               Newpoll;    // structure du poll
+        std::map<std::string, Channel>    channels; // map le nom des channel vers les obj Channel
         
     public:
 
@@ -78,4 +80,11 @@ class Server
         void        CloseFds();
         void        ClearClients(int fd);
         static void SignalCatch(int signum);
+
+        /* CHANNEL FUNCTIONS*/
+        Channel * createChannel(std::string const &name);
+        void deleteChannel(std::string const &name);
+        Channel * launchChannel(std::string const &name);
+
+
 };

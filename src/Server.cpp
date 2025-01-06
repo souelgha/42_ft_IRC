@@ -262,10 +262,12 @@ void Server::ClearClients(int fd) //retrait du vector client & du vector sockets
 void Server::SignalCatch(int signum)
 {
     (void)signum;
-    std::cout << "Signal recu! " << std::endl;
     signal = true;
     throw(std::runtime_error("Signal recu "));
 
 }
+Channel * createChannel(std::string const &name);
+void deleteChannel(std::string const &name);
+Channel * launchChannel(std::string const &name);
 
 
