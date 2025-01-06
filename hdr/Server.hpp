@@ -10,6 +10,7 @@
 #include <poll.h>
 #include<vector>
 #include<signal.h>
+
 #include"Client.hpp"
 
 #define BUFFER_SIZE 1024
@@ -44,6 +45,7 @@ class Server
         void Serverconnect();
         void NewClient();
         void ReceiveMessage(int fd);
+        void handleReceivedMessage(char *buff, Client client);
         void CloseFds();
         void ClearClients(int fd);
         static void SignalCatch(int signum);

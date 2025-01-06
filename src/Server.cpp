@@ -35,7 +35,7 @@ void Server::ServerInit()
                  else
                 {
                     std::cout<<YELLOW<< "received data"<< WHITE<<std::endl;
-                    ReceiveMessage(fds[i].fd);
+                    ReceiveMessage(clients[i]);
                 }
             }
         }
@@ -102,23 +102,50 @@ void Server::NewClient()
     }
 }
 
-void Server::ReceiveMessage(int fd)
+void Server::ReceiveMessage(Client cli)
 {
     
     char buffer[BUFFER_SIZE] = {0};
-    int receivedBytes = recv(fd, buffer, BUFFER_SIZE, 0);
+    int receivedBytes = recv(cli.getFd(), buffer, BUFFER_SIZE, 0);
     if(receivedBytes ==-1)
     {
         std::cerr << "<server> Echec de la reception du message du client "<< std::endl;
-        ClearClients(fd); //detruire le client . clearclient
-        close (fd);
+        ClearClients(cli.getFd()); //detruire le client . clearclient
+        close (cli.getFd());
     }
     else
     {
+       
+
         buffer[receivedBytes] = '\0';
+        handleReceivedMessage(buffer, cli);
         std::cout << YELLOW <<"IRSSI avec fd <"<<fd<< "> envoie le message: " << buffer<< YELLOW<< std::endl;
     }
 
+}
+void Server::handleReceivedMessage(char *buff, Client client) {
+
+    std::string buffer = buff;
+    std::string message;
+    std::string command;
+    size_t start = 0;
+    size_t end;
+
+    while ((end = buffer.find(DELIMITER, start)) != std::string::npos)
+    {
+        message = buffer.substr(start, end - start);
+        command = getCommand(message);
+        try {
+            if (command == "NICK")
+                commandNick(message, client);
+            if (command == "USER")
+                commandUser(message, client);
+        }
+        catch (std::exception &e) {
+            throw;
+        }
+        start = end + 2; // 2 est la taille du delimiteur
+    }
 }
 void Server::CloseFds()
 {
