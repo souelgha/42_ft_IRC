@@ -1,19 +1,28 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/06 15:26:51 by stouitou          #+#    #+#             */
+/*   Updated: 2025/01/06 15:50:41 by stouitou         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "Server.hpp"
 
+bool    Server::signal = false;
 
-Server::Server()
-{
-    listen_fd = -1;
-    
-}
-Server::~Server(){}
-bool Server::signal = false;
-void Server::ServerInit()
+Server::Server(void) : listen_fd(-1) { }
+
+Server::~Server(void) { }
+
+void    Server::ServerInit(void)
 {
     this->port = 5095;
     Serverconnect();
-    
+
     std::cout << "En attente de nouvelles connexions..." << std::endl;
     while (Server::signal== false)//signaux a ajouter
     {
@@ -34,8 +43,8 @@ void Server::ServerInit()
                 }
                  else
                 {
-                    std::cout<<YELLOW<< "received data"<< WHITE<<std::endl;
-                    ReceiveMessage(clients[i]);
+                    std::cout<<YELLOW<< "received data" << WHITE<<std::endl;
+                    ReceiveMessage(clients[i - 1]);
                 }
             }
         }
@@ -46,9 +55,9 @@ void Server::ServerInit()
     CloseFds();
 }
 
-void Server::Serverconnect()
+void    Server::Serverconnect(void)
 {
-    sockAddr.sin_family = AF_INET;
+    sockAddr.sin_family = AF_INET;          // pour IPV4
     sockAddr.sin_port = htons(this->port);
     sockAddr.sin_addr.s_addr = INADDR_ANY;
     socklen_t sockAdLenght = sizeof(sockAddr);
@@ -102,10 +111,70 @@ void Server::NewClient()
     }
 }
 
-void Server::ReceiveMessage(Client cli)
+void commandNick(std::string const &message, Client &client) {
+
+    std::string nickname;
+
+    nickname = message.substr(5, message.length() - 4);
+    std::cout << "NickName: <" << nickname << ">" << std::endl;
+    try {
+        client.setNickName(nickname);
+    }
+    catch (std::exception &e) {
+        throw ;
+    }
+}
+
+std::string getRealName(std::string message) {
+
+    size_t i = message.find(':');
+
+    // if (i == std::string::npos)
+    //     throw Error;
+    return (message.substr(i + 1, message.length() - i));
+}
+
+void commandUser(std::string const &message, Client &client) {
+
+    std::string         userName;
+    std::string         hostName;
+    std::string         serverName;
+    std::string         realName;
+    std::istringstream  datas(message);
+
+    std::string command;
+    datas >> command;
+    try {
+        datas >> userName;
+        client.setUserName(userName);
+        datas >> hostName;
+        client.setHostName(hostName);
+        datas >> serverName;
+        client.setServerName(serverName);
+        std::cout << "Server name: <" << serverName << ">" << std::endl;
+       realName = getRealName(message);
+        std::cout << "Real name: <" << realName << ">" << std::endl;
+        client.setRealName(realName);
+    }
+    catch (std::exception &e) {
+        throw;
+    }
+}
+
+std::string getCommand(std::string message) {
+
+    size_t i = message.find(' ');
+
+    if (i == std::string::npos)
+        return (message);
+    return (message.substr(0, i));
+}
+
+void Server::ReceiveMessage(Client &cli)
 {
     
     char buffer[BUFFER_SIZE] = {0};
+    std::cout << "fd client: " << cli.getFd() << std::endl;
     int receivedBytes = recv(cli.getFd(), buffer, BUFFER_SIZE, 0);
     if(receivedBytes ==-1)
     {
@@ -115,15 +184,13 @@ void Server::ReceiveMessage(Client cli)
     }
     else
     {
-       
-
         buffer[receivedBytes] = '\0';
         handleReceivedMessage(buffer, cli);
-        std::cout << YELLOW <<"IRSSI avec fd <"<<fd<< "> envoie le message: " << buffer<< YELLOW<< std::endl;
+        std::cout << YELLOW <<"IRSSI avec fd <"<< cli.getFd() << "> envoie le message: " << buffer<< WHITE << std::endl;
     }
 
 }
-void Server::handleReceivedMessage(char *buff, Client client) {
+void Server::handleReceivedMessage(char *buff, Client &client) {
 
     std::string buffer = buff;
     std::string message;
@@ -147,6 +214,18 @@ void Server::handleReceivedMessage(char *buff, Client client) {
         start = end + 2; // 2 est la taille du delimiteur
     }
 }
+
+void    sendAnswer(Client const &client) {
+
+    const char msg[] = ":127.0.0.1 001 stouitou :Welcome to the IRC Network stouitou!stouitou@stouitou\r\n";
+    int sentBytes = send(client.getFd(), msg, strlen(msg), 0);
+    if (sentBytes == -1)
+    {
+        std::cerr << "<server> Echec envoi du message pour le client " << std::endl;
+        // throw ;
+    }
+}
+
 void Server::CloseFds()
 {
     for(size_t i = 1; i< fds.size() ; i++)
