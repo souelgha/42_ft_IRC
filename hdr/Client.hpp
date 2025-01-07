@@ -43,7 +43,7 @@ class   Client
         std::string const   &getRealName() const;
         std::string const   &getHostName() const;
         std::string const   &getUserName() const;
-        std::string const   &getNickName() const;
+        std::string          getNickName() const; // mod sonia
         std::string const   &getServerName() const;
         std::string const   &getMode() const ;
 

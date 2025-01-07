@@ -18,6 +18,8 @@
         "cwchar": "cpp",
         "cwctype": "cpp",
         "deque": "cpp",
+        "map": "cpp",
+        "set": "cpp",
         "unordered_map": "cpp",
         "vector": "cpp",
         "exception": "cpp",

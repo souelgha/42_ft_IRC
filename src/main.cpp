@@ -19,6 +19,7 @@ int main(void)
     
     try {
         signal(SIGINT, Server::SignalCatch);
+        signal(SIGQUIT, Server::SignalCatch);
         server.ServerInit();
     }
     catch(const std::exception& e) {
