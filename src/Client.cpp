@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/07 15:13:50 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/07 15:59:34 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,12 +42,8 @@ std::string const   &Client::getUserName() const {
     return(this->userName);
 }
 
-<<<<<<< HEAD
 std::string Client::getNickName() const {
-=======
-std::string const   &Client::getNickName() const {
 
->>>>>>> sarah
     return(this->nickName);
 }
 
