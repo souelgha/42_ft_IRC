@@ -241,7 +241,7 @@ std::string Server::getCommand(std::string message) {
 void Server::handleReceivedMessage(char *buff, Client &client) {
 
     std::string buffer = buff;
-    std::string message;
+    std::string message;// message complet . a split avec commande et prefixe pour recup dans les fonctions.
     std::string command;
     size_t start = 0;
     size_t end;
@@ -261,6 +261,8 @@ void Server::handleReceivedMessage(char *buff, Client &client) {
                 commandWhois(message);
             if (command == "PING")
                 commandPing(message, client);
+            if (command == "JOIN")
+                HandleJoinCommand(client.getNickName(), message);
         }
         catch (std::exception &e) {
             throw;
@@ -418,35 +420,35 @@ Channel & Server::getChannel(std::string const &nickname,std::string const &name
         listChannel.push_back(it->first);
     return(listChannel);
  }
- void Server::HandleJoinCommand(std::string const &nickname, std::string const &channelname)
- {     
+ void Server::HandleJoinCommand(std::string const &nickname, std::string const &msg)
+ {  
+    size_t m= msg.find('#');
+    std::string channelname= msg.substr(m+1, msg.length() - m);
+    std::cout<<"channelname:"<< channelname<< std::endl;
+
     Channel channel = getChannel(nickname, channelname);
-    std::vector<std::string> Ope = channel.getOpers();
-    size_t i = 0;
-    for(i = 0; i < Ope.size(); i++)
-    {
-        if(Ope[i] == nickname)
-            {
-                std::cout<<nickname<<": est un operateur."<< std::endl;
-                break;
-            }
-    }
-    if(i == Ope.size())
-        channel.AddUser(nickname);
+    if(!channel.IsOperator(nickname))
+        channel.AddUser(nickname);  
+    
     std::string welcomeMessage = ":" + nickname + " JOIN " + channelname + "\r\n";
     sendToClient(nickname, welcomeMessage);
  }
- void Server::sendToClient(std::string const nickname, std::string const message)
+ void Server::sendToClient(std::string const &nickname, std::string const &message)
  {
     for(size_t i = 0; i < clients.size(); i++)
     {
+        std::cout<<"i="<<i<<std::endl;
+        std::cout<<"vectordata:<"<<clients[i].getNickName()<<"> nickname: <"<<nickname<<">"<<std::endl;
+        std::cout<<"message:<"<<message<< ">"<<std::endl; 
         if(clients[i].getNickName() == nickname)
         {  
-            send(clients[i].getFd(), message.c_str(), message.size(), 0);            
+            std::cout<< "sendToClient ici "<< std::endl;
+            int sentBytes= send(clients[i].getFd(), message.c_str(), message.size(), 0); 
+            if(sentBytes == -1)
+                throw(std::runtime_error("envoie msg canal apres JOIN impossible\n"));
         }
         else
             throw(std::runtime_error("utilisateur introuvable\n"));
-
     }
 
  }

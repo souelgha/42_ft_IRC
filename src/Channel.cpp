@@ -24,6 +24,7 @@ void Channel::setTopic(std::string  const &newTopic)
 void Channel::AddUser(std::string const &nickname)
 {
     users.insert(nickname);
+    std::cout<< nickname<<" is user!"<< std::endl;
 }
 void Channel::RemUser(std::string const &nickname)
 {
@@ -32,6 +33,7 @@ void Channel::RemUser(std::string const &nickname)
 void Channel::AddOper(std::string const &nickname)
 {
     operators.insert(nickname);
+    std::cout<< nickname<<" is operator!"<< std::endl;
 }
 void Channel::RemOper(std::string const &nickname)
 {
