@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 15:26:51 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/06 17:00:19 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/07 11:59:15 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,9 +116,9 @@ void Server::commandNick(std::string const &message, Client &client) {
     std::string nickname;
 
     nickname = message.substr(5, message.length() - 4);
-    std::cout << "NickName: <" << nickname << ">" << std::endl;
     try {
         client.setNickName(nickname);
+        std::cout << "After NICK command, client's nickname = <" << client.getNickName() << ">" << std::endl;
     }
     catch (std::exception &e) {
         throw ;
@@ -151,10 +151,9 @@ void Server::commandUser(std::string const &message, Client &client) {
         client.setHostName(hostName);
         datas >> serverName;
         client.setServerName(serverName);
-        std::cout << "Server name: <" << serverName << ">" << std::endl;
-       realName = getRealName(message);
-        std::cout << "Real name: <" << realName << ">" << std::endl;
+        realName = getRealName(message);
         client.setRealName(realName);
+        std::cout << "After USER command, client's user name = <" << client.getUserName() << ">, host name = <" << client.getHostName() << ">, real name = <" << client.getRealName() << ">, server's name = <" << client.getServerName() << ">" << std::endl;
         sendAnswer("USER", client);
     }
     catch (std::exception &e) {
@@ -162,14 +161,65 @@ void Server::commandUser(std::string const &message, Client &client) {
     }
 }
 
-void    Server::commandMode(std::string const &message, Client &client) {
+void    Server::commandMode(std::string const &message) {
 
-    std::string mode;
+    std::string         command;
+    std::string         mode;
+    std::string         nickname;
+    std::istringstream  datas(message);
+    size_t              i;
 
-    mode = message.substr(5, message.length() - 4);
+    datas >> command;
+    datas >> nickname;
+    datas >> mode;
     std::cout << "mode: <" << mode << ">" << std::endl;
+    for (i = 0; i < this->clients.size(); i++)
+    {
+        if (this->clients[i].getNickName() == nickname)
+            break ;
+    }
+    // if (i == this->clients.size())
+    //     throw ;
     try {
-        client.setMode(mode);
+        this->clients[i].setMode(mode);
+    }
+    catch (std::exception &e) {
+        throw ;
+    }
+}
+
+void    Server::commandWhois(std::string const &message) {
+
+    std::string whois;
+    size_t i;
+
+    whois = message.substr(6, message.length() - 5);
+    std::cout << "whois: <" << whois << ">" << std::endl;
+    for (i = 0; i < this->clients.size(); i++)
+    {
+        std::cout << "i = " << i << ", nickname = " << this->clients[i].getNickName() << std::endl;
+        if (this->clients[i].getNickName() == whois)
+            break ;
+    }
+    // if (i == this->clients.size())
+    //     throw ;
+    try {
+        answerWhois(this->clients[i]);
+    }
+    catch (std::exception &e) {
+        std::cout << "Error in Whois" << std::endl;
+        throw ;
+    }
+}
+
+void    Server::commandPing(std::string const &message, Client &client) {
+
+    std::string ping;
+
+    ping = message.substr(5, message.length() - 4);
+    std::cout << "ping: <" << ping << ">" << std::endl;
+    try {
+        answerPing(client, ping);
     }
     catch (std::exception &e) {
         throw ;
@@ -223,7 +273,11 @@ void Server::handleReceivedMessage(char *buff, Client &client) {
             if (command == "USER")
                 commandUser(message, client);
             if (command == "MODE")
-                commandMode(message, client);
+                commandMode(message);
+            if (command == "WHOIS")
+                commandWhois(message);
+            if (command == "PING")
+                commandPing(message, client);
         }
         catch (std::exception &e) {
             throw;
@@ -264,6 +318,46 @@ void    Server::answerMode(Client &client) {
     message += client.getNickName();
     message += " :";
     message += client.getMode();
+    message += "\r\n";
+
+    int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
+    if (sentBytes == -1)
+    {
+        std::cerr << "<server> Echec envoi du message pour le client " << std::endl;
+        // throw ;
+    }
+}
+
+void    Server::answerWhois(Client &client) {
+
+    std::string message = ":";
+
+    message += client.getServerName();
+    message += " 311 ";
+    message += client.getNickName();
+    message += " ";
+    message += client.getUserName();
+    message += " ";
+    message += client.getHostName();
+    message += " * :";
+    message += client.getRealName();
+    message += "\r\n";
+
+    int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
+    if (sentBytes == -1)
+    {
+        std::cerr << "<server> Echec envoi du message pour le client " << std::endl;
+        // throw ;
+    }
+}
+
+void    Server::answerPing(Client &client, std::string const &ping) {
+
+    std::string message = ":";
+
+    message += client.getServerName();
+    message += " PONG :";
+    message += ping;
     message += "\r\n";
 
     int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
@@ -315,6 +409,7 @@ void Server::ClearClients(int fd) //retrait du vector client & du vector sockets
     }
 
 }
+
 void Server::SignalCatch(int signum)
 {
     (void)signum;

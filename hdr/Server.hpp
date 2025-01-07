@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 15:21:54 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/06 16:58:46 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/07 11:59:01 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,8 +82,12 @@ class Server
         std::string getRealName(std::string message);
         void        commandNick(std::string const &message, Client &client);
         void        commandUser(std::string const &message, Client &client);
-        void        commandMode(std::string const &message, Client &client);
+        void        commandMode(std::string const &message);
+        void        commandWhois(std::string const &message);
+        void        commandPing(std::string const &message, Client &client);
         void        answerUser(Client &client);
         void        answerMode(Client &client);
+        void        answerWhois(Client &client);
+        void        answerPing(Client &client, std::string const &ping);
         static void SignalCatch(int signum);
 };
