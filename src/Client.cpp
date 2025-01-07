@@ -37,7 +37,7 @@ std::string const   &Client::getUserName() const {
     return(this->userName);
 }
 
-std::string const   &Client::getNickName() const {
+std::string Client::getNickName() const {
     return(this->nickName);
 }
 
