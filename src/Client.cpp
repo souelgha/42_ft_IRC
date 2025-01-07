@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/06 15:43:04 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/07 11:50:32 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,10 @@ std::string const   &Client::getServerName() const {
     return(this->serverName);
 }
 
+std::string const   &Client::getMode() const {
+    return(this->mode);
+}
+
 void    Client::setFd(int fd) {
 
     this->cliFd = fd;
@@ -55,7 +59,7 @@ void    Client::setIpAdd(std::string addr) {
 
 void    Client::setRealName(std::string const &realName) {
 
-    this->userName = realName;
+    this->realName = realName;
 }
 
 void    Client::setHostName(std::string const &hostName) {
@@ -70,11 +74,17 @@ void    Client::setUserName(std::string const &userName) {
 
 void    Client::setNickName(std::string const &nickName) {
 
-    if (nickName.length() > 9)
-        this->nickName = nickName;
+    // if (nickName.length() > 9)
+    //     throw ;
+    this->nickName = nickName;
 }
 
 void    Client::setServerName(std::string const &serverName) {
 
     this->serverName = serverName;
+}
+
+void    Client::setMode(std::string const &mode) {
+
+    this->mode = mode;
 }

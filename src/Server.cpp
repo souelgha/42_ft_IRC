@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 15:26:51 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/06 15:50:41 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/07 11:59:15 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,32 +24,28 @@ void    Server::ServerInit(void)
     Serverconnect();
 
     std::cout << "En attente de nouvelles connexions..." << std::endl;
-    while (Server::signal== false)//signaux a ajouter
+    while (Server::signal == false)
     {
-        std::cout<<  "signal :"<< Server::signal <<std::endl;      
-        if (poll(&fds[0], fds.size(), -1) == -1 )
+        if (poll(&fds[0], fds.size(), -1) == -1)
             throw(std::runtime_error("Failed to bind pool\n"));  
         
         for (size_t i = 0; i < fds.size(); i++)
         {
-            // std::cout<< "i de for :"<<i<< std::endl;
             if (fds[i].revents & POLLIN)
             {
-                if(fds[i].fd == listen_fd)   // Accept New Client
+                if(fds[i].fd == listen_fd)  // port d'ecoute => accepte un nouveau client
                 {
-                    std::cout<< BLUE << "New Client "<< WHITE<< std::endl;
+                    std::cout << BLUE << "New Client " << WHITE << std::endl;
                     NewClient();
-                
                 }
-                 else
+                else
                 {
-                    std::cout<<YELLOW<< "received data" << WHITE<<std::endl;
+                    std::cout << YELLOW << "Received data" << WHITE << std::endl;
                     ReceiveMessage(clients[i - 1]);
                 }
             }
         }
         std::cout<< "nombre de fds:"<<fds.size()<< std::endl;
-       
     }   
     std::cout<<" sortie du while" << std::endl;
     CloseFds();
@@ -57,30 +53,34 @@ void    Server::ServerInit(void)
 
 void    Server::Serverconnect(void)
 {
-    sockAddr.sin_family = AF_INET;          // pour IPV4
-    sockAddr.sin_port = htons(this->port);
-    sockAddr.sin_addr.s_addr = INADDR_ANY;
-    socklen_t sockAdLenght = sizeof(sockAddr);
-   
+    sockAddr.sin_family = AF_INET;              // pour IPV4
+    sockAddr.sin_port = htons(this->port);      // convertit le port dans le bon format
+    sockAddr.sin_addr.s_addr = INADDR_ANY;      // ecoute tous les ports
+    socklen_t sockAdLenght = sizeof(sockAddr);  // taille de l'adresse
+
+    // ouvre la liaison
     listen_fd = socket(AF_INET, SOCK_STREAM, 0);
     if(listen_fd == -1)
         throw(std::runtime_error("Echec Init du socket\n"));
-   
-   int en = 1;
-	if(setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(en)) == -1) //-> set the socket option (SO_REUSEADDR) to reuse the address
+
+    // initialise les options (SO_REUSEADDR => pour reutiliser l'adresse)
+    int en = 1;
+	if(setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(en)) == -1)
 		throw(std::runtime_error("faild to set option (SO_REUSEADDR) on socket\n"));
-	
+
+    // lie le socket a l'adresse
     if(bind(listen_fd, (struct sockaddr*) &sockAddr, sockAdLenght) == -1)
         throw(std::runtime_error("Failed to bind socket " + std::string(strerror(errno))));     
+
+    // commence a ecouter
     if(listen(listen_fd, MAX_CLIENTS) == -1)
         throw(std::runtime_error("Failed to listen()\n"));    
-     
+
+    // Pour verifier les evenements
     Newpoll.fd = listen_fd;
     Newpoll.events = POLLIN;
     Newpoll.revents = 0;
     fds.push_back(Newpoll);
-
-
 }
 void Server::NewClient()
 {
@@ -111,21 +111,21 @@ void Server::NewClient()
     }
 }
 
-void commandNick(std::string const &message, Client &client) {
+void Server::commandNick(std::string const &message, Client &client) {
 
     std::string nickname;
 
     nickname = message.substr(5, message.length() - 4);
-    std::cout << "NickName: <" << nickname << ">" << std::endl;
     try {
         client.setNickName(nickname);
+        std::cout << "After NICK command, client's nickname = <" << client.getNickName() << ">" << std::endl;
     }
     catch (std::exception &e) {
         throw ;
     }
 }
 
-std::string getRealName(std::string message) {
+std::string Server::getRealName(std::string message) {
 
     size_t i = message.find(':');
 
@@ -134,7 +134,7 @@ std::string getRealName(std::string message) {
     return (message.substr(i + 1, message.length() - i));
 }
 
-void commandUser(std::string const &message, Client &client) {
+void Server::commandUser(std::string const &message, Client &client) {
 
     std::string         userName;
     std::string         hostName;
@@ -151,17 +151,82 @@ void commandUser(std::string const &message, Client &client) {
         client.setHostName(hostName);
         datas >> serverName;
         client.setServerName(serverName);
-        std::cout << "Server name: <" << serverName << ">" << std::endl;
-       realName = getRealName(message);
-        std::cout << "Real name: <" << realName << ">" << std::endl;
+        realName = getRealName(message);
         client.setRealName(realName);
+        std::cout << "After USER command, client's user name = <" << client.getUserName() << ">, host name = <" << client.getHostName() << ">, real name = <" << client.getRealName() << ">, server's name = <" << client.getServerName() << ">" << std::endl;
+        sendAnswer("USER", client);
     }
     catch (std::exception &e) {
         throw;
     }
 }
 
-std::string getCommand(std::string message) {
+void    Server::commandMode(std::string const &message) {
+
+    std::string         command;
+    std::string         mode;
+    std::string         nickname;
+    std::istringstream  datas(message);
+    size_t              i;
+
+    datas >> command;
+    datas >> nickname;
+    datas >> mode;
+    std::cout << "mode: <" << mode << ">" << std::endl;
+    for (i = 0; i < this->clients.size(); i++)
+    {
+        if (this->clients[i].getNickName() == nickname)
+            break ;
+    }
+    // if (i == this->clients.size())
+    //     throw ;
+    try {
+        this->clients[i].setMode(mode);
+    }
+    catch (std::exception &e) {
+        throw ;
+    }
+}
+
+void    Server::commandWhois(std::string const &message) {
+
+    std::string whois;
+    size_t i;
+
+    whois = message.substr(6, message.length() - 5);
+    std::cout << "whois: <" << whois << ">" << std::endl;
+    for (i = 0; i < this->clients.size(); i++)
+    {
+        std::cout << "i = " << i << ", nickname = " << this->clients[i].getNickName() << std::endl;
+        if (this->clients[i].getNickName() == whois)
+            break ;
+    }
+    // if (i == this->clients.size())
+    //     throw ;
+    try {
+        answerWhois(this->clients[i]);
+    }
+    catch (std::exception &e) {
+        std::cout << "Error in Whois" << std::endl;
+        throw ;
+    }
+}
+
+void    Server::commandPing(std::string const &message, Client &client) {
+
+    std::string ping;
+
+    ping = message.substr(5, message.length() - 4);
+    std::cout << "ping: <" << ping << ">" << std::endl;
+    try {
+        answerPing(client, ping);
+    }
+    catch (std::exception &e) {
+        throw ;
+    }
+}
+
+std::string Server::getCommand(std::string message) {
 
     size_t i = message.find(' ');
 
@@ -207,6 +272,12 @@ void Server::handleReceivedMessage(char *buff, Client &client) {
                 commandNick(message, client);
             if (command == "USER")
                 commandUser(message, client);
+            if (command == "MODE")
+                commandMode(message);
+            if (command == "WHOIS")
+                commandWhois(message);
+            if (command == "PING")
+                commandPing(message, client);
         }
         catch (std::exception &e) {
             throw;
@@ -215,15 +286,94 @@ void Server::handleReceivedMessage(char *buff, Client &client) {
     }
 }
 
-void    sendAnswer(Client const &client) {
+void    Server::answerUser(Client &client) {
 
-    const char msg[] = ":127.0.0.1 001 stouitou :Welcome to the IRC Network stouitou!stouitou@stouitou\r\n";
-    int sentBytes = send(client.getFd(), msg, strlen(msg), 0);
+    std::string message = ":";
+
+    message += client.getServerName();
+    message += " 001 ";
+    message += client.getNickName();
+    message += " :Welcome to the IRC Network ";
+    message += client.getNickName();
+    message += "!";
+    message += client.getNickName();
+    message += "@";
+    message += client.getNickName();
+    message += "\r\n";
+
+    int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
     if (sentBytes == -1)
     {
         std::cerr << "<server> Echec envoi du message pour le client " << std::endl;
         // throw ;
     }
+}
+
+void    Server::answerMode(Client &client) {
+
+    std::string message = ":";
+
+    message += client.getServerName();
+    message += " MODE ";
+    message += client.getNickName();
+    message += " :";
+    message += client.getMode();
+    message += "\r\n";
+
+    int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
+    if (sentBytes == -1)
+    {
+        std::cerr << "<server> Echec envoi du message pour le client " << std::endl;
+        // throw ;
+    }
+}
+
+void    Server::answerWhois(Client &client) {
+
+    std::string message = ":";
+
+    message += client.getServerName();
+    message += " 311 ";
+    message += client.getNickName();
+    message += " ";
+    message += client.getUserName();
+    message += " ";
+    message += client.getHostName();
+    message += " * :";
+    message += client.getRealName();
+    message += "\r\n";
+
+    int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
+    if (sentBytes == -1)
+    {
+        std::cerr << "<server> Echec envoi du message pour le client " << std::endl;
+        // throw ;
+    }
+}
+
+void    Server::answerPing(Client &client, std::string const &ping) {
+
+    std::string message = ":";
+
+    message += client.getServerName();
+    message += " PONG :";
+    message += ping;
+    message += "\r\n";
+
+    int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
+    if (sentBytes == -1)
+    {
+        std::cerr << "<server> Echec envoi du message pour le client " << std::endl;
+        // throw ;
+    }
+}
+
+void    Server::sendAnswer(std::string const &command, Client &client) {
+
+    if (command == "USER")
+        answerUser(client);
+    if (command == "MODE")
+        answerMode(client);
 }
 
 void Server::CloseFds()
@@ -259,6 +409,7 @@ void Server::ClearClients(int fd) //retrait du vector client & du vector sockets
     }
 
 }
+
 void Server::SignalCatch(int signum)
 {
     (void)signum;
