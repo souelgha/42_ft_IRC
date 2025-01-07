@@ -29,7 +29,9 @@ class Channel
 
         bool IsUser(std::string const &nickname);
         bool IsOperator(std::string const &nickname);
+        
         std::vector <std::string> getUsers() const;
+        std::vector <std::string> getOpers() const;
 
 
 

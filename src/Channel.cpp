@@ -49,3 +49,7 @@ std::vector <std::string> Channel::getUsers() const
 {
     return(std::vector<std::string>(users.begin(), users.end()));
 }
+std::vector <std::string> Channel::getOpers() const
+{
+    return(std::vector<std::string>(operators.begin(), operators.end()));
+}

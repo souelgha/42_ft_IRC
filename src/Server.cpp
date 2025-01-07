@@ -266,8 +266,56 @@ void Server::SignalCatch(int signum)
     throw(std::runtime_error("Signal recu "));
 
 }
-Channel * createChannel(std::string const &name);
-void deleteChannel(std::string const &name);
-Channel * launchChannel(std::string const &name);
+Channel * Server::createChannel(std::string const &name)
+{       
+    if(channels.find(name) == channels.end())
+    {
+        channels[name] = Channel(name);
+    }
+    return(&Channel(name));
+}
+void Server::deleteChannel(std::string const &name)
+{
+    if(channels.find(name) != channels.end())
+        channels.erase(name);
+}
+Channel * Server::getChannel(std::string const &name)
+{
+    if(channels.find(name) != channels.end())
+        return(&Channel(name));
+    return(NULL);
 
+}
+ std::vector<std::string> Server::followlistChannels() 
+ {
+    std::map<std::string, Channel>::const_iterator it;
+    for(it =  channels.begin(); it != channels.end(); ++it)
+        listChannel.push_back(it->first);
+    return(listChannel);
+ }
+ void Server::HandleJoinCommand(std::string nickname, std::string channelname)
+ {
+    Channel *channel = getChannel(channelname);
+    if(!channel)
+    {
+        channel = createChannel(channelname);
+        channel->AddOper(nickname);
+    }
+    channel->AddUser(nickname);
+    std::string welcomeMessage = ":" + nickname + " JOIN " + channelname + "\r\n";
+    sendToClient(nickname, welcomeMessage);
+ }
+ void Server::sendToClient(std::string const nickname, std::string const message)
+ {
+    for(size_t i = 0; i < clients.size(); i++)
+    {
+        if(clients[i].getNickName() == nickname)
+        {  
+            send(clients[i].getFd(), message.c_str(), message.size(), 0);            
+        }
+        else
+            throw(std::runtime_error("utilisateur introuvable\n"));
 
+    }
+
+ }

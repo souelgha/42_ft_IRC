@@ -63,7 +63,7 @@ class Server
         struct sockaddr_in          sockAddr;   // socket server
         struct pollfd               Newpoll;    // structure du poll
         std::map<std::string, Channel>    channels; // map le nom des channel vers les obj Channel
-        
+        std::vector<std::string>        listChannel; // liste des channels sur le server
     public:
 
         /* CONSTRUCTOR */
@@ -84,7 +84,9 @@ class Server
         /* CHANNEL FUNCTIONS*/
         Channel * createChannel(std::string const &name);
         void deleteChannel(std::string const &name);
-        Channel * launchChannel(std::string const &name);
-
-
+        Channel * getChannel(std::string const &name);
+        std::vector<std::string> followlistChannels();
+        void HandleJoinCommand(std::string nickname, std::string chanelname);
+        void sendToClient(std::string const nickname, std::string const message);
+ 
 };
