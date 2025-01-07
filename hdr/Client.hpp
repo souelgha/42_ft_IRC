@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:27 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/06 16:57:32 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/07 15:30:45 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,15 +19,15 @@ class   Client
 {
     private:
 
-        int         cliFd;      // fd du client
-        std::string cliAddr;    // addresse socket client
+        int             fd;         // fd du client
+        std::string     ipAddress;  // addresse socket client
 
-        std::string realName;
-        std::string hostName;
-        std::string userName;
-        std::string nickName;
-        std::string serverName;
-        std::string mode;
+        std::string     realName;
+        std::string     hostName;
+        std::string     userName;
+        std::string     nickName;
+        std::string     serverName;
+        std::string     mode;
 
     public:
 
@@ -39,7 +39,7 @@ class   Client
 
         /* GETTERS */
         int                 getFd() const;
-        std::string         getIpAddr() const;
+        std::string         getIpAddress() const;
         std::string const   &getRealName() const;
         std::string const   &getHostName() const;
         std::string const   &getUserName() const;
@@ -49,7 +49,7 @@ class   Client
 
         /* SETTERS */
         void                setFd(int fd);
-        void                setIpAdd(std::string addr);
+        void                setIpAddress(std::string addr);
         void                setRealName(std::string const &realName);
         void                setHostName(std::string const &hostName);
         void                setUserName(std::string const &userName);
