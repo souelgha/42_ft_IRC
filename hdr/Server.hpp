@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 15:21:54 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/07 11:59:01 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/07 12:45:52 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,9 +94,9 @@ class Server
         static void SignalCatch(int signum);
 
         /* CHANNEL FUNCTIONS*/
-        Channel * createChannel(std::string const &name);
+        void createChannel(std::string const &name);
         void deleteChannel(std::string const &name);
-        Channel * getChannel(std::string const &name);
+        Channel const &getChannel(std::string const &name);
         std::vector<std::string> followlistChannels();
         void HandleJoinCommand(std::string nickname, std::string chanelname);
         void sendToClient(std::string const nickname, std::string const message);

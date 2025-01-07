@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 15:26:51 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/07 11:59:15 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/07 13:02:53 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -417,24 +417,36 @@ void Server::SignalCatch(int signum)
     throw(std::runtime_error("Signal recu "));
 
 }
-Channel * Server::createChannel(std::string const &name)
+void Server::createChannel(std::string const &name)
 {       
     if(channels.find(name) == channels.end())
     {
         channels[name] = Channel(name);
+        channels.insert(std::make_pair(name, Channel(name)));
     }
-    return(&Channel(name));
+
 }
 void Server::deleteChannel(std::string const &name)
 {
     if(channels.find(name) != channels.end())
         channels.erase(name);
 }
-Channel * Server::getChannel(std::string const &name)
+Channel const & Server::getChannel(std::string nickname,std::string const &name)
 {
+    std::map<std::string, Channel>:: const_iterator i;
     if(channels.find(name) != channels.end())
-        return(&Channel(name));
-    return(NULL);
+    {
+        for( i= channels.begin(); i != channels.end(); ++i)
+            if(i->first == name)
+                return(i->second);
+    }
+   else
+   {
+        
+        createChannel(name);
+        i->second.AddOper(nickname);
+        return(i->second);
+   }
 
 }
  std::vector<std::string> Server::followlistChannels() 
@@ -446,10 +458,9 @@ Channel * Server::getChannel(std::string const &name)
  }
  void Server::HandleJoinCommand(std::string nickname, std::string channelname)
  {
-    Channel *channel = getChannel(channelname);
-    if(!channel)
+     
     {
-        channel = createChannel(channelname);
+       channel = getChannel(channelname);
         channel->AddOper(nickname);
     }
     channel->AddUser(nickname);
