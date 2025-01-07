@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:23 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/06 15:21:44 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/07 15:50:24 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,10 @@ int main(void)
     try {
         signal(SIGINT, Server::SignalCatch);
         signal(SIGQUIT, Server::SignalCatch);
-        server.ServerInit();
+        server.serverInit();
     }
     catch(const std::exception& e) {
-        server.CloseFds();
+        server.closeFds();
         std::cerr << e.what() << std::endl;    
     }
     return(0);

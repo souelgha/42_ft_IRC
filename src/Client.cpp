@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/07 11:50:32 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/07 15:13:50 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,43 +18,57 @@ Client::Client(void) { }
 Client::~Client(void) { }
 
 int Client::getFd() const {
-    return(this->cliFd);
+
+    return(this->fd);
 }
 
-std::string Client::getIpAddr() const {
-    return(this->cliAddr);
+std::string Client::getIpAddress() const {
+
+    return(this->ipAddress);
 }
 
 std::string const   &Client::getRealName() const {
+
     return(this->realName);
 }
 
 std::string const   &Client::getHostName() const {
+
     return(this->hostName);
 }
 
 std::string const   &Client::getUserName() const {
+
     return(this->userName);
 }
 
+<<<<<<< HEAD
 std::string Client::getNickName() const {
+=======
+std::string const   &Client::getNickName() const {
+
+>>>>>>> sarah
     return(this->nickName);
 }
 
 std::string const   &Client::getServerName() const {
+
     return(this->serverName);
 }
 
 std::string const   &Client::getMode() const {
+
     return(this->mode);
 }
 
 void    Client::setFd(int fd) {
 
-    this->cliFd = fd;
+    this->fd = fd;
 }
-void    Client::setIpAdd(std::string addr) {
-    this->cliAddr = addr;
+
+void    Client::setIpAddress(std::string address) {
+
+    this->ipAddress = address;
 }
 
 void    Client::setRealName(std::string const &realName) {
