@@ -417,36 +417,21 @@ void Server::SignalCatch(int signum)
     throw(std::runtime_error("Signal recu "));
 
 }
-void Server::createChannel(std::string const &name)
-{       
-    if(channels.find(name) == channels.end())
-    {
-        channels[name] = Channel(name);
-        channels.insert(std::make_pair(name, Channel(name)));
-    }
-
-}
 void Server::deleteChannel(std::string const &name)
 {
     if(channels.find(name) != channels.end())
         channels.erase(name);
 }
-Channel const & Server::getChannel(std::string nickname,std::string const &name)
+Channel & Server::getChannel(std::string const &nickname,std::string const &name)
 {
-    std::map<std::string, Channel>:: const_iterator i;
-    if(channels.find(name) != channels.end())
+   
+    if(channels.find(name) == channels.end())
     {
-        for( i= channels.begin(); i != channels.end(); ++i)
-            if(i->first == name)
-                return(i->second);
+        channels[name] = Channel(name);
+        channels[name].AddOper(nickname);
     }
-   else
-   {
-        
-        createChannel(name);
-        i->second.AddOper(nickname);
-        return(i->second);
-   }
+    Channel &channel=channels[name];
+    return(channel);
 
 }
  std::vector<std::string> Server::followlistChannels() 
@@ -456,14 +441,21 @@ Channel const & Server::getChannel(std::string nickname,std::string const &name)
         listChannel.push_back(it->first);
     return(listChannel);
  }
- void Server::HandleJoinCommand(std::string nickname, std::string channelname)
- {
-     
+ void Server::HandleJoinCommand(std::string const &nickname, std::string const &channelname)
+ {     
+    Channel channel = getChannel(nickname, channelname);
+    std::vector<std::string> Ope = channel.getOpers();
+    size_t i = 0;
+    for(i = 0; i < Ope.size(); i++)
     {
-       channel = getChannel(channelname);
-        channel->AddOper(nickname);
+        if(Ope[i] == nickname)
+            {
+                std::cout<<nickname<<": est un operateur."<< std::endl;
+                break;
+            }
     }
-    channel->AddUser(nickname);
+    if(i == Ope.size())
+        channel.AddUser(nickname);
     std::string welcomeMessage = ":" + nickname + " JOIN " + channelname + "\r\n";
     sendToClient(nickname, welcomeMessage);
  }

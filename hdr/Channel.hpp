@@ -15,6 +15,8 @@ class Channel
     
     public:
         Channel(std::string const &channelName);
+        Channel();
+        ~Channel();
 
         std::string getName() const;
         std::string getTopic() const;

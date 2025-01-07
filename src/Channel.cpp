@@ -1,5 +1,7 @@
 #include"Channel.hpp"
 
+Channel::Channel():name("default"), topic(""){}
+Channel::~Channel(){}
 Channel::Channel(std::string const &channelName)
 {
     this->name = channelName;

@@ -94,11 +94,10 @@ class Server
         static void SignalCatch(int signum);
 
         /* CHANNEL FUNCTIONS*/
-        void createChannel(std::string const &name);
         void deleteChannel(std::string const &name);
-        Channel const &getChannel(std::string const &name);
+        Channel &getChannel(std::string const &nickname, std::string const &name);
         std::vector<std::string> followlistChannels();
-        void HandleJoinCommand(std::string nickname, std::string chanelname);
+        void HandleJoinCommand(std::string const &nickname, std::string const &chanelname);
         void sendToClient(std::string const nickname, std::string const message);
  
 };
