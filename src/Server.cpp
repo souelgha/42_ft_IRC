@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 15:26:51 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/07 15:39:20 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/07 15:48:18 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ void    Server::serverInit(void)
     serverConnect();
 
     std::cout
-        << "En attente de nouvelles connexions..." << std::endl;
+        << RED << "En attente de nouvelles connexions..." << WHITE << std::endl;
     while (Server::signal == false)
     {
         if (poll(&this->fds[0], this->fds.size(), -1) == -1)
@@ -126,8 +126,8 @@ void Server::ReceiveMessage(Client &client)
     handleReceivedMessage(buffer, client);
     std::cout
         << YELLOW << "Le client avec fd " << client.getFd()
-        << " envoie le message:" << std::endl
-        << buffer << WHITE << std::endl;
+        << " envoie le message:" << WHITE << std::endl
+        << GREEN << buffer << WHITE << std::endl;
 }
 
 void Server::commandNick(std::string const &message, Client &client) {
@@ -233,7 +233,6 @@ void    Server::commandPing(std::string const &message, Client &client) {
     std::string ping;
 
     ping = message.substr(5, message.length() - 4);
-    std::cout << "ping: <" << ping << ">" << std::endl;
     try {
         answerPing(client, ping);
     }
