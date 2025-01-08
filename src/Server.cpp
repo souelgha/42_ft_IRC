@@ -261,7 +261,7 @@ void Server::handleReceivedMessage(char *buff, Client &client) {
                 commandWhois(message);
             if (command == "PING")
                 commandPing(message, client);
-            if (command == "JOIN")
+            if (command == "JOIN" || command =="/join")
                 HandleJoinCommand(client.getNickName(), message);
         }
         catch (std::exception &e) {
