@@ -16,10 +16,6 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 
-#ifndef BUFFER_SIZE
-# define BUFFER_SIZE 512
-#endif
-
 #ifndef MAX_CLIENTS
 # define MAX_CLIENTS 10
 #endif
@@ -63,22 +59,10 @@ class Server
         void        serverInit(void);
         void        serverConnect(void);
         void        newClient(void);
-        void        ReceiveMessage(Client &client);
-        void        handleReceivedMessage(char *buff, Client &client);
-        void        sendAnswer(std::string const &command, Client &client);
-        void        closeFds();
-        void        clearClients(int fd);
-        std::string getCommand(std::string message);
-        std::string getRealName(std::string message);
-        void        commandNick(std::string const &message, Client &client);
-        void        commandUser(std::string const &message, Client &client);
-        void        commandMode(std::string const &message);
-        void        commandWhois(std::string const &message);
-        void        commandPing(std::string const &message, Client &client);
-        void        answerUser(Client &client);
-        void        answerMode(Client &client);
-        void        answerWhois(Client &client);
-        void        answerPing(Client &client, std::string const &ping);
+        void        receiveMessage(Client &client);
+        void        reply(Client &client, std::string const &message);
+        void        closeFds(void);
+        void        clearClient(int fd);
         static void SignalCatch(int signum);
 
         /* CHANNEL FUNCTIONS*/
