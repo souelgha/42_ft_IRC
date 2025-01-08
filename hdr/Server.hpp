@@ -20,8 +20,8 @@
 # define MAX_CLIENTS 10
 #endif
 
-#ifndef DELIMITER
-# define DELIMITER "\r\n"
+#ifndef LISTENING_PORT
+# define LISTENING_PORT 6697
 #endif
 
 #define RED "\033[0;31m"
@@ -38,15 +38,15 @@ class Server
 {
     private:
 
-        static bool                 signal ;        // track du signal
-        int                         listen_port;    // port d'ecoute
-        int                         listen_fd;      // fd server
-        std::vector<struct pollfd>  fds;            // liste des fds
-        std::vector<Client>         clients;        // liste des clients
-        struct sockaddr_in          listenAddress;  // socket d'ecoute
-        struct sockaddr_in          clientAddress;  // socket client        
-        std::map<std::string, Channel>    channels; // map le nom des channel vers les obj Channel
-        std::vector<std::string>        listChannel; // liste des channels sur le server
+        static bool                     signal ;        // track du signal
+        int                             listen_port;    // port d'ecoute
+        int                             listen_fd;      // fd server
+        std::vector<struct pollfd>      fds;            // liste des fds
+        std::vector<Client>             clients;        // liste des clients
+        struct sockaddr_in              listenAddress;  // socket d'ecoute
+        struct sockaddr_in              clientAddress;  // socket client        
+        std::map<std::string, Channel>  channels;       // map le nom des channel vers les obj Channel
+        std::vector<std::string>        listChannel;    // liste des channels sur le server
         
     public:
 
@@ -55,6 +55,9 @@ class Server
 
         /* DESTRUCTOR */
         ~Server(void);
+
+        /* GETTERS */
+        int         getListenPort(void) const ;
 
         void        serverInit(void);
         void        serverConnect(void);

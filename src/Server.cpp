@@ -2,13 +2,17 @@
 
 bool    Server::signal = false;
 
-Server::Server(void) : listen_fd(-1) { }
+Server::Server(void) : listen_port(LISTENING_PORT), listen_fd(-1) { }
 
 Server::~Server(void) { }
 
+int Server::getListenPort(void) const {
+
+    return (this->listen_port);
+}
+
 void    Server::serverInit(void)
 {
-    this->listen_port = 5095;
     serverConnect();
 
     std::cout
@@ -16,8 +20,7 @@ void    Server::serverInit(void)
     while (Server::signal == false)
     {
         if (poll(&this->fds[0], this->fds.size(), -1) == -1)
-            throw(std::runtime_error("Failed to bind poll\n"));  
-        
+            throw(std::runtime_error("Failed to bind poll\n"));
         for (size_t i = 0; i < this->fds.size(); i++)
         {
             if (this->fds[i].revents & POLLIN)    // si un evenement a eu lieu
@@ -110,10 +113,10 @@ void Server::receiveMessage(Client &client)
         return ;
     }
     client.buffer[receivedBytes] = '\0';
-    std::cout
-        << YELLOW << "Le client avec fd " << client.getFd()
-        << " envoie le message:" << WHITE << std::endl
-        << GREEN << client.buffer << WHITE << std::endl;
+    // std::cout
+    //     << YELLOW << "Le client avec fd " << client.getFd()
+    //     << " envoie le message:" << WHITE << std::endl
+    //     << GREEN << client.buffer << WHITE << std::endl;
     client.commandReact(*this);
 }
 

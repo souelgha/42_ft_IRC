@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/08 15:30:20 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/08 16:28:00 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,37 +24,37 @@ int Client::getFd() const {
     return(this->fd);
 }
 
-std::string Client::getIpAddress() const {
+std::string Client::getIpAddress(void) const {
 
     return(this->ipAddress);
 }
 
-std::string const   &Client::getRealName() const {
+std::string const   &Client::getRealName(void) const {
 
     return(this->realName);
 }
 
-std::string const   &Client::getHostName() const {
+std::string const   &Client::getHostName(void) const {
 
     return(this->hostName);
 }
 
-std::string const   &Client::getUserName() const {
+std::string const   &Client::getUserName(void) const {
 
     return(this->userName);
 }
 
-std::string Client::getNickName() const {
+std::string Client::getNickName(void) const {
 
     return(this->nickName);
 }
 
-std::string const   &Client::getServerName() const {
+std::string const   &Client::getServerName(void) const {
 
     return(this->serverName);
 }
 
-std::string const   &Client::getMode() const {
+std::string const   &Client::getMode(void) const {
 
     return(this->mode);
 }
@@ -147,13 +147,13 @@ void    Client::commandReact(Server &server) {
     while (!buffer.empty() && buffer.find(DELIMITER) != std::string::npos)
     {
         message = extractMessage(buffer);
-        std::cout << "Message: <" << message << ">" << std::endl;
+        // std::cout << "Message: <" << message << ">" << std::endl;
         prefix = extractPrefix(message);
-        std::cout << "Prefix: <" << prefix << ">" << std::endl;
+        // std::cout << "Prefix: <" << prefix << ">" << std::endl;
         command = extractCommand(message);
-        std::cout << "Command: <" << command << ">" << std::endl;
+        // std::cout << "Command: <" << command << ">" << std::endl;
         parameter = message;
-        std::cout << "Parameter: <" << parameter << ">" << std::endl;
+        // std::cout << "Parameter: <" << parameter << ">" << std::endl;
         this->handleCommand(server, prefix, command, parameter);
         buffer = this->buffer;
     }
@@ -226,15 +226,15 @@ void    Client::commandMode(Server &server, std::string const &parameter) {
             + this->nickName + " :"
             + this->mode + "\r\n";
         server.reply(*this, message);
-        std::cout << "Client:" <<std::endl
-            << "fd: " << this->fd << std::endl
-            << "adresse IP: " << this->ipAddress << std::endl
-            << "real name: " << this->realName << std::endl
-            << "host name: " << this->hostName << std::endl
-            << "user name: " << this->userName << std::endl
-            << "nickname: " << this->nickName << std::endl
-            << "server name: " << this->serverName << std::endl
-            << "mode: " << this->mode << std::endl;
+        // std::cout << "Client:" <<std::endl
+        //     << "fd: " << this->fd << std::endl
+        //     << "adresse IP: " << this->ipAddress << std::endl
+        //     << "real name: " << this->realName << std::endl
+        //     << "host name: " << this->hostName << std::endl
+        //     << "user name: " << this->userName << std::endl
+        //     << "nickname: " << this->nickName << std::endl
+        //     << "server name: " << this->serverName << std::endl
+        //     << "mode: " << this->mode << std::endl;
     }
     catch (std::exception &e) {
         throw ;
