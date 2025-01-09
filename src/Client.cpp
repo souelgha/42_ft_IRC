@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Client.hpp"
+#include "Error.hpp"
 
 Client::Client(void) {
 
@@ -162,18 +163,18 @@ void    Client::commandReact(Server &server) {
 void    Client::commandNick(Server &server, std::string const &parameter) {
 
     std::string nickname;
-
-    try {
-        for (size_t i = 0; i < server.getClients().size(); i++)
+    for (size_t i = 0; i < server.getClients().size(); i++)
+    {
+        if (server.getClients()[i].getNickName() == parameter)
         {
-            if (server.getClients()[i].getNickName() == parameter)
-                throw (std::runtime_error("Nickname not available\n"));
+            server.reply(*this, ERR_NICKNAMEINUSE(this->serverName, parameter));
+            
+            return;
         }
-        this->setNickName(parameter);
     }
-    catch (std::exception &e) {
-        throw ;
-    }
+    this->setNickName(parameter);
+   
+       
 }
 
 std::string extractRealName(std::string parameter) {
@@ -202,14 +203,8 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
         this->setServerName(serverName);
         realName = extractRealName(parameter);
         this->setRealName(realName);
-        std::string message = ":"
-            + this->serverName + " 001 "
-            // + this->nickName + " :Welcome to the IRC Network "
-            // + this->nickName + "!"
-            // + this->nickName + "@"
-            + this->nickName
-            + "\r\n";
-        server.reply(*this, message);
+        server.reply(*this, RPL_WELCOME(this->serverName, this->nickName));        
+   
     }
     catch (std::exception &e) {
         throw;
@@ -227,11 +222,12 @@ void    Client::commandMode(Server &server, std::string const &parameter) {
     datas >> mode;
     try {
         this->setMode(mode);
-        std::string message = ":"
-            + this->serverName + " MODE "
-            + this->nickName + " :"
-            + this->mode + "\r\n";
-        server.reply(*this, message);
+        // std::string message = ":"
+        //     + this->serverName + " MODE "
+        //     + this->nickName + " :"
+        //     + this->mode + "\r\n";
+        // server.reply(*this, message);
+        server.reply(*this, RPL_UMODEIS(this->serverName, this->nickName, mode));
         std::cout << "Client:" <<std::endl
             << "fd: " << this->fd << std::endl
             << "adresse IP: " << this->ipAddress << std::endl
@@ -301,3 +297,9 @@ void    Client::handleCommand(Server &server, std::string const &, std::string c
     }
     // throw ;
 }
+
+
+/*
+server.reply(*this, ERR_ERRONEUSNICKNAME(this->serverName, this->nickName));
+server.reply(*this, ERR_NEEDMOREPARMs(this->serverName, this->nickName, "USER") );
+*/
