@@ -194,35 +194,35 @@ Channel & Server::getChannel(std::string const &nickname,std::string const &name
         listChannel.push_back(it->first);
     return(listChannel);
  }
- void Server::HandleJoinCommand(std::string const &nickname, std::string const &channelname)
- {     
+ void Server::HandleJoinCommand(std::string const &nickname, std::string const &msg)
+ {  
+    size_t m= msg.find('#');
+    std::string channelname= msg.substr(m+1, msg.length() - m);
+    std::cout<<"channelname:"<< channelname<< std::endl;
+
     Channel channel = getChannel(nickname, channelname);
-    std::vector<std::string> Ope = channel.getOpers();
-    size_t i = 0;
-    for(i = 0; i < Ope.size(); i++)
-    {
-        if(Ope[i] == nickname)
-            {
-                std::cout<<nickname<<": est un operateur."<< std::endl;
-                break;
-            }
-    }
-    if(i == Ope.size())
-        channel.AddUser(nickname);
+    if(!channel.IsOperator(nickname))
+        channel.AddUser(nickname);  
+    
     std::string welcomeMessage = ":" + nickname + " JOIN " + channelname + "\r\n";
+    std::cout<< nickname<<": nickname avant sendto"<< std::endl;
     sendToClient(nickname, welcomeMessage);
  }
- void Server::sendToClient(std::string const nickname, std::string const message)
- {
+void Server::sendToClient(std::string const &nickname, std::string const &message)
+{
+    // std::cout<<"message:<"<<message<< ">"<<std::endl; 
     for(size_t i = 0; i < clients.size(); i++)
     {
+        // std::cout<<"i="<<i<<std::endl;
+        // std::cout<<"vectordata:<"<<clients[i].getNickName()<<"> nickname: <"<<nickname<<">"<<std::endl;
+        
         if(clients[i].getNickName() == nickname)
         {  
-            send(clients[i].getFd(), message.c_str(), message.size(), 0);            
+            std::cout<< "sendToClient ici "<< std::endl;
+            int sentBytes= send(clients[i].getFd(), message.c_str(), message.size(), 0); 
+            if(sentBytes == -1)
+                throw(std::runtime_error("envoie msg canal apres JOIN impossible\n"));
+            break;
         }
-        else
-            throw(std::runtime_error("utilisateur introuvable\n"));
-
     }
-
- }
+}

@@ -74,6 +74,6 @@ class Server
         Channel &getChannel(std::string const &nickname, std::string const &name);
         std::vector<std::string> followlistChannels();
         void HandleJoinCommand(std::string const &nickname, std::string const &chanelname);
-        void sendToClient(std::string const nickname, std::string const message);
+        void sendToClient(std::string const &nickname, std::string const &message);
  
 };
