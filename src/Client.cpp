@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/09 10:07:17 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/09 10:28:16 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,10 +204,11 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
         this->setRealName(realName);
         std::string message = ":"
             + this->serverName + " 001 "
-            + this->nickName + " :Welcome to the IRC Network "
-            + this->nickName + "!"
-            + this->nickName + "@"
-            + this->nickName + "\r\n";
+            // + this->nickName + " :Welcome to the IRC Network "
+            // + this->nickName + "!"
+            // + this->nickName + "@"
+            + this->nickName
+            + "\r\n";
         server.reply(*this, message);
     }
     catch (std::exception &e) {
@@ -231,15 +232,15 @@ void    Client::commandMode(Server &server, std::string const &parameter) {
             + this->nickName + " :"
             + this->mode + "\r\n";
         server.reply(*this, message);
-        // std::cout << "Client:" <<std::endl
-        //     << "fd: " << this->fd << std::endl
-        //     << "adresse IP: " << this->ipAddress << std::endl
-        //     << "real name: " << this->realName << std::endl
-        //     << "host name: " << this->hostName << std::endl
-        //     << "user name: " << this->userName << std::endl
-        //     << "nickname: " << this->nickName << std::endl
-        //     << "server name: " << this->serverName << std::endl
-        //     << "mode: " << this->mode << std::endl;
+        std::cout << "Client:" <<std::endl
+            << "fd: " << this->fd << std::endl
+            << "adresse IP: " << this->ipAddress << std::endl
+            << "real name: " << this->realName << std::endl
+            << "host name: " << this->hostName << std::endl
+            << "user name: " << this->userName << std::endl
+            << "nickname: " << this->nickName << std::endl
+            << "server name: " << this->serverName << std::endl
+            << "mode: " << this->mode << std::endl;
     }
     catch (std::exception &e) {
         throw ;
