@@ -436,11 +436,11 @@ Channel & Server::getChannel(std::string const &nickname,std::string const &name
  }
 void Server::sendToClient(std::string const &nickname, std::string const &message)
 {
-    std::cout<<"message:<"<<message<< ">"<<std::endl; 
+    // std::cout<<"message:<"<<message<< ">"<<std::endl; 
     for(size_t i = 0; i < clients.size(); i++)
     {
-        std::cout<<"i="<<i<<std::endl;
-        std::cout<<"vectordata:<"<<clients[i].getNickName()<<"> nickname: <"<<nickname<<">"<<std::endl;
+        // std::cout<<"i="<<i<<std::endl;
+        // std::cout<<"vectordata:<"<<clients[i].getNickName()<<"> nickname: <"<<nickname<<">"<<std::endl;
         
         if(clients[i].getNickName() == nickname)
         {  
