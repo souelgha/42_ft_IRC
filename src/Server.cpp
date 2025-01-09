@@ -11,6 +11,11 @@ int Server::getListenPort(void) const {
     return (this->listen_port);
 }
 
+std::vector<Client> Server::getClients(void) const {
+
+    return (this->clients);
+}
+
 void    Server::serverInit(void)
 {
     serverConnect();

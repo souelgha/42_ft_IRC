@@ -57,16 +57,17 @@ class Server
         ~Server(void);
 
         /* GETTERS */
-        int         getListenPort(void) const ;
+        int                 getListenPort(void) const ;
+        std::vector<Client> getClients(void) const ;
 
-        void        serverInit(void);
-        void        serverConnect(void);
-        void        newClient(void);
-        void        receiveMessage(Client &client);
-        void        reply(Client &client, std::string const &message);
-        void        closeFds(void);
-        void        clearClient(int fd);
-        static void SignalCatch(int signum);
+        void                serverInit(void);
+        void                serverConnect(void);
+        void                newClient(void);
+        void                receiveMessage(Client &client);
+        void                reply(Client &client, std::string const &message);
+        void                closeFds(void);
+        void                clearClient(int fd);
+        static void         SignalCatch(int signum);
 
         /* CHANNEL FUNCTIONS*/
         void deleteChannel(std::string const &name);

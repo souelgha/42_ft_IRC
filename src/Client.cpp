@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/08 16:28:00 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/09 10:07:17 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,8 +86,8 @@ void    Client::setUserName(std::string const &userName) {
 
 void    Client::setNickName(std::string const &nickName) {
 
-    // if (nickName.length() > 9)
-    //     throw ;
+    if (nickName.length() > 9)
+        throw (std::runtime_error("Nickname too long\n"));
     this->nickName = nickName;
 }
 
@@ -159,11 +159,16 @@ void    Client::commandReact(Server &server) {
     }
 }
 
-void    Client::commandNick(Server &, std::string const &parameter) {
+void    Client::commandNick(Server &server, std::string const &parameter) {
 
     std::string nickname;
 
     try {
+        for (size_t i = 0; i < server.getClients().size(); i++)
+        {
+            if (server.getClients()[i].getNickName() == parameter)
+                throw (std::runtime_error("Nickname not available\n"));
+        }
         this->setNickName(parameter);
     }
     catch (std::exception &e) {
