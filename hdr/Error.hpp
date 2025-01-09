@@ -2,8 +2,8 @@
 
 #define CRLF "\r\n"
 
-#define RPL_WELCOME(nickname) (": 001 " + ":Welcome to the Internet Relay Network"+ nickname + "!"  + CRLF)
-#define RPL_UMODEIS(mode, user) ( ":" + " MODE " + mode + "FOR USER" + user + CRLF)
+#define RPL_WELCOME(servername, nickname) (std::string(":") + servername + " 001 " + nickname + CRLF)
+#define RPL_UMODEIS(servername, nickname, mode) (std::string(":") + servername + " MODE " + nickname + " :" + mode + CRLF)
 #define RPL_NAMREPLY(nickname, channelname) (": 353 " + nickname + " @ #" + channelname + " :" + clientslist + CRLF)
 #define RPL_TOPIC(channelname, topic) (": 332 " +channelname + " :" + topic + "\r\n")
 #define RPL_YOUREOPER

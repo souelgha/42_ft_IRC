@@ -15,6 +15,7 @@
 
 #include "Client.hpp"
 #include "Channel.hpp"
+#include "Error.hpp"
 
 #ifndef MAX_CLIENTS
 # define MAX_CLIENTS 10
@@ -22,6 +23,10 @@
 
 #ifndef LISTENING_PORT
 # define LISTENING_PORT 6697
+#endif
+
+#ifndef PASSWORD
+# define PASSWORD "password"
 #endif
 
 #define RED "\033[0;31m"
@@ -32,9 +37,10 @@
 #define CYAN "\033[0;36m"
 #define WHITE "\033[0;37m"
 
-class Client;
+class   Client;
+class   Channel;
 
-class Server
+class   Server
 {
     private:
 
@@ -57,23 +63,29 @@ class Server
         ~Server(void);
 
         /* GETTERS */
-        int                 getListenPort(void) const ;
-        std::vector<Client> getClients(void) const ;
+        int                             getListenPort(void) const ;
+        std::vector<Client>             getClients(void) const ;
+        std::map<std::string, Channel>  getChannels(void) const ;
 
-        void                serverInit(void);
-        void                serverConnect(void);
-        void                newClient(void);
-        void                receiveMessage(Client &client);
-        void                reply(Client &client, std::string const &message);
-        void                closeFds(void);
-        void                clearClient(int fd);
-        static void         SignalCatch(int signum);
+        void                            serverInit(void);
+        void                            serverConnect(void);
+        void                            newClient(void);
+        void                            receiveMessage(Client &client);
+        void                            closeFds(void);
+        void                            clearClient(int fd);
+        static void                     SignalCatch(int signum);
+
+        /* REPLIES */
+        void                            replyUser(Client &client);
+        void                            replyMode(Client &client);
+        void                            replyQuit(Client &client, std::string const &reason);
+        void                            replyWhois(Client &client);
+        void                            replyPing(Client &client, std::string const &pong);
+        void                            replyJoin(Client &client, Channel &channel);
+        void                            replyPart(Client &client, Channel &channel);
 
         /* CHANNEL FUNCTIONS*/
-        void deleteChannel(std::string const &name);
-        Channel &getChannel(std::string const &nickname, std::string const &name);
-        std::vector<std::string> followlistChannels();
-        void HandleJoinCommand(std::string const &nickname, std::string const &chanelname);
-        void sendToClient(std::string const &nickname, std::string const &message);
- 
+        Channel                         &getChannel(Client &client, std::string const &name);
+        std::vector<std::string>        followlistChannels(void); 
+        void                            deleteChannel(std::string const &name);
 };

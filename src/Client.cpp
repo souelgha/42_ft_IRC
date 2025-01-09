@@ -6,13 +6,13 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/09 10:28:16 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/09 16:46:04 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client(void) {
+Client::Client(void) : authentification(false) {
 
     std::fill(buffer, buffer + BUFFER_SIZE, 0);
 }
@@ -159,10 +159,44 @@ void    Client::commandReact(Server &server) {
     }
 }
 
+void    Client::handleCommand(Server &server, std::string const &, std::string const &command, std::string const &parameter) {
+    
+    void        (Client::*actions[8])(Server &, std::string const &) =
+        {&Client::commandPass, &Client::commandNick, &Client::commandUser,
+        &Client::commandMode, &Client::commandQuit, &Client::commandJoin,
+        &Client::commandWhois, &Client::commandPing};
+    std::string sent[] = {"PASS", "NICK", "USER", "MODE", "QUIT", "JOIN", "WHOIS", "PING"};
+    int         i;
+
+    for (i = 0; i < 8; i++)
+    {
+        if (command == sent[i])
+        {
+            try {
+                (this->*actions[i])(server, parameter);
+                return ;
+            }
+            catch (std::exception &e) {
+                throw ;
+            }
+        }
+    }
+    // throw ;
+}
+
+void    Client::commandPass(Server &, std::string const &) {
+
+    // if (parameter != PASSWORD)
+    //     throw (ERR_PASSWDMISMATCH (464));
+    this->authentification = true;
+}
+
 void    Client::commandNick(Server &server, std::string const &parameter) {
 
     std::string nickname;
 
+    // if (this->authentification == false)
+    //     throw (std::runtime_error("Not authentified\n"));
     try {
         for (size_t i = 0; i < server.getClients().size(); i++)
         {
@@ -193,6 +227,8 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
     std::string         serverName;
     std::string         realName;
 
+    // if (this->authentification == false)
+    //     throw (std::runtime_error("Not authentified\n"));
     try {
         datas >> userName;
         this->setUserName(userName);
@@ -202,14 +238,7 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
         this->setServerName(serverName);
         realName = extractRealName(parameter);
         this->setRealName(realName);
-        std::string message = ":"
-            + this->serverName + " 001 "
-            // + this->nickName + " :Welcome to the IRC Network "
-            // + this->nickName + "!"
-            // + this->nickName + "@"
-            + this->nickName
-            + "\r\n";
-        server.reply(*this, message);
+        server.replyUser(*this);
     }
     catch (std::exception &e) {
         throw;
@@ -227,37 +256,38 @@ void    Client::commandMode(Server &server, std::string const &parameter) {
     datas >> mode;
     try {
         this->setMode(mode);
-        std::string message = ":"
-            + this->serverName + " MODE "
-            + this->nickName + " :"
-            + this->mode + "\r\n";
-        server.reply(*this, message);
-        std::cout << "Client:" <<std::endl
-            << "fd: " << this->fd << std::endl
-            << "adresse IP: " << this->ipAddress << std::endl
-            << "real name: " << this->realName << std::endl
-            << "host name: " << this->hostName << std::endl
-            << "user name: " << this->userName << std::endl
-            << "nickname: " << this->nickName << std::endl
-            << "server name: " << this->serverName << std::endl
-            << "mode: " << this->mode << std::endl;
+        server.replyMode(*this);
+        // std::cout << "Client:" <<std::endl
+        //     << "fd: " << this->fd << std::endl
+        //     << "adresse IP: " << this->ipAddress << std::endl
+        //     << "real name: " << this->realName << std::endl
+        //     << "host name: " << this->hostName << std::endl
+        //     << "user name: " << this->userName << std::endl
+        //     << "nickname: " << this->nickName << std::endl
+        //     << "server name: " << this->serverName << std::endl
+        //     << "mode: " << this->mode << std::endl;
     }
     catch (std::exception &e) {
         throw ;
     }
 }
 
+void    Client::commandQuit(Server &server, std::string const &parameter) {
+
+    try {
+        server.replyQuit(*this, parameter);
+    }
+    catch (std::exception &e) {
+        throw ;
+    }
+
+}
+
 void    Client::commandWhois(Server &server, std::string const &) {
 
     // verification a faire parametre et client
     try {
-        std::string message = ":"
-            + this->serverName + " 311 "
-            + this->nickName + " "
-            + this->userName + " "
-            + this->hostName + " * :"
-            + this->realName + "\r\n";
-        server.reply(*this, message);
+        server.replyWhois(*this);
     }
     catch (std::exception &e) {
         std::cout << "Error in Whois" << std::endl;
@@ -268,36 +298,30 @@ void    Client::commandWhois(Server &server, std::string const &) {
 void    Client::commandPing(Server &server, std::string const &parameter) {
 
     try {
-        std::string message = ":"
-            + this->serverName + " PONG :"
-            + parameter + "\r\n";
-        server.reply(*this, message);
+        server.replyPing(*this, parameter);
     }
     catch (std::exception &e) {
         throw ;
     }
 }
 
-void    Client::handleCommand(Server &server, std::string const &, std::string const &command, std::string const &parameter) {
-    
-    void        (Client::*actions[5])(Server &, std::string const &) =
-        {&Client::commandNick, &Client::commandUser, &Client::commandMode,
-        &Client::commandWhois, &Client::commandPing};
-    std::string sent[] = {"NICK", "USER", "MODE", "WHOIS", "PING"};
-    int         i;
+void    Client::commandJoin(Server &server, std::string const &parameter)
+{  
+    std::string channelName = parameter.substr(1, parameter.length() - 1);
 
-    for (i = 0; i < 5; i++)
-    {
-        if (command == sent[i])
-        {
-            try {
-                (this->*actions[i])(server, parameter);
-                return ;
-            }
-            catch (std::exception &e) {
-                throw ;
-            }
-        }
-    }
-    // throw ;
+    Channel channel = server.getChannel(*this, channelName);
+    // if(!channel.IsOperator(this->nickName))
+    //     channel.AddUser(*this);  
+    
+    server.replyJoin(*this, channel);
+}
+
+void    Client::commandPart(Server &server, std::string const &parameter) {
+
+    std::istringstream  datas(parameter);
+    std::string         channelName;
+
+    datas >> channelName;
+    Channel channel = server.getChannel(*this, channelName);
+    server.replyPart(*this, channel);
 }

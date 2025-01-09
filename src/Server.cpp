@@ -118,21 +118,9 @@ void Server::receiveMessage(Client &client)
         return ;
     }
     client.buffer[receivedBytes] = '\0';
-    // std::cout
-    //     << YELLOW << "Le client avec fd " << client.getFd()
-    //     << " envoie le message:" << WHITE << std::endl
-    //     << GREEN << client.buffer << WHITE << std::endl;
+    std::cout
+        << YELLOW << client.buffer << WHITE << std::endl;
     client.commandReact(*this);
-}
-
-void    Server::reply(Client &client, std::string const &message) {
-
-    int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
-    if (sentBytes == -1)
-    {
-        std::cerr << "Failed to send message to client" << std::endl;
-        // throw ;
-    }
 }
 
 void Server::closeFds(void)
@@ -170,59 +158,151 @@ void Server::SignalCatch(int signum)
     signal = true;
     throw(std::runtime_error(""));
 }
-void Server::deleteChannel(std::string const &name)
-{
-    if(channels.find(name) != channels.end())
-        channels.erase(name);
-}
-Channel & Server::getChannel(std::string const &nickname,std::string const &name)
-{
-   
-    if(channels.find(name) == channels.end())
-    {
-        channels[name] = Channel(name);
-        channels[name].AddOper(nickname);
-    }
-    Channel &channel=channels[name];
-    return(channel);
 
-}
- std::vector<std::string> Server::followlistChannels() 
- {
-    std::map<std::string, Channel>::const_iterator it;
-    for(it =  channels.begin(); it != channels.end(); ++it)
-        listChannel.push_back(it->first);
-    return(listChannel);
- }
- void Server::HandleJoinCommand(std::string const &nickname, std::string const &msg)
- {  
-    size_t m= msg.find('#');
-    std::string channelname= msg.substr(m+1, msg.length() - m);
-    std::cout<<"channelname:"<< channelname<< std::endl;
+void    Server::replyUser(Client &client) {
 
-    Channel channel = getChannel(nickname, channelname);
-    if(!channel.IsOperator(nickname))
-        channel.AddUser(nickname);  
+    std::string const message = RPL_WELCOME(client.getServerName(), client.getNickName());
+
+    int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
+    if (sentBytes == -1)
+        throw(std::runtime_error("Failed to send message to client\n")) ;
+}
+
+void    Server::replyMode(Client &client) {
+
+    std::string const message = RPL_UMODEIS(client.getServerName(), client.getNickName(), client.getMode());
+
+    int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
+    if (sentBytes == -1)
+        throw(std::runtime_error("Failed to send message to client\n")) ;
+}
+
+void    Server::replyQuit(Client &client, std::string const &reason) {
+
+    std::string message = ":"
+            + client.getServerName()
+            + "QUIT";
     
-    std::string welcomeMessage = ":" + nickname + " JOIN " + channelname + "\r\n";
-    std::cout<< nickname<<": nickname avant sendto"<< std::endl;
-    sendToClient(nickname, welcomeMessage);
- }
-void Server::sendToClient(std::string const &nickname, std::string const &message)
-{
-    // std::cout<<"message:<"<<message<< ">"<<std::endl; 
-    for(size_t i = 0; i < clients.size(); i++)
+    if (!reason.empty())
+        message += ": " + reason;
+    message += "\r\n";
+
+    int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
+    if (sentBytes == -1)
+        throw(std::runtime_error("Failed to send message to client\n")) ;
+    clearClient(client.getFd());
+}
+
+void    Server::replyWhois(Client &client) {
+
+        std::string message = ":"
+            + client.getServerName() + " 311 "
+            + client.getNickName() + " "
+            + client.getUserName() + " "
+            + client.getHostName() + " * :"
+            + client.getRealName() + "\r\n";
+
+    int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
+    if (sentBytes == -1)
+        throw(std::runtime_error("Failed to send message to client\n")) ;
+}
+
+void    Server::replyPing(Client &client, std::string const &pong) {
+
+        std::string message = ":"
+            + client.getServerName() + " PONG :"
+            + pong + "\r\n";
+
+    int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
+    if (sentBytes == -1)
+        throw(std::runtime_error("Failed to send message to client\n")) ;
+}
+
+void    Server::replyJoin(Client &client, Channel &channel) {
+
     {
-        // std::cout<<"i="<<i<<std::endl;
-        // std::cout<<"vectordata:<"<<clients[i].getNickName()<<"> nickname: <"<<nickname<<">"<<std::endl;
-        
-        if(clients[i].getNickName() == nickname)
-        {  
-            std::cout<< "sendToClient ici "<< std::endl;
-            int sentBytes= send(clients[i].getFd(), message.c_str(), message.size(), 0); 
-            if(sentBytes == -1)
-                throw(std::runtime_error("envoie msg canal apres JOIN impossible\n"));
-            break;
+        std::string message = ":" + client.getServerName() + " JOIN :" + channel.getName() + "\r\n";
+
+        for (size_t i = 0; i < channel.getUsers().size(); i++)
+        {
+            int sentBytes = send(channel.getUsers()[i].getFd(), message.c_str(), message.length(), 0);
+            if (sentBytes == -1)
+                throw(std::runtime_error("Failed to send message to client\n")) ;
         }
     }
+
+    // Le serveur envoie ensuite une liste des utilisateurs presents dans le canal. Le format est:
+    //     :<servername> 353 <nickname> = <channel> :<users>
+    //     353: code numerique pour RPL_NAMREPLY
+    //     <nickname>: nom de l'utilisateur qui a rejoint le canal
+    //     <channel>: nom du canal
+    //     <users>: liste des utilisateurs dans le canal, separes par des espace. Les prefixes (@, +) indiquent les privileges (operateurs, ...)
+    {
+        std::string message = ":" + client.getServerName() + " 353 " + client.getNickName() + " = " + channel.getName() + " :";
+
+        for (size_t i = 0; i < channel.getUsers().size(); i++)
+            message += channel.getUsers()[i].getNickName();
+        message +=  + "\r\n";
+
+        int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
+        if (sentBytes == -1)
+            throw(std::runtime_error("Failed to send message to client\n")) ;
+    }
+
+    // Le serveur termine avec un message:
+    //     :<servername> 366 <nickname> <channel> :End of /NAMES list
+    //     366: code numerique pour RPL_ENDOFNAMES
+    //     <nickname>: nom de l'utilisateur qui a rejoint le canal
+    //     <channel>: nom du canal
+    {
+        std::string message = ":" + client.getServerName() + " 366 " + client.getNickName() + channel.getName() + "\r\n";
+
+        int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
+        if (sentBytes == -1)
+            throw(std::runtime_error("Failed to send message to client\n")) ;
+    }
+
+    // Le serveur peut envoyer un message facultatif RPL_TOPIC
+    //     :<servername> 332 <nickname> <channel> :<topic>
+}
+
+void    Server::replyPart(Client &client, Channel &channel) {
+
+    channel.RemUser(client);
+    channel.RemOper(client.getNickName());
+
+    std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@"
+        + client.getHostName() + " PART " + channel.getName() + "\r\n";
+    for (size_t i = 0; i < channel.getUsers().size(); i++)
+    {
+        int sentBytes = send(channel.getUsers()[i].getFd(), message.c_str(), message.length(), 0);
+        if (sentBytes == -1)
+            throw(std::runtime_error("Failed to send message to client\n")) ;
+    }
+}
+
+Channel &Server::getChannel(Client &client, std::string const &name)
+{
+    if (channels.find(name) == channels.end())
+    {
+        channels[name] = Channel(name);
+        channels[name].AddUser(client);
+        channels[name].AddOper(client.getNickName());
+    }
+    Channel &channel = channels[name];
+    return(channel);
+}
+
+std::vector<std::string>    Server::followlistChannels(void) 
+{
+    std::map<std::string, Channel>::const_iterator  it;
+    for (it = channels.begin(); it != channels.end(); ++it)
+        listChannel.push_back(it->first);
+    return (listChannel);
+}
+
+void    Server::deleteChannel(std::string const &name)
+{
+    if (channels.find(name) != channels.end())
+        channels.erase(name);
 }

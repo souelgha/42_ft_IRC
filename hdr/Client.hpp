@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:27 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/08 15:30:57 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/09 15:51:50 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,10 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include <vector>
+
 #include "Server.hpp"
+#include "Error.hpp"
 
 #ifndef BUFFER_SIZE
 # define BUFFER_SIZE 512
@@ -33,6 +36,8 @@ class   Client
 
         int             fd;                     // fd du client
         std::string     ipAddress;              // adresse socket client
+
+        bool            authentification;
 
         std::string     realName;
         std::string     hostName;
@@ -76,9 +81,15 @@ class   Client
         void                handleCommand(Server &server, std::string const &, std::string const &command, std::string const &parameter);
 
         /* COMMANDS */
+        void                commandPass(Server &, std::string const &);
         void                commandNick(Server &, std::string const &parameter);
         void                commandUser(Server &server, std::string const &parameter);
         void                commandMode(Server &server, std::string const &parameter);
+        void                commandQuit(Server &server, std::string const &parameter);
         void                commandWhois(Server &server, std::string const &);
         void                commandPing(Server &server, std::string const &parameter);
+
+        /* CHANNEL COMMANDS */
+        void                commandJoin(Server &server, std::string const &parameter);
+        void                commandPart(Server &server, std::string const &parameter);
 };
