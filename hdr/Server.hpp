@@ -15,7 +15,7 @@
 
 #include "Client.hpp"
 #include "Channel.hpp"
-#include "Error.hpp"
+#include "RPL_ERR.hpp"
 
 #ifndef MAX_CLIENTS
 # define MAX_CLIENTS 10
@@ -26,7 +26,7 @@
 #endif
 
 #ifndef PASSWORD
-# define PASSWORD "password"
+# define PASSWORD "42projet"
 #endif
 
 #define RED "\033[0;31m"

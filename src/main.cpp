@@ -13,28 +13,31 @@
 #include "Client.hpp"
 #include "Server.hpp"
 
-static void checkPort(char const *argument, int listening_port) {
+static void checkArgs(char **argv, int listening_port) {
 
-    for (size_t i = 0; argument[i]; i++)
+    for (size_t i = 0; argv[1][i]; i++)
     {
-        if (!isdigit(argument[i]))
-            throw(std::runtime_error("Wrong argument\n"));
+        if (!isdigit(argv[1][i]))
+            throw(std::runtime_error("Wrong port\n"));
     }
-    if (atoi(argument) != listening_port)
-        throw(std::runtime_error("Wrong argument\n"));
+    if (atoi(argv[1]) != listening_port)
+        throw(std::runtime_error("Wrong port\n"));
+    //ajout du check du password et enregistrement du pwd
+    if(strcmp(argv[2], PASSWORD) != 0)
+        throw(std::runtime_error("Wrong password\n"));
 }
 
 int main(int argc, char **argv) {
 
     Server server;
 
-    if (argc != 2)  // a modifier: 2 => 3
+    if (argc != 3)  // a modifier: 2 => 3
     {
-        std::cerr << "Usage: ./ircserv <port>" /* <password>" */ << std::endl;
+        std::cerr << "Usage: ./ircserv <port> <password>" /* <password>" */ << std::endl;
         return (1);
     }
     try {
-        checkPort(argv[1], server.getListenPort());
+        checkArgs(argv, server.getListenPort());
         signal(SIGINT, Server::SignalCatch);
         signal(SIGQUIT, Server::SignalCatch);
         server.serverInit();

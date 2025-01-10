@@ -11,3 +11,15 @@ pour le parsing
    these messages SHALL NOT exceed 512 characters in length, counting all characters including
    the trailing CR-LF. Thus, there are 510 characters maximum allowed
    for the command and its parameters. 
+
+  source          ::=  <servername> / ( <nickname> [ "!" <user> ] [ "@" <host> ] )
+  nick            ::=  <any characters except NUL, CR, LF, chantype character, and SPACE> <possibly empty sequence of any characters except NUL, CR, LF, and SPACE>
+  user            ::=  <sequence of any characters except NUL, CR, LF, and SPACE>
+
+  command         ::=  letter* / 3digit
+
+
+ /connect 127.0.0.1 6697 55  
+ argv[3] = PASS 
+ il faut analyser que le pwd recu du client est le bon = argv[3] . /ircserver 6697 55
+ 

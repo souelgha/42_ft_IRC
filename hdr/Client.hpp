@@ -18,7 +18,7 @@
 #include <vector>
 
 #include "Server.hpp"
-#include "Error.hpp"
+#include "RPL_ERR.hpp"
 
 #ifndef BUFFER_SIZE
 # define BUFFER_SIZE 512

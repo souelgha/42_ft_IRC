@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "Client.hpp"
-#include "Error.hpp"
+
 
 Client::Client(void) : authentification(false) {
 
@@ -237,7 +237,7 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
         this->setServerName(serverName);
         realName = extractRealName(parameter);
         this->setRealName(realName);
-        server.reply(*this, RPL_WELCOME(this->serverName, this->nickName));        
+        // server.reply(*this, RPL_WELCOME(this->serverName, this->nickName));        
    
         server.replyUser(*this);
     }
