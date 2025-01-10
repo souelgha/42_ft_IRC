@@ -125,6 +125,10 @@ void Server::receiveMessage(Client &client)
     client.buffer[receivedBytes] = '\0';
     // std::cout
     //     << YELLOW << "<< " << client.buffer << WHITE << std::flush;
+    std::cout
+        << YELLOW << "Le client avec fd " << client.getFd()
+        << " envoie le message:" << WHITE << std::endl
+        << GREEN << client.buffer << WHITE << std::endl;
     client.commandReact(*this);
 }
 

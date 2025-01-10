@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Client.hpp"
+#include "Error.hpp"
 
 Client::Client(void) : authentification(false) {
 
@@ -236,6 +237,8 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
         this->setServerName(serverName);
         realName = extractRealName(parameter);
         this->setRealName(realName);
+        server.reply(*this, RPL_WELCOME(this->serverName, this->nickName));        
+   
         server.replyUser(*this);
     }
     catch (std::exception &e) {
@@ -349,3 +352,9 @@ void    Client::commandPrivmsg(Server &server, std::string const &parameter)
         // server.replyPrivmsgChannel(*this, channel, message);
     }
 }
+
+
+/*
+server.reply(*this, ERR_ERRONEUSNICKNAME(this->serverName, this->nickName));
+server.reply(*this, ERR_NEEDMOREPARMs(this->serverName, this->nickName, "USER") );
+*/

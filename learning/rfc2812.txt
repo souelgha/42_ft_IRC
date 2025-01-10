@@ -969,7 +969,7 @@ RFC 2812          Internet Relay Chat: Client Protocol        April 2000
 
    Numeric Replies:
 
-           ERR_NEEDMOREPARAMS              ERR_KEYSET
+           ERR_NEEDMOREPARAMS              
            ERR_NOCHANMODES                 ERR_CHANOPRIVSNEEDED
            ERR_USERNOTINCHANNEL            ERR_UNKNOWNMODE
            RPL_CHANNELMODEIS
@@ -3208,7 +3208,7 @@ RFC 2812          Internet Relay Chat: Client Protocol        April 2000
          - Sent by a server to a user to inform that access to the
            server will soon be denied.
 
-       467    ERR_KEYSET
+       467    
               "<channel> :Channel key already set"
        471    ERR_CHANNELISFULL
               "<channel> :Cannot join channel (+l)"
