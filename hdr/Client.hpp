@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:27 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/09 15:51:50 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/10 12:51:19 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,7 @@ class   Client
         void                commandQuit(Server &server, std::string const &parameter);
         void                commandWhois(Server &server, std::string const &);
         void                commandPing(Server &server, std::string const &parameter);
+        void                commandPrivmsg(Server &server, std::string const &parameter);
 
         /* CHANNEL COMMANDS */
         void                commandJoin(Server &server, std::string const &parameter);

@@ -65,7 +65,7 @@ class   Server
         /* GETTERS */
         int                             getListenPort(void) const ;
         std::vector<Client>             getClients(void) const ;
-        std::map<std::string, Channel>  getChannels(void) const ;
+        std::map<std::string, Channel>  &getChannels(void) ;
 
         void                            serverInit(void);
         void                            serverConnect(void);
@@ -74,6 +74,7 @@ class   Server
         void                            closeFds(void);
         void                            clearClient(int fd);
         static void                     SignalCatch(int signum);
+        Client                         &findClient(std::string const &name);
 
         /* REPLIES */
         void                            replyUser(Client &client);
@@ -83,9 +84,12 @@ class   Server
         void                            replyPing(Client &client, std::string const &pong);
         void                            replyJoin(Client &client, Channel &channel);
         void                            replyPart(Client &client, Channel &channel);
+        void                            replyPrivmsgClient(Client &sender, Client &recipient, std::string const &toSend);
+        // void                            replyPrivmsgChannel(Client &client, Channel &channel, std::string const &toSend);
+
 
         /* CHANNEL FUNCTIONS*/
-        Channel                         &getChannel(Client &client, std::string const &name);
+        Channel                         &findChannel(Client &client, std::string const &name);
         std::vector<std::string>        followlistChannels(void); 
         void                            deleteChannel(std::string const &name);
 };

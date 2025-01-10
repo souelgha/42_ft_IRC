@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/09 16:46:04 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/10 15:44:02 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,13 +147,10 @@ void    Client::commandReact(Server &server) {
     while (!buffer.empty() && buffer.find(DELIMITER) != std::string::npos)
     {
         message = extractMessage(buffer);
-        // std::cout << "Message: <" << message << ">" << std::endl;
+        std::cout << "<< " << message << std::endl;
         prefix = extractPrefix(message);
-        // std::cout << "Prefix: <" << prefix << ">" << std::endl;
         command = extractCommand(message);
-        // std::cout << "Command: <" << command << ">" << std::endl;
         parameter = message;
-        // std::cout << "Parameter: <" << parameter << ">" << std::endl;
         this->handleCommand(server, prefix, command, parameter);
         buffer = this->buffer;
     }
@@ -161,14 +158,15 @@ void    Client::commandReact(Server &server) {
 
 void    Client::handleCommand(Server &server, std::string const &, std::string const &command, std::string const &parameter) {
     
-    void        (Client::*actions[8])(Server &, std::string const &) =
+    void        (Client::*actions[10])(Server &, std::string const &) =
         {&Client::commandPass, &Client::commandNick, &Client::commandUser,
-        &Client::commandMode, &Client::commandQuit, &Client::commandJoin,
+        &Client::commandMode, &Client::commandQuit,
+        &Client::commandJoin, &Client::commandPart, &Client::commandPrivmsg,
         &Client::commandWhois, &Client::commandPing};
-    std::string sent[] = {"PASS", "NICK", "USER", "MODE", "QUIT", "JOIN", "WHOIS", "PING"};
+    std::string sent[] = {"PASS", "NICK", "USER", "MODE", "QUIT", "JOIN", "PART", "PRIVMSG", "WHOIS", "PING"};
     int         i;
 
-    for (i = 0; i < 8; i++)
+    for (i = 0; i < 10; i++)
     {
         if (command == sent[i])
         {
@@ -307,21 +305,47 @@ void    Client::commandPing(Server &server, std::string const &parameter) {
 
 void    Client::commandJoin(Server &server, std::string const &parameter)
 {  
-    std::string channelName = parameter.substr(1, parameter.length() - 1);
+    // std::string channelName = parameter.substr(1, parameter.length() - 1);
 
-    Channel channel = server.getChannel(*this, channelName);
+    Channel channel = server.findChannel(*this, parameter);
+    // Channel channel = server.findChannel(*this, channelName);
     // if(!channel.IsOperator(this->nickName))
     //     channel.AddUser(*this);  
     
     server.replyJoin(*this, channel);
 }
 
-void    Client::commandPart(Server &server, std::string const &parameter) {
+void    Client::commandPart(Server &server, std::string const &channelName) {
 
-    std::istringstream  datas(parameter);
-    std::string         channelName;
-
-    datas >> channelName;
-    Channel channel = server.getChannel(*this, channelName);
+    Channel &channel = server.getChannels()[channelName];
     server.replyPart(*this, channel);
+}
+
+void    Client::commandPrivmsg(Server &server, std::string const &parameter)
+{  
+    std::istringstream  datas(parameter);
+    std::string         recipient;
+    std::string         message;
+
+    datas >> recipient;
+    std::getline(datas >> std::ws, message);
+    message = message.substr(1, message.length() - 1);
+    // if (datas.fail())
+    //     throw(std::runtime_error("Not enough parameters\n"));
+    if (server.getChannels().find(recipient) == server.getChannels().end())
+    {
+        try {
+            Client  client = server.findClient(recipient);
+            server.replyPrivmsgClient(*this, client, message);
+        }
+        catch (std::exception &e) {
+            throw ;
+        }
+    }
+    else
+    {
+        return ;
+        // Channel &channel = server.getChannels()[recipient];
+        // server.replyPrivmsgChannel(*this, channel, message);
+    }
 }

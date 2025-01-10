@@ -38,7 +38,4 @@ class Channel
         
         std::vector<Client> const   &getUsers(void) const;
         std::set<std::string> const &getOpers(void) const;
-
-
-
 };
