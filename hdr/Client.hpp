@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:27 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/10 12:51:19 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/10 17:01:06 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include <vector>
 
 #include "Server.hpp"
-#include "Error.hpp"
+#include "RPL_ERR.hpp"
 
 #ifndef BUFFER_SIZE
 # define BUFFER_SIZE 512

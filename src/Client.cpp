@@ -6,12 +6,11 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/10 15:44:02 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/10 17:28:19 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
-#include "Error.hpp"
 
 Client::Client(void) : authentification(false) {
 
@@ -237,8 +236,7 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
         this->setServerName(serverName);
         realName = extractRealName(parameter);
         this->setRealName(realName);
-        server.reply(*this, RPL_WELCOME(this->serverName, this->nickName));        
-   
+
         server.replyUser(*this);
     }
     catch (std::exception &e) {
@@ -347,9 +345,8 @@ void    Client::commandPrivmsg(Server &server, std::string const &parameter)
     }
     else
     {
-        return ;
-        // Channel &channel = server.getChannels()[recipient];
-        // server.replyPrivmsgChannel(*this, channel, message);
+        Channel &channel = server.getChannels()[recipient];
+        server.replyPrivmsgChannel(*this, channel, message);
     }
 }
 

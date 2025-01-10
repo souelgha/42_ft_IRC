@@ -324,15 +324,29 @@ void    Server::replyPart(Client &client, Channel &channel) {
 
 void    Server::replyPrivmsgClient(Client &sender, Client &recipient, std::string const &toSend) {
 
-    std::string message = ":" + recipient.getNickName() + toSend + "\r\n";
+    std::string message = ":" + sender.getNickName() + " PRIVMSG " + recipient.getNickName() + " " + toSend + "\r\n";
 
         std::cout << ">> " << message << std::flush;
-    int sentBytes = send(sender.getFd(), message.c_str(), message.length(), 0);
+    int sentBytes = send(recipient.getFd(), message.c_str(), message.length(), 0);
     if (sentBytes == -1)
         throw(std::runtime_error("Failed to send message to client\n")) ;
 }
 
-// server.replyPrivmsgChannel(*this, channel, toSend);
+void    Server::replyPrivmsgChannel(Client &sender, Channel &channel, std::string const &toSend) {
+
+    std::string message = ":" + sender.getNickName() + " PRIVMSG " + channel.getName() + " :" + toSend + "\r\n";
+
+    std::cout << ">> " << message << std::flush;
+    for (size_t i = 0; i < channel.getUsers().size(); i++)
+    {
+        if (channel.getUsers()[i].getNickName() != sender.getNickName())
+        {
+            int sentBytes = send(channel.getUsers()[i].getFd(), message.c_str(), message.length(), 0);
+            if (sentBytes == -1)
+                throw(std::runtime_error("Failed to send message to client\n")) ;
+        }
+    }
+}
 
 Channel &Server::findChannel(Client &client, std::string const &name)
 {

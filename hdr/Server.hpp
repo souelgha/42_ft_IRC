@@ -15,7 +15,7 @@
 
 #include "Client.hpp"
 #include "Channel.hpp"
-#include "Error.hpp"
+#include "RPL_ERR.hpp"
 
 #ifndef MAX_CLIENTS
 # define MAX_CLIENTS 10
@@ -85,7 +85,7 @@ class   Server
         void                            replyJoin(Client &client, Channel &channel);
         void                            replyPart(Client &client, Channel &channel);
         void                            replyPrivmsgClient(Client &sender, Client &recipient, std::string const &toSend);
-        // void                            replyPrivmsgChannel(Client &client, Channel &channel, std::string const &toSend);
+        void                            replyPrivmsgChannel(Client &client, Channel &channel, std::string const &toSend);
 
 
         /* CHANNEL FUNCTIONS*/
