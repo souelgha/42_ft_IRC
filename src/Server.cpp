@@ -207,6 +207,7 @@ Channel & Server::getChannel(std::string const &nickname,std::string const &name
     std::string welcomeMessage = ":" + nickname + " JOIN " + channelname + "\r\n";
     std::cout<< nickname<<": nickname avant sendto"<< std::endl;
     sendToClient(nickname, welcomeMessage);
+    
  }
 void Server::sendToClient(std::string const &nickname, std::string const &message)
 {
