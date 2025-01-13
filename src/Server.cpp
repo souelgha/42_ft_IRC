@@ -47,17 +47,15 @@ void    Server::serverInit(void)
 
 void    Server::serverConnect(void)
 {
-    this->listenAddress.sin_family = AF_INET;                     // pour IPV4
-    this->listenAddress.sin_port = htons(this->listen_port);      // convertit le port dans le bon format
-    this->listenAddress.sin_addr.s_addr = INADDR_ANY;             // ecoute tous les ports
-    socklen_t listenAddressLength = sizeof(this->listenAddress);  // taille de l'adresse
+    this->listenAddress.sin_family = AF_INET;                     
+    this->listenAddress.sin_port = htons(this->listen_port);      
+    this->listenAddress.sin_addr.s_addr = INADDR_ANY;             
+    socklen_t listenAddressLength = sizeof(this->listenAddress);  
 
-    // ouvre la liaison
     this->listen_fd = socket(AF_INET, SOCK_STREAM, 0);
     if(this->listen_fd == -1)
         throw(std::runtime_error("Failed to initialise socket\n"));
 
-    // initialise les options (SO_REUSEADDR => pour reutiliser l'adresse)
     int en = 1;
 	if(setsockopt(this->listen_fd, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(en)) == -1)
 		throw(std::runtime_error("Failed to set option on socket\n"));
@@ -112,7 +110,7 @@ void Server::newClient(void)
 void Server::receiveMessage(Client &client)
 {
     std::cout
-        << YELLOW << "Message received from " << client.getNickName() << " (" << client.getFd() << "):" << WHITE << std::endl;
+        << YELLOW << "Message received from " << client.getNickName() << " client (" << client.getFd() << "):" << WHITE << std::endl;
 
     int     receivedBytes = recv(client.getFd(), client.buffer, BUFFER_SIZE, 0);
     if (receivedBytes == -1)
@@ -123,13 +121,12 @@ void Server::receiveMessage(Client &client)
         return ;
     }
     client.buffer[receivedBytes] = '\0';
-    // std::cout
-    //     << YELLOW << "<< " << client.buffer << WHITE << std::flush;
-    std::cout
-        << YELLOW << "Le client avec fd " << client.getFd()
-        << " envoie le message:" << WHITE << std::endl
-        << GREEN << client.buffer << WHITE << std::endl;
-    client.commandReact(*this);
+ 
+    // client.commandReact(*this);
+    if(client.commandConnect(*this))
+        client.commandReact(*this);
+    else
+        clearClient(client.getFd());
 }
 
 void Server::closeFds(void)
@@ -167,10 +164,38 @@ void Server::SignalCatch(int signum)
     signal = true;
     throw(std::runtime_error(""));
 }
+void    Server::replyWrongConnect(Client &client) {
 
+    std::string const message = ERR_PASSWDMISMATCH(client.getServerName(), client.getNickName());
+
+    std::cout << ">> " << message << std::flush;
+    int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
+    if (sentBytes == -1)
+        throw(std::runtime_error("Failed to send message to client\n")) ;
+
+}
 void    Server::replyUser(Client &client) {
 
     std::string const message = RPL_WELCOME(client.getServerName(), client.getNickName());
+
+    std::cout << ">> " << message << std::flush;
+    int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
+    if (sentBytes == -1)
+        throw(std::runtime_error("Failed to send message to client\n")) ;
+}
+void    Server::replyNick(Client &client, std::string const &newnick) {
+
+    std::string const message = ":"+client.getSourceName()+  " NICK :"+newnick+ CRLF;
+
+    std::cout << ">> " << message << std::flush;
+    int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
+    if (sentBytes == -1)
+        throw(std::runtime_error("Failed to send message to client\n")) ;
+}
+void    Server::replyErrNick(Client &client) {
+
+    
+    std::string const message = ERR_NICKNAMEINUSE(client.getServerName(), client.getNickName());
 
     std::cout << ">> " << message << std::flush;
     int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);

@@ -44,6 +44,7 @@ class   Client
         std::string     userName;
         std::string     nickName;
         std::string     serverName;
+        std::string     sourceName;
         std::string     mode;
 
     public:
@@ -64,6 +65,7 @@ class   Client
         std::string const   &getUserName() const;
         std::string         getNickName() const; // mod sonia
         std::string const   &getServerName() const;
+        std::string const   &getSourceName() const;
         std::string const   &getMode() const ;
 
         /* SETTERS */
@@ -75,13 +77,15 @@ class   Client
         void                setNickName(std::string const &nickName);
         void                setServerName(std::string const &serverName);
         void                setMode(std::string const &mode);
+        void                setSourceName(void);
 
         void                commandReact(Server &server);
         std::string         extractMessage(std::string const &buffer);
         void                handleCommand(Server &server, std::string const &, std::string const &command, std::string const &parameter);
+        bool                commandConnect(Server &server);
 
         /* COMMANDS */
-        void                commandPass(Server &, std::string const &);
+        void                commandPass(Server &, std::string const &parameter);
         void                commandNick(Server &, std::string const &parameter);
         void                commandUser(Server &server, std::string const &parameter);
         void                commandMode(Server &server, std::string const &parameter);
@@ -89,6 +93,7 @@ class   Client
         void                commandWhois(Server &server, std::string const &);
         void                commandPing(Server &server, std::string const &parameter);
         void                commandPrivmsg(Server &server, std::string const &parameter);
+
 
         /* CHANNEL COMMANDS */
         void                commandJoin(Server &server, std::string const &parameter);

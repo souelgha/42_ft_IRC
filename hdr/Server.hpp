@@ -26,7 +26,7 @@
 #endif
 
 #ifndef PASSWORD
-# define PASSWORD "42projet"
+# define PASSWORD "42"
 #endif
 
 #define RED "\033[0;31m"
@@ -78,6 +78,7 @@ class   Server
 
         /* REPLIES */
         void                            replyUser(Client &client);
+        void                            replyNick(Client &client, std::string const &newnick);
         void                            replyMode(Client &client);
         void                            replyQuit(Client &client, std::string const &reason);
         void                            replyWhois(Client &client);
@@ -86,7 +87,10 @@ class   Server
         void                            replyPart(Client &client, Channel &channel);
         void                            replyPrivmsgClient(Client &sender, Client &recipient, std::string const &toSend);
         // void                            replyPrivmsgChannel(Client &client, Channel &channel, std::string const &toSend);
-
+       
+       /* REPLY ERRORS */
+        void                            replyWrongConnect(Client &client);
+        void                            replyErrNick(Client &client);    
 
         /* CHANNEL FUNCTIONS*/
         Channel                         &findChannel(Client &client, std::string const &name);

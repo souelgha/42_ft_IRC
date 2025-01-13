@@ -54,7 +54,10 @@ std::string const   &Client::getServerName(void) const {
 
     return(this->serverName);
 }
+std::string const   &Client::getSourceName(void) const {
 
+    return(this->sourceName);
+}
 std::string const   &Client::getMode(void) const {
 
     return(this->mode);
@@ -96,6 +99,11 @@ void    Client::setServerName(std::string const &serverName) {
 
     this->serverName = serverName;
 }
+void    Client::setSourceName(void) {
+
+    std::string sourceName = this->nickName + "!" + this->userName + "@" + this->hostName;
+    this->sourceName = sourceName;
+}
 
 void    Client::setMode(std::string const &mode) {
 
@@ -136,6 +144,37 @@ std::string extractCommand(std::string &message) {
     std::getline(split >> std::ws, message);
     return (command);
 }
+
+bool    Client::commandConnect(Server &server) 
+{
+    std::string buffer = this->buffer;
+    // std::cout << RED<< "buf connect " << buffer<< WHITE << std::endl;
+    std::size_t cap=buffer.find("CAP");
+    std::size_t pwd = buffer.find("PASS");
+    std::size_t data = buffer.find(PASSWORD);
+    if(cap!=std::string::npos && pwd==std::string::npos)
+    {
+        server.replyWrongConnect(*this);
+        return(false);
+    }
+    else if(cap!=std::string::npos && pwd!=std::string::npos && data==std::string::npos)
+    {
+        server.replyWrongConnect(*this);
+        return(false);
+    }
+    else
+        return(true);
+}
+
+void    Client::commandPass(Server &server, std::string const &parameter) {
+
+    if (parameter != PASSWORD)
+    {
+        server.replyWrongConnect(*this);
+    }
+    this->authentification = true;
+}
+//si trouve CAP LS => check si PASS existe
 
 void    Client::commandReact(Server &server) {
 
@@ -183,30 +222,31 @@ void    Client::handleCommand(Server &server, std::string const &, std::string c
     // throw ;
 }
 
-void    Client::commandPass(Server &, std::string const &) {
 
-    // if (parameter != PASSWORD)
-    //     throw (ERR_PASSWDMISMATCH (464));
-    this->authentification = true;
-}
 
-void    Client::commandNick(Server &server, std::string const &parameter) {
-
-    std::string nickname;
-
-    // if (this->authentification == false)
-    //     throw (std::runtime_error("Not authentified\n"));
-    try {
+void    Client::commandNick(Server &server, std::string const &parameter) 
+{
+    std::string oldnick;
+//check si nick name is used ERR_NICKNAMEINUSE
+//char invalids ERR_ERRONEUSNICKNAME// manque le parametre de du nickname ERR_NONICKNAMEGIVEN
+//message a envoye quand on change de Nickmane: "commande =>:WiZ NICK Kilroy          ; message => WiZ changed his nickname to Kilroy.
+//:Guest65529!~sonouelg@c88c-7273-6bb-ab79-b772.210.62.ip NICK :fred74477
+    
         for (size_t i = 0; i < server.getClients().size(); i++)
         {
             if (server.getClients()[i].getNickName() == parameter)
-                throw (std::runtime_error("Nickname not available\n"));
+            {
+                server.replyErrNick(*this);
+                return;
+            }
         }
+        oldnick = this->nickName;
+        server.replyNick(*this, parameter);
+        // :Guest65529!~sonouelg@c88c-7273-6bb-ab79-b772.210.62.ip NICK :fred74477   
         this->setNickName(parameter);
-    }
-    catch (std::exception &e) {
-        throw ;
-    }
+        this->setSourceName();
+        std::cout<< "Nvx NickName: <"<< this->nickName<< ">"<<std::endl;
+        std::cout<< "sourceName: <"<< this->sourceName<< ">"<<std::endl;
 }
 
 std::string extractRealName(std::string parameter) {
@@ -237,9 +277,11 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
         this->setServerName(serverName);
         realName = extractRealName(parameter);
         this->setRealName(realName);
-        // server.reply(*this, RPL_WELCOME(this->serverName, this->nickName));        
+        this->setSourceName();
+     
    
         server.replyUser(*this);
+        std::cout<<"welcome sourcename:<"<< sourceName<<">"<<std::endl;
     }
     catch (std::exception &e) {
         throw;

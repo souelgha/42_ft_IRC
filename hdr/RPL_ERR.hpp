@@ -24,11 +24,11 @@
 
 /* COMMAND PRIVMSG /INVITE */
 /* ERRORS communes des plusieurs  COMMAND ==> PASS / USER/ OPER /SQUIT /JOIN /PART /MODE /TOPIC /INVITE /KICK /CONNECT et USERMODES  */
-#define ERR_NEEDMOREPARMs(servername, nickname, command) (std::string(":")+ servername  +" 461 " + nickname + " " + command + " :Not enough parameters" + CRLF)
+#define ERR_NEEDMOREPARMS(servername, nickname, command) (std::string(":")+ servername  +" 461 " + nickname + " " + command + " :Not enough parameters" + CRLF)
 
 /* COMMAND PRIVMSG /KILL/INVITE  ERRORS */
 //Used to indicate the nickname parameter supplied to a command is currently unused.
-#define ERR_NOSUCHNICK(nickname) (std::string(":")+ servername +" 401 " + nickname +" "+ nickname + " :No such nick/channel" + CRLF )
+#define ERR_NOSUCHNICK(servername, nickname) (std::string(":")+ servername +" 401 " + nickname +" "+ nickname + " :No such nick/channel" + CRLF )
 /* COMMAND PRIVMSG  ERRORS */
 #define ERR_CANNOTSENDTOCHAN(servername, nickname,channelname) (std::string(":") + servername + " 404 " + nickname + channelname + " :Cannot send to channel" + CRLF) 
  
@@ -40,7 +40,7 @@
 #define ERR_KEYSET(servername,nickname, channelname) (std::string(":")+ servername +" 467 " + nickname + " #" + channelname + " :Channel key already set" + CRLF)
 
 /****** COMMAND MODE ERRORS sur le CHANNEL char => mode inconnu par ex j de -j********/
-#define ERR_UNKNOWNMODE(servername,nickname,char, channelname) (std::string(":")+ servername +" 472"+ nickname + char+ " #" + channelname + " :is unknown mode char to me for " + channelname + CRLF)
+#define ERR_UNKNOWNMODE(servername,nickname,char, channelname) (std::string(":")+ servername +" 472 "+ nickname + char+ " #" + channelname + " :is unknown mode char to me for " + channelname + CRLF)
 
 // /* COMMAND MODE/TOPIC/INVITE ERRORS */
 //un utilisateur qui n a pas ls droits. des qu une commande est faite ss les droits oper*/
@@ -52,7 +52,7 @@
 // /* COMMAND NICK ERRORS */
 //Returned when a nickname parameter expected for a command and isn't found.
 #define ERR_NONICKNAMEGIVEN(servername, nickname) (std::string(":")+ servername  +" 431 " + nickname + " :No nickname given" + CRLF )
-#define ERR_NICKNAMEINUSE(servername, nickname) (std::string(":")+ servername  +" 433 " + nickname +" "+ nickname + " :Nickname is already in use" + CRLF)
+#define ERR_NICKNAMEINUSE(servername, nickname) (std::string(":")+ servername  +" 433 " + nickname + " :" + CRLF)
 //quand le pseudo est invalid : ne respecte pas les regles 
 #define ERR_ERRONEUSNICKNAME(servername,nickname) (std::string(":")+ servername  + " 432 " + nickname +" "+ nickname +  " :Erroneus nickname" + CRLF)
 
