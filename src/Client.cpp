@@ -342,6 +342,9 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
     }
 }
 
+
+
+
 void    Client::commandMode(Server &server, std::string const &parameter) {
 
     std::istringstream  datas(parameter);
