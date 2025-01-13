@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/10 17:28:19 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/13 17:08:18 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 Client::Client(void) : authentification(false) {
 
     std::fill(buffer, buffer + BUFFER_SIZE, 0);
+    std::fill(mode, mode + 3, 0);
 }
 
 Client::~Client(void) { }
@@ -54,7 +55,12 @@ std::string const   &Client::getServerName(void) const {
     return(this->serverName);
 }
 
-std::string const   &Client::getMode(void) const {
+std::string const   &Client::getSourceName(void) const {
+
+    return(this->sourceName);
+}
+
+char    *Client::getMode(void) {
 
     return(this->mode);
 }
@@ -96,9 +102,43 @@ void    Client::setServerName(std::string const &serverName) {
     this->serverName = serverName;
 }
 
-void    Client::setMode(std::string const &mode) {
+void    Client::setSourceName(void) {
 
-    this->mode = mode;
+    std::string sourceName = this->nickName + "!" + this->userName + "@" + this->hostName;
+    this->sourceName = sourceName;
+}
+
+void    Client::setMode(std::string const &mode) {
+    
+    for (size_t i = 0; mode[i]; i++)
+    {
+        if (mode[i] == '+')
+        {
+            i++;
+            for (; mode[i] && isalpha(mode[i]); i++)
+            {
+                if (mode[i] == 'i')
+                    this->mode[0] = 1;
+                else if (mode[i] == 's')
+                    this->mode[1] = 1;
+                else if (mode[i] == 'w')
+                    this->mode[2] = 1;
+            }
+        }
+        if (mode[i] == '-')
+        {
+            i++;
+            for (; mode[i] && isalpha(mode[i]); i++)
+            {
+                if (mode[i] == 'i')
+                    this->mode[0] = 0;
+                else if (mode[i] == 's')
+                    this->mode[1] = 0;
+                else if (mode[i] == 'w')
+                    this->mode[2] = 0;
+            }
+        }
+    }
 }
 
 std::string Client::extractMessage(std::string const &buffer) {
@@ -158,15 +198,16 @@ void    Client::commandReact(Server &server) {
 
 void    Client::handleCommand(Server &server, std::string const &, std::string const &command, std::string const &parameter) {
     
-    void        (Client::*actions[10])(Server &, std::string const &) =
+    void        (Client::*actions[11])(Server &, std::string const &) =
         {&Client::commandPass, &Client::commandNick, &Client::commandUser,
         &Client::commandMode, &Client::commandQuit,
         &Client::commandJoin, &Client::commandPart, &Client::commandPrivmsg,
+        &Client::commandTopic,
         &Client::commandWhois, &Client::commandPing};
-    std::string sent[] = {"PASS", "NICK", "USER", "MODE", "QUIT", "JOIN", "PART", "PRIVMSG", "WHOIS", "PING"};
+    std::string sent[] = {"PASS", "NICK", "USER", "MODE", "QUIT", "JOIN", "PART", "PRIVMSG", "TOPIC", "WHOIS", "PING"};
     int         i;
 
-    for (i = 0; i < 10; i++)
+    for (i = 0; i < 11; i++)
     {
         if (command == sent[i])
         {
@@ -210,11 +251,15 @@ void    Client::commandNick(Server &server, std::string const &parameter) {
 
 std::string extractRealName(std::string parameter) {
 
-    size_t i = parameter.find(':');
+    if (parameter.empty())
+        return ("");
 
-    // if (i == std::string::npos)
-    //     throw Error;
-    return (parameter.substr(i + 1, parameter.length() - i));
+    size_t i = parameter.find(':');
+    if (i == std::string::npos)
+        throw std::runtime_error("Wrong format in USER command\n");
+
+    std::string realName = parameter.substr(i + 1, parameter.length() - i);
+    return (realName);
 }
 
 void    Client::commandUser(Server &server, std::string const &parameter) {
@@ -229,42 +274,70 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
     //     throw (std::runtime_error("Not authentified\n"));
     try {
         datas >> userName;
+        // if (datas.fail())
+        //     throw UserCommandException();
         this->setUserName(userName);
         datas >> hostName;
+        // if (datas.fail())
+            // throw UserCommandException();
         this->setHostName(hostName);
         datas >> serverName;
+        // if (datas.fail())
+            // throw UserCommandException();
         this->setServerName(serverName);
         realName = extractRealName(parameter);
+        // if (realName.empty())
+            // throw UserCommandException();
         this->setRealName(realName);
+        this->setSourceName();
 
         server.replyUser(*this);
     }
-    catch (std::exception &e) {
-        throw;
+    catch (std::runtime_error &e) {
+            throw;
     }
 }
 
 void    Client::commandMode(Server &server, std::string const &parameter) {
 
     std::istringstream  datas(parameter);
+    std::string         recipient;
     std::string         mode;
-    std::string         nickname;
 
-    datas >> nickname;
+    datas >> recipient;
     // verification a faire
     datas >> mode;
     try {
-        this->setMode(mode);
-        server.replyMode(*this);
-        // std::cout << "Client:" <<std::endl
-        //     << "fd: " << this->fd << std::endl
-        //     << "adresse IP: " << this->ipAddress << std::endl
-        //     << "real name: " << this->realName << std::endl
-        //     << "host name: " << this->hostName << std::endl
-        //     << "user name: " << this->userName << std::endl
-        //     << "nickname: " << this->nickName << std::endl
-        //     << "server name: " << this->serverName << std::endl
-        //     << "mode: " << this->mode << std::endl;
+        if (server.getChannels().find(recipient) == server.getChannels().end())
+        {
+            char    previous[3];
+            std::memcpy(previous, this->getMode(), 3);
+            this->setMode(mode);
+            size_t  i;
+            for (i = 0; i < 3; i++)
+            {
+                if (previous[i] != this->getMode()[i])
+                    break ;
+            }
+            if (i != 3)
+                server.replyModeClient(*this);
+            // std::cout << "Client:" <<std::endl
+            //     << "fd: " << this->fd << std::endl
+            //     << "adresse IP: " << this->ipAddress << std::endl
+            //     << "real name: " << this->realName << std::endl
+            //     << "host name: " << this->hostName << std::endl
+            //     << "user name: " << this->userName << std::endl
+            //     << "nickname: " << this->nickName << std::endl
+            //     << "source kname: " << this->sourceName << std::endl
+            //     << "server name: " << this->serverName << std::endl
+            //     << "mode: " << this->mode << std::endl;
+        }
+        else
+        {
+            Channel &channel = server.getChannels()[recipient];
+            channel.setMode(mode);
+            server.replyModeChannel(*this, channel);
+        }
     }
     catch (std::exception &e) {
         throw ;
@@ -274,7 +347,10 @@ void    Client::commandMode(Server &server, std::string const &parameter) {
 void    Client::commandQuit(Server &server, std::string const &parameter) {
 
     try {
-        server.replyQuit(*this, parameter);
+        std::string   reason = parameter;
+        if (!parameter.empty())
+            reason = parameter.substr(1, parameter.length() - 1);
+        server.replyQuit(*this, reason);
     }
     catch (std::exception &e) {
         throw ;
@@ -306,18 +382,26 @@ void    Client::commandPing(Server &server, std::string const &parameter) {
 
 void    Client::commandJoin(Server &server, std::string const &parameter)
 {  
-    // std::string channelName = parameter.substr(1, parameter.length() - 1);
+    std::string channelName = "";
 
-    Channel channel = server.findChannel(*this, parameter);
+    if (parameter [0] != '#' && parameter[0] != '$')    // verifier les symboles # et $ d'appelation de canaux.
+        channelName = "#";
+    channelName += parameter;
+    Channel channel = server.findChannel(*this, channelName);
     // Channel channel = server.findChannel(*this, channelName);
-    // if(!channel.IsOperator(this->nickName))
+    // if(!channel.isOperator(this->nickName))
     //     channel.AddUser(*this);  
     
     server.replyJoin(*this, channel);
 }
 
-void    Client::commandPart(Server &server, std::string const &channelName) {
+void    Client::commandPart(Server &server, std::string const &parameter) {
 
+    std::string channelName = "";
+
+    if (parameter [0] != '#' && parameter[0] != '$')    // verifier les symboles # et $ d'appelation de canaux.
+        channelName = "#";
+    channelName += parameter;
     Channel &channel = server.getChannels()[channelName];
     server.replyPart(*this, channel);
 }
@@ -348,6 +432,24 @@ void    Client::commandPrivmsg(Server &server, std::string const &parameter)
         Channel &channel = server.getChannels()[recipient];
         server.replyPrivmsgChannel(*this, channel, message);
     }
+}
+
+void    Client::commandTopic(Server &server, std::string const &parameter) {
+
+    std::istringstream  datas(parameter);
+    std::string         channelName;
+    std::string         newTopic;
+
+    // if (!channel.isOperator(this->getNickName())
+        // return error ;
+    datas >> channelName;
+    std::getline(datas >> std::ws, newTopic);
+    newTopic = newTopic.substr(1, newTopic.length() - 1);
+
+    Channel &channel = server.getChannels()[channelName];
+    // proteger si channel n'existe pas
+
+    server.replyTopic(*this, channel, newTopic);
 }
 
 

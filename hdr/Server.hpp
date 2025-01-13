@@ -78,7 +78,8 @@ class   Server
 
         /* REPLIES */
         void                            replyUser(Client &client);
-        void                            replyMode(Client &client);
+        void                            replyModeClient(Client &client);
+        void                            replyModeChannel(Client &client, Channel &);
         void                            replyQuit(Client &client, std::string const &reason);
         void                            replyWhois(Client &client);
         void                            replyPing(Client &client, std::string const &pong);
@@ -86,7 +87,7 @@ class   Server
         void                            replyPart(Client &client, Channel &channel);
         void                            replyPrivmsgClient(Client &sender, Client &recipient, std::string const &toSend);
         void                            replyPrivmsgChannel(Client &client, Channel &channel, std::string const &toSend);
-
+        void                            replyTopic(Client &client, Channel &channel, std::string const &topic);
 
         /* CHANNEL FUNCTIONS*/
         Channel                         &findChannel(Client &client, std::string const &name);

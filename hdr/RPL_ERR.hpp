@@ -2,12 +2,12 @@
 
 #define CRLF "\r\n"
 /************************************************                 RESPONSES              **************************************************************/
-#define RPL_WELCOME(servername, nickname) (std::string(":") + servername + " 001 "  + nickname +" :Welcome to the IRC Network "+ nickname + CRLF)
+#define RPL_WELCOME(servername, nickname) (std::string(":") + servername + " 001 "  + nickname +" :Welcome to the IRC Network " + nickname + CRLF)
 #define RPL_YOURHOST(servername, nickname) (std::string(":") + servername + " 002 "  + nickname +" :Your host is "+ servername + CRLF)
 #define RPL_UMODEIS(servername, nickname, mode) (std::string(":") + servername + " MODE " + nickname + " :" + mode + CRLF)
 //NAMEREPLY & ENDOFNAMES vont ensemble
-#define RPL_NAMREPLY(servername, nickname, channelname) (std::string(":") + servername + " 353 " + nickname + " @ # *" + channelname + " :" + nickname + CRLF)
-#define RPL_ENDOFNAMES(servername, nickname, channelname) (std::string(":") + servername + " 366 " + nickname + " "+channel+ ":End of NAMES list"+ CRLF)
+#define RPL_NAMREPLY(servername, nickname, channelname) (std::string(":") + servername + " 353 " + nickname + " = " + channelname + " :")
+#define RPL_ENDOFNAMES(servername, nickname, channelname) (std::string(":") + servername + " 366 " + nickname + " " + channelname + " :End of /NAMES list" + CRLF)
 /* COMMAND JOIN TOPIC */
 #define RPL_TOPIC(servername, nickname,channelname, topic) (std::string(":") + servername + " 332 " +nickname +" "+channelname + " :" + topic + CRLF)
 #define RPL_NOTOPIC(servername, nickname,channelname) (std::string(":") + servername + " 331 " + nickname +" "+channelname + " :No topic is set" + CRLF)
@@ -24,7 +24,7 @@
 
 /* COMMAND PRIVMSG /INVITE */
 /* ERRORS communes des plusieurs  COMMAND ==> PASS / USER/ OPER /SQUIT /JOIN /PART /MODE /TOPIC /INVITE /KICK /CONNECT et USERMODES  */
-#define ERR_NEEDMOREPARMs(servername, nickname, command) (std::string(":")+ servername  +" 461 " + nickname + " " + command + " :Not enough parameters" + CRLF)
+#define ERR_NEEDMOREPARMS(servername, nickname, command) (std::string(":") + servername  +" 461 " + nickname + " " + command + " :Not enough parameters" + CRLF)
 
 /* COMMAND PRIVMSG /KILL/INVITE  ERRORS */
 //Used to indicate the nickname parameter supplied to a command is currently unused.

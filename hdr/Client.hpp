@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:27 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/10 17:01:06 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/13 17:06:43 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,8 @@ class   Client
         std::string     userName;
         std::string     nickName;
         std::string     serverName;
-        std::string     mode;
+        std::string     sourceName;
+        char            mode[4];   // i s w
 
     public:
 
@@ -64,7 +65,8 @@ class   Client
         std::string const   &getUserName() const;
         std::string         getNickName() const; // mod sonia
         std::string const   &getServerName() const;
-        std::string const   &getMode() const ;
+        std::string const   &getSourceName() const;
+        char                *getMode() ;
 
         /* SETTERS */
         void                setFd(int fd);
@@ -74,6 +76,7 @@ class   Client
         void                setUserName(std::string const &userName);
         void                setNickName(std::string const &nickName);
         void                setServerName(std::string const &serverName);
+        void                setSourceName(void);
         void                setMode(std::string const &mode);
 
         void                commandReact(Server &server);
@@ -93,4 +96,6 @@ class   Client
         /* CHANNEL COMMANDS */
         void                commandJoin(Server &server, std::string const &parameter);
         void                commandPart(Server &server, std::string const &parameter);
+        void                commandTopic(Server &server, std::string const &parameter);
+
 };
