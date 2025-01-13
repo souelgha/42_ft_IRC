@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:27 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/10 12:51:19 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/13 17:28:26 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "Server.hpp"
+#include "RPL_ERR.hpp"
 #include "RPL_ERR.hpp"
 
 #ifndef BUFFER_SIZE
@@ -45,7 +46,8 @@ class   Client
         std::string     nickName;
         std::string     serverName;
         std::string     sourceName;
-        std::string     mode;
+        char            mode[4];   // i s w
+        std::string     sourceName;
 
     public:
 
@@ -67,6 +69,8 @@ class   Client
         std::string const   &getServerName() const;
         std::string const   &getSourceName() const;
         std::string const   &getMode() const ;
+        std::string const   &getSourceName() const;
+        char                *getMode() ;
 
         /* SETTERS */
         void                setFd(int fd);
@@ -76,6 +80,7 @@ class   Client
         void                setUserName(std::string const &userName);
         void                setNickName(std::string const &nickName);
         void                setServerName(std::string const &serverName);
+        void                setSourceName(void);
         void                setMode(std::string const &mode);
         void                setSourceName(void);
 
@@ -98,4 +103,6 @@ class   Client
         /* CHANNEL COMMANDS */
         void                commandJoin(Server &server, std::string const &parameter);
         void                commandPart(Server &server, std::string const &parameter);
+        void                commandTopic(Server &server, std::string const &parameter);
+
 };

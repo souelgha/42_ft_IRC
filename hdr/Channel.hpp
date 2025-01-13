@@ -14,6 +14,7 @@ class Channel
     private:
         std::string             name;
         std::string             topic;
+        char                    mode[5];   // i k l o t
         std::vector<Client>     users;
         std::set<std::string>   operators;
     
@@ -24,8 +25,10 @@ class Channel
 
         std::string getName() const;
         std::string getTopic() const;
+        char const  *getMode() const;
 
-        void setTopic(std::string  const &newTopic);
+        void setTopic(std::string const &newTopic);
+        void setMode(std::string const &mode);
 
         void AddUser(Client &client);
         void RemUser(Client &client);
@@ -34,7 +37,7 @@ class Channel
         void RemOper(std::string const &nickname);
 
         bool IsUser(std::string const &nickname);
-        bool IsOperator(std::string const &nickname);
+        bool isOperator(std::string const &nickname);
         
         std::vector<Client> const   &getUsers(void) const;
         std::set<std::string> const &getOpers(void) const;

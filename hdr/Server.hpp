@@ -16,6 +16,7 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "RPL_ERR.hpp"
+#include "RPL_ERR.hpp"
 
 #ifndef MAX_CLIENTS
 # define MAX_CLIENTS 10
@@ -79,13 +80,16 @@ class   Server
         /* REPLIES */
         void                            replyUser(Client &client);
         void                            replyNick(Client &client, std::string const &newnick);
-        void                            replyMode(Client &client);
+        void                            replyModeClient(Client &client);
+        void                            replyModeChannel(Client &client, Channel &);
         void                            replyQuit(Client &client, std::string const &reason);
         void                            replyWhois(Client &client);
         void                            replyPing(Client &client, std::string const &pong);
         void                            replyJoin(Client &client, Channel &channel);
         void                            replyPart(Client &client, Channel &channel);
         void                            replyPrivmsgClient(Client &sender, Client &recipient, std::string const &toSend);
+        void                            replyPrivmsgChannel(Client &client, Channel &channel, std::string const &toSend);
+        void                            replyTopic(Client &client, Channel &channel, std::string const &topic);
         // void                            replyPrivmsgChannel(Client &client, Channel &channel, std::string const &toSend);
        
        /* REPLY ERRORS */
