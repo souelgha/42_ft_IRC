@@ -79,7 +79,7 @@ class   Server
 
         /* REPLIES */
         void                            replyUser(Client &client);
-        void                            replyNick(Client &client, std::string const &newnick);
+        // void                            replyNick(Client &client, std::string const &newnick);
         void                            replyModeClient(Client &client);
         void                            replyModeChannel(Client &client, Channel &);
         void                            replyQuit(Client &client, std::string const &reason);
@@ -94,7 +94,7 @@ class   Server
        
        /* REPLY ERRORS */
         void                            replyWrongConnect(Client &client);
-        void                            replyErrNick(Client &client);    
+        // void                            replyErrNick(Client &client);    
 
         /* CHANNEL FUNCTIONS*/
         Channel                         &findChannel(Client &client, std::string const &name);

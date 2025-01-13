@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:27 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/13 17:28:26 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/13 17:36:49 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,6 @@ class   Client
         std::string     userName;
         std::string     nickName;
         std::string     serverName;
-        std::string     sourceName;
         char            mode[4];   // i s w
         std::string     sourceName;
 
@@ -69,7 +68,6 @@ class   Client
         std::string const   &getServerName() const;
         std::string const   &getSourceName() const;
         std::string const   &getMode() const ;
-        std::string const   &getSourceName() const;
         char                *getMode() ;
 
         /* SETTERS */
@@ -80,7 +78,6 @@ class   Client
         void                setUserName(std::string const &userName);
         void                setNickName(std::string const &nickName);
         void                setServerName(std::string const &serverName);
-        void                setSourceName(void);
         void                setMode(std::string const &mode);
         void                setSourceName(void);
 

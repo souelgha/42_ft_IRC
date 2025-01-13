@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/13 17:30:25 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/13 17:39:23 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,10 +65,6 @@ char    *Client::getMode(void) {
 
     return(this->mode);
 }
-std::string const   &Client::getMode(void) const {
-
-    return(this->mode);
-}
 
 void    Client::setFd(int fd) {
 
@@ -106,12 +102,6 @@ void    Client::setServerName(std::string const &serverName) {
 
     this->serverName = serverName;
 }
-void    Client::setSourceName(void) {
-
-    std::string sourceName = this->nickName + "!" + this->userName + "@" + this->hostName;
-    this->sourceName = sourceName;
-}
-
 void    Client::setSourceName(void) {
 
     std::string sourceName = this->nickName + "!" + this->userName + "@" + this->hostName;
@@ -278,12 +268,12 @@ void    Client::commandNick(Server &server, std::string const &parameter)
         {
             if (server.getClients()[i].getNickName() == parameter)
             {
-                server.replyErrNick(*this);
+                // server.replyErrNick(*this);
                 return;
             }
         }
         oldnick = this->nickName;
-        server.replyNick(*this, parameter);
+        // server.replyNick(*this, parameter);
         // :Guest65529!~sonouelg@c88c-7273-6bb-ab79-b772.210.62.ip NICK :fred74477   
         this->setNickName(parameter);
         this->setSourceName();
