@@ -15,10 +15,18 @@
 //envoi qd user =>ope dans le channel
 #define RPL_YOUREOPER(servername, nickname,channelname) (std::string(":") + servername + " 381 " + nickname +channelname + " :You are now an IRC operator" + CRLF)
 #define RPL_WHOISOPERATOR(servername, nickname,channelname) (std::string(":") + servername + " 313 " + nickname +" " +nickname+ " :is an IRC operator of #" + channelname+ CRLF)
-#define RPL_ENDOFWHOIS(servername, nickname) (std::string(":") + servername + " 318 " + nickname +" " +nickname+ " :End of WHOIS list" + CRLF)
+#define RPL_ENDOFWHOIS(servername, nickname) (std::string(":") + servername + " 318 " + nickname + " " +nickname+ " :End of WHOIS list" + CRLF)
+#define RPL_CHANNELMODEIS1(sourcename, channelname, channelmode) (std::string(":") + sourcename + " MODE " + " " + channelname + " " + channelmode + CRLF)
+#define RPL_CHANNELMODEIS2(servername, nickname, channelname, channelmode) (std::string(":") + servername + " 324 " + nickname + " " + channelname + " " + channelmode + CRLF)
+
+/* COMMAND KICK */
+#define RPL_KICK(sourcename, channelname, recipient, reason) (std::string(":") + sourcename + " KICK " + channelname + " " + recipient + " " + recipient + " :" + reason + CRLF)
 
 /* COMMAND INVITE */
-#define RPL_INVITING(servername, nickname1, nickname2,channelname) (std::string(":") + servername + " 341 " + nickname2 + " " +nickname1+" INVITE " + nickname2 +" #"+ channelname + CRLF)
+#define RPL_INVITING(servername, sender, recipient, channelname) (std::string(":") + servername + " 341 " + sender + " " + recipient + " " + channelname + CRLF)
+
+/* COMMAND WHOIS */
+#define RPL_WHOISUSER(servername, nickname, username, hostname, realname) (std::string(":") + servername + " 311 " + nickname + " " + username + " " + hostname + " * :" + realname + CRLF)
 
 /************************************************                 ERRORS             **************************************************************/
 

@@ -16,7 +16,6 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "RPL_ERR.hpp"
-#include "RPL_ERR.hpp"
 
 #ifndef MAX_CLIENTS
 # define MAX_CLIENTS 10
@@ -65,7 +64,7 @@ class   Server
 
         /* GETTERS */
         int                             getListenPort(void) const ;
-        std::vector<Client>             getClients(void) const ;
+        std::vector<Client>             &getClients(void) ;
         std::map<std::string, Channel>  &getChannels(void) ;
 
         void                            serverInit(void);
@@ -74,30 +73,29 @@ class   Server
         void                            receiveMessage(Client &client);
         void                            closeFds(void);
         void                            clearClient(int fd);
-        static void                     SignalCatch(int signum);
-        Client                         &findClient(std::string const &name);
+        static void                     signalCatch(int signum);
+        Client                          &findClient(std::string const &name);
 
         /* REPLIES */
-        void                            replyUser(Client &client);
-        // void                            replyNick(Client &client, std::string const &newnick);
-        void                            replyModeClient(Client &client);
-        void                            replyModeChannel(Client &client, Channel &);
+        void                            replyUser(Client const &client);
+        void                            replyModeClient(Client const &client);
+        void                            replyModeChannel(Client const &client, Channel &channel, std::string const &mode);
         void                            replyQuit(Client &client, std::string const &reason);
-        void                            replyWhois(Client &client);
-        void                            replyPing(Client &client, std::string const &pong);
-        void                            replyJoin(Client &client, Channel &channel);
-        void                            replyPart(Client &client, Channel &channel);
-        void                            replyPrivmsgClient(Client &sender, Client &recipient, std::string const &toSend);
-        void                            replyPrivmsgChannel(Client &client, Channel &channel, std::string const &toSend);
-        void                            replyTopic(Client &client, Channel &channel, std::string const &topic);
-        // void                            replyPrivmsgChannel(Client &client, Channel &channel, std::string const &toSend);
+        void                            replyJoin(Client const &client, Channel &channel);
+        void                            replyPart(Client const &client, Channel &channel);
+        void                            replyPrivmsgClient(Client const &sender, Client const &recipient, std::string const &toSend);
+        void                            replyPrivmsgChannel(Client const &client, Channel &channel, std::string const &toSend);
+        void                            replyKick(Client const &client, Channel &channel, Client const &recipient, std::string const &reason);
+        void                            replyInvite(Client const &sender, Client const &recipient, Channel &channel);
+        void                            replyTopic(Client const &client, Channel &channel, std::string const &topic);
+        void                            replyWho(Client const &client);
+        void                            replyPing(Client const &client, std::string const &pong);
        
-       /* REPLY ERRORS */
+        /* REPLY ERRORS */
         void                            replyWrongConnect(Client &client);
-        // void                            replyErrNick(Client &client);    
+        void                            replyUnknown(Client const &client, std::string const &command);
 
         /* CHANNEL FUNCTIONS*/
-        Channel                         &findChannel(Client &client, std::string const &name);
-        std::vector<std::string>        followlistChannels(void); 
+        Channel                         &findChannel(Client const &client, std::string const &name);
         void                            deleteChannel(std::string const &name);
 };
