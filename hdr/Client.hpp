@@ -19,7 +19,7 @@
 
 #include "Server.hpp"
 #include "RPL_ERR.hpp"
-#include "RPL_ERR.hpp"
+
 
 #ifndef BUFFER_SIZE
 # define BUFFER_SIZE 512
@@ -64,7 +64,7 @@ class   Client
         std::string const   &getRealName() const;
         std::string const   &getHostName() const;
         std::string const   &getUserName() const;
-        std::string         getNickName() const; // mod sonia
+        std::string         getNickName() const;
         std::string const   &getServerName() const;
         std::string const   &getSourceName() const;
         std::string const   &getMode() const ;
@@ -83,8 +83,11 @@ class   Client
 
         void                commandReact(Server &server);
         std::string         extractMessage(std::string const &buffer);
+        std::string         extractPrefix(std::string &message);
+        std::string         extractCommand(std::string &message);
         void                handleCommand(Server &server, std::string const &, std::string const &command, std::string const &parameter);
         bool                commandConnect(Server &server);
+        bool                commandReactConnect(Server &server);
 
         /* COMMANDS */
         void                commandPass(Server &, std::string const &parameter);

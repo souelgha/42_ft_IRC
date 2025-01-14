@@ -5,7 +5,8 @@ SRC_DIR = src
 SRC = main.cpp \
 	Server.cpp \
 	Client.cpp \
-	Channel.cpp
+	Channel.cpp \
+	connect.cpp
 
 
 OBJ_DIR = obj

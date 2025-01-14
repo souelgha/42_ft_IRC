@@ -78,6 +78,7 @@ class   Server
         Client                         &findClient(std::string const &name);
 
         /* REPLIES */
+      
         void                            replyUser(Client &client);
         void                            replyNick(Client &client, std::string const &newnick);
         void                            replyModeClient(Client &client);
@@ -93,8 +94,12 @@ class   Server
         // void                            replyPrivmsgChannel(Client &client, Channel &channel, std::string const &toSend);
        
        /* REPLY ERRORS */
-        void                            replyWrongConnect(Client &client);
-        void                            replyErrNick(Client &client);    
+        void                            replyErrRegistered(Client &client);
+        void                            replyWrongPwd(Client &client);
+        void                            replyErrNick(Client &client);
+        void                            replyErronNickUse(Client &client);
+        void                            replyMissPara(Client &client, std::string &command);
+        void                            sendTemplate(Client &client, std::string const &message);
 
         /* CHANNEL FUNCTIONS*/
         Channel                         &findChannel(Client &client, std::string const &name);

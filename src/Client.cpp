@@ -155,7 +155,7 @@ std::string Client::extractMessage(std::string const &buffer) {
     return (message);
 }
 
-std::string extractPrefix(std::string &message) {
+std::string Client::extractPrefix(std::string &message) {
 
     std::istringstream  split(message);
     std::string         prefix = "";
@@ -166,7 +166,7 @@ std::string extractPrefix(std::string &message) {
     return (prefix);
 }
 
-std::string extractCommand(std::string &message) {
+std::string Client::extractCommand(std::string &message) {
 
     std::istringstream  split(message);
     std::string         command;
@@ -176,36 +176,14 @@ std::string extractCommand(std::string &message) {
     return (command);
 }
 
-bool    Client::commandConnect(Server &server) 
-{
-    std::string buffer = this->buffer;
-    // std::cout << RED<< "buf connect " << buffer<< WHITE << std::endl;
-    std::size_t cap=buffer.find("CAP");
-    std::size_t pwd = buffer.find("PASS");
-    std::size_t data = buffer.find(PASSWORD);
-    if(cap!=std::string::npos && pwd==std::string::npos)
-    {
-        server.replyWrongConnect(*this);
-        return(false);
-    }
-    else if(cap!=std::string::npos && pwd!=std::string::npos && data==std::string::npos)
-    {
-        server.replyWrongConnect(*this);
-        return(false);
-    }
-    else
-        return(true);
-}
-
 void    Client::commandPass(Server &server, std::string const &parameter) {
 
-    if (parameter != PASSWORD)
+    if (parameter.empty() || parameter != PASSWORD)
     {
-        server.replyWrongConnect(*this);
+        server.replyWrongPwd(*this);
     }
     this->authentification = true;
 }
-//si trouve CAP LS => check si PASS existe
 
 void    Client::commandReact(Server &server) {
 
@@ -254,31 +232,34 @@ void    Client::handleCommand(Server &server, std::string const &, std::string c
     // throw ;
 }
 
-
-
 void    Client::commandNick(Server &server, std::string const &parameter) 
 {
-    std::string oldnick;
-//check si nick name is used ERR_NICKNAMEINUSE
-//char invalids ERR_ERRONEUSNICKNAME// manque le parametre de du nickname ERR_NONICKNAMEGIVEN
-//message a envoye quand on change de Nickmane: "commande =>:WiZ NICK Kilroy          ; message => WiZ changed his nickname to Kilroy.
-//:Guest65529!~sonouelg@c88c-7273-6bb-ab79-b772.210.62.ip NICK :fred74477
-    
-        for (size_t i = 0; i < server.getClients().size(); i++)
+    for (size_t i = 0; i < server.getClients().size(); i++)
+    {
+        if (server.getClients()[i].getNickName() == parameter)
         {
-            if (server.getClients()[i].getNickName() == parameter)
+            server.replyErrNick(*this);
+            return;
+        }
+        if(parameter.length() > 9 || (!std::isalnum(parameter[0])))
+        {
+            server.replyErronNickUse(*this);
+            return;
+        }
+        for (size_t i = 1; i < parameter.size(); i++)
+        {
+            if(!std::isalnum(parameter[i]) && (parameter[i] != '-' || parameter[i] != '_' || parameter[i] != '|' ))
             {
-                // server.replyErrNick(*this);
+                server.replyErronNickUse(*this);
                 return;
             }
-        }
-        oldnick = this->nickName;
-        // server.replyNick(*this, parameter);
-        // :Guest65529!~sonouelg@c88c-7273-6bb-ab79-b772.210.62.ip NICK :fred74477   
-        this->setNickName(parameter);
-        this->setSourceName();
-        std::cout<< "Nvx NickName: <"<< this->nickName<< ">"<<std::endl;
-        std::cout<< "sourceName: <"<< this->sourceName<< ">"<<std::endl;
+        }            
+    }
+    server.replyNick(*this, parameter);
+    this->setNickName(parameter);
+    this->setSourceName();
+    std::cout<< "Nvx NickName: <"<< this->nickName<< ">"<<std::endl;
+    std::cout<< "sourceName: <"<< this->sourceName<< ">"<<std::endl;
 }
 
 std::string extractRealName(std::string parameter) {

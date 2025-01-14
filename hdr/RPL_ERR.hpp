@@ -52,7 +52,7 @@
 // /* COMMAND NICK ERRORS */
 //Returned when a nickname parameter expected for a command and isn't found.
 #define ERR_NONICKNAMEGIVEN(servername, nickname) (std::string(":")+ servername  +" 431 " + nickname + " :No nickname given" + CRLF )
-#define ERR_NICKNAMEINUSE(servername, nickname) (std::string(":")+ servername  +" 433 " + nickname + " :" + CRLF)
+#define ERR_NICKNAMEINUSE(servername, nickname) (std::string(":")+ servername +" 433 " + nickname + " :Nickname is already in use" + CRLF)
 //quand le pseudo est invalid : ne respecte pas les regles 
 #define ERR_ERRONEUSNICKNAME(servername,nickname) (std::string(":")+ servername  + " 432 " + nickname +" "+ nickname +  " :Erroneus nickname" + CRLF)
 
