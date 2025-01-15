@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Client.hpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/06 10:45:27 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/13 17:36:49 by stouitou         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #pragma once
 
 #include <cstring>
@@ -19,7 +7,6 @@
 
 #include "Server.hpp"
 #include "RPL_ERR.hpp"
-
 
 #ifndef BUFFER_SIZE
 # define BUFFER_SIZE 512
@@ -45,8 +32,8 @@ class   Client
         std::string     userName;
         std::string     nickName;
         std::string     serverName;
-        char            mode[4];   // i s w
         std::string     sourceName;
+        std::string     mode;
 
     public:
 
@@ -59,32 +46,31 @@ class   Client
         ~Client(void);
 
         /* GETTERS */
-        int                 getFd() const;
-        std::string         getIpAddress() const;
-        std::string const   &getRealName() const;
-        std::string const   &getHostName() const;
-        std::string const   &getUserName() const;
-        std::string         getNickName() const;
-        std::string const   &getServerName() const;
-        std::string const   &getSourceName() const;
-        std::string const   &getMode() const ;
-        char                *getMode() ;
+        int                 getFd(void) const;
+        std::string const   &getIpAddress(void) const;
+        std::string const   &getRealName(void) const;
+        std::string const   &getHostName(void) const;
+        std::string const   &getUserName(void) const;
+        std::string         getNickName(void) const; // mod sonia
+        std::string const   &getServerName(void) const;
+        std::string const   &getSourceName(void) const;
+        std::string const   &getMode(void) const;
 
         /* SETTERS */
         void                setFd(int fd);
-        void                setIpAddress(std::string addr);
+        void                setIpAddress(std::string const &addr);
         void                setRealName(std::string const &realName);
         void                setHostName(std::string const &hostName);
         void                setUserName(std::string const &userName);
         void                setNickName(std::string const &nickName);
         void                setServerName(std::string const &serverName);
-        void                setMode(std::string const &mode);
         void                setSourceName(void);
+        void                setMode(std::string const &mode);
 
-        void                commandReact(Server &server);
         std::string         extractMessage(std::string const &buffer);
         std::string         extractPrefix(std::string &message);
         std::string         extractCommand(std::string &message);
+        void                commandReact(Server &server);
         void                handleCommand(Server &server, std::string const &, std::string const &command, std::string const &parameter);
         bool                commandConnect(Server &server);
         bool                commandReactConnect(Server &server);
@@ -95,14 +81,15 @@ class   Client
         void                commandUser(Server &server, std::string const &parameter);
         void                commandMode(Server &server, std::string const &parameter);
         void                commandQuit(Server &server, std::string const &parameter);
-        void                commandWhois(Server &server, std::string const &);
-        void                commandPing(Server &server, std::string const &parameter);
         void                commandPrivmsg(Server &server, std::string const &parameter);
-
+        void                commandWho(Server &server, std::string const &);
+        void                commandPing(Server &server, std::string const &parameter);
+        void                commandUnknown(Server &server, std::string const &parameter);
 
         /* CHANNEL COMMANDS */
         void                commandJoin(Server &server, std::string const &parameter);
         void                commandPart(Server &server, std::string const &parameter);
+        void                commandKick(Server &server, std::string const &parameter);
+        void                commandInvite(Server &server, std::string const &parameter);
         void                commandTopic(Server &server, std::string const &parameter);
-
 };

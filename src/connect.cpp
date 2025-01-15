@@ -84,7 +84,7 @@ void    Server::replyErrRegistered(Client &client) {
     std::string const message = ERR_ALREADYREGISTRED(client.getServerName(), client.getNickName());
     sendTemplate(client, message);
 }
-void    Server::sendTemplate(Client &client, std::string const &message)
+void    Server::sendTemplate(Client const &client, std::string const &message)
 {
      std::cout << ">> " << message << std::flush;
     int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);

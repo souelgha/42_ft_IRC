@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:23 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/08 17:02:49 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/14 14:11:35 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,8 @@ int main(int argc, char **argv) {
     }
     try {
         checkArgs(argv, server.getListenPort());
-        signal(SIGINT, Server::SignalCatch);
-        signal(SIGQUIT, Server::SignalCatch);
+        signal(SIGINT, Server::signalCatch);
+        signal(SIGQUIT, Server::signalCatch);
         server.serverInit();
     }
     catch(const std::exception& e) {

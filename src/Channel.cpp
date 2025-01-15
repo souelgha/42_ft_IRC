@@ -13,12 +13,12 @@ Channel::Channel(std::string const &channelName) {
     this->topic = "";
 }
 
-std::string Channel::getName(void) const {
+std::string const   &Channel::getName(void) const {
 
     return(this->name);
 }
 
-std::string Channel::getTopic(void) const {
+std::string const   &Channel::getTopic(void) const {
 
     return(this->topic);
 }
@@ -74,12 +74,30 @@ void    Channel::setMode(std::string const &mode) {
     }
 }
 
-void    Channel::AddUser(Client &client) {
+std::string const   Channel::convertMode(void) {
+
+    std::string mode = "+";
+
+    if (this->mode[0])
+        mode += "i";
+    if (this->mode[1])
+        mode += "k";
+    if (this->mode[2])
+        mode += "l";
+    if (this->mode[3])
+        mode += "o";
+    if (this->mode[4])
+        mode += "t";
+
+    return(mode);
+}
+
+void    Channel::AddUser(Client const &client) {
 
     users.push_back(client);
 }
 
-void    Channel::RemUser(Client &client) {
+void    Channel::RemUser(Client const &client) {
 
     for (std::vector<Client>::iterator it = this->users.begin(); it != this->users.end(); it++)
     {
@@ -94,7 +112,6 @@ void    Channel::RemUser(Client &client) {
 void    Channel::AddOper(std::string const &nickname) {
 
     operators.insert(nickname);
-    std::cout << nickname << " is operator!" << std::endl;
 }
 
 void    Channel::RemOper(std::string const &nickname) {
