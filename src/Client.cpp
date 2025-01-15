@@ -167,16 +167,17 @@ void    Client::commandReact(Server &server) {
 
 void    Client::handleCommand(Server &server, std::string const &, std::string const &command, std::string const &parameter) {
     
-    void        (Client::*actions[13])(Server &, std::string const &) =
+  
+    void        (Client::*actions[14])(Server &, std::string const &) =
         {&Client::commandPass, &Client::commandNick, &Client::commandUser,
         &Client::commandMode, &Client::commandQuit, // retravailler la commande QUIT
         &Client::commandJoin, &Client::commandPart, &Client::commandPrivmsg,
         &Client::commandKick, &Client::commandInvite, &Client::commandTopic,
-        &Client::commandWho, &Client::commandPing};
-    std::string sent[] = {"PASS", "NICK", "USER", "MODE", "QUIT", "JOIN", "PART", "PRIVMSG", "KICK", "INVITE", "TOPIC", "WHO", "PING"};
+        &Client::commandWho, &Client::commandWhoIs, &Client::commandPing};
+    std::string sent[] = {"PASS", "NICK", "USER", "MODE", "QUIT", "JOIN", "PART", "PRIVMSG", "KICK", "INVITE", "TOPIC", "WHO", "WHOIS", "PING"};
     int         i;
 
-    for (i = 0; i < 13; i++)
+    for (i = 0; i < 14; i++)
     {
         if (command == sent[i])
         {
@@ -262,16 +263,21 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
     try {
         datas >> userName;
         this->setUserName(userName);
+        std::cout<<"username:<"<< userName<<">"<<std::endl;
         datas >> hostName;
         this->setHostName(hostName);
+         std::cout<<"hostname:<"<< hostName<<">"<<std::endl;
         datas >> serverName;
         this->setServerName(serverName);
+        std::cout<<"servername:<"<< serverName<<">"<<std::endl;
         realName = extractRealName(parameter);
+        std::cout<<"realname:<"<< realName<<">"<<std::endl;
         this->setRealName(realName);
         this->setSourceName();     
    
         server.replyUser(*this);
         std::cout<<"Welcome SourceName:<"<< sourceName<<">"<<std::endl;
+        
     }
     catch (std::exception &e) {
             throw;
@@ -364,15 +370,37 @@ void    Client::commandPrivmsg(Server &server, std::string const &parameter)
     }
 }
 
-void    Client::commandWho(Server &server, std::string const &) {
+void    Client::commandWho(Server &server, std::string const &parameter) 
+{
+    std::size_t found = parameter.find('#');
+    if (found != std::string::npos)
+    {
+        // std::string channelname = parameter.substr(1, parameter.length() - 1);
+        Channel &channel = server.getChannels()[parameter];
+        // std::cout << "channel who:<"<< parameter<<">"<<std::endl;
+        try {
+            server.replyWho(*this, channel);
+            }
+        catch (std::exception &e) {
+            throw ;
+        }
+       
+    }
+    
 
+    
+}
+void    Client::commandWhoIs(Server &server, std::string const &) {
+
+    (void) server;
     try {
-        server.replyWho(*this);
+        // server.replyWho(*this);
     }
     catch (std::exception &e) {
         throw ;
     }
 }
+
 
 void    Client::commandPing(Server &server, std::string const &parameter) {
 

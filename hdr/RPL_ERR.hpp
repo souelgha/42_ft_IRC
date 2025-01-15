@@ -24,10 +24,14 @@
 
 /* COMMAND INVITE */
 #define RPL_INVITING(servername, sender, recipient, channelname) (std::string(":") + servername + " 341 " + sender + " " + recipient + " " + channelname + CRLF)
+/* COMMAND WHO RPL*/
+// #define RPL_WHOREPLY(servername, nickname, username, hostname, realname) (std::string(":") + servername + " 352 " + nickname + " * "+ username + " " + hostname + " " + servername + " " + nickname + " H" + " :0 " + realname+ CRLF)
+#define RPL_WHOREPLY(servername, nickrequest, channelname, nickname, username, hostname, realname) (std::string(":") + servername + " 352 " + nickrequest + " " +channelname +" "+ username + " " + hostname + " " + servername + " " + nickname + " H :0 " + realname+ CRLF)
+#define RPL_ENDOFWHO(servername, nickname, channelname) (std::string(":") + servername + " 315 " + nickname + " " +channelname + " :End of WHO list"+ CRLF)
 
 /* COMMAND WHOIS */
-#define RPL_WHOISUSER(servername, nickname, username, hostname, realname) (std::string(":") + servername + " 311 " + nickname + " " + username + " " + hostname + " * :" + realname + CRLF)
-
+// #define RPL_WHOISUSER(servername, nickname, username, hostname, realname) (std::string(":") + servername + " 311 " + nickname + " " + username + " " + hostname + " * :" + realname + CRLF)
+#define RPL_WHOISUSER(servername, nickname, username, hostname) (std::string(":") + servername + " 311 " + nickname + " " + username + " " + hostname + CRLF)
 /************************************************                 ERRORS             **************************************************************/
 
 /* COMMAND PRIVMSG /INVITE */

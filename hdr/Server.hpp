@@ -90,7 +90,8 @@ class   Server
         void                            replyKick(Client const &client, Channel &channel, Client const &recipient, std::string const &reason);
         void                            replyInvite(Client const &sender, Client const &recipient, Channel &channel);
         void                            replyTopic(Client const &client, Channel &channel, std::string const &topic);
-        void                            replyWho(Client const &client);
+        void                            replyWho(Client const &client, Channel &channel);
+        // void                            replyWhoIs(Client const &client);
         void                            replyPing(Client const &client, std::string const &pong);
        
        /* REPLY ERRORS */
