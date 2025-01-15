@@ -189,15 +189,27 @@ Client &Server::findClient(std::string const &name)
     throw (std::runtime_error("Nickname does not exist\n"));
 }
 
+bool    Server::isClient(std::string const &nickname) {
+
+    for (size_t i = 0; i < this->clients.size(); i++)
+    {
+        if (this->clients[i].getNickName() == nickname)
+            return (true);
+    }
+    return (false);
+}
+
 void    Server::replyNick(Client &client, std::string const &newnick) {
     std::string const message = ":"+client.getSourceName()+  " NICK :"+newnick+ CRLF;
     sendTemplate(client, message);
 }
+
 void    Server::replyErrNick(Client &client) {
     
     std::string const message = ERR_NICKNAMEINUSE(client.getServerName(), client.getNickName());
     sendTemplate(client, message);
 }
+
 void    Server::replyErronNickUse(Client &client) {
     
     std::string const message = ERR_ERRONEUSNICKNAME(client.getServerName(), client.getNickName());
@@ -218,7 +230,7 @@ void    Server::replyModeChannel(Client const &client, Channel &channel, std::st
     if (!mode.empty())
     {
         channel.setMode(mode);
-        message = RPL_CHANNELMODEIS1(client.getSourceName(), channel.getName(), channel.convertMode());
+        message = RPL_CHANNELMODEIS1(client.getSourceName(), channel.getName(), mode);
     }
     else
         message = RPL_CHANNELMODEIS2(client.getServerName(), client.getNickName(), channel.getName(), channel.convertMode());
@@ -319,8 +331,11 @@ void    Server::replyPart(Client const &client, Channel &channel) {
         if (sentBytes == -1)
             throw(std::runtime_error("Failed to send message to client\n")) ;
     }
-    channel.RemUser(client);
-    channel.RemOper(client.getNickName());
+    channel.remUser(client);
+    channel.remOper(client.getNickName());
+    channel.remInvited(client.getNickName());
+    if (channel.getUsers().empty())
+        this->deleteChannel(channel.getName());
 }
 
 void    Server::replyPrivmsgClient(Client const &sender, Client const &recipient, std::string const &toSend) {
@@ -373,8 +388,9 @@ void    Server::replyKick(Client const &client, Channel &channel, Client const &
         if (sentBytes == -1)
             throw(std::runtime_error("Failed to send message to client\n")) ;
     }
-    channel.RemUser(recipient);
-    channel.RemOper(recipient.getNickName());
+    channel.remUser(recipient);
+    channel.remOper(recipient.getNickName());
+    channel.remInvited(recipient.getNickName());
 }
 
 void    Server::replyInvite(Client const &sender, Client const &recipient, Channel &channel) {
@@ -389,6 +405,7 @@ void    Server::replyInvite(Client const &sender, Client const &recipient, Chann
     sentBytes = send(recipient.getFd(), message.c_str(), message.length(), 0);
     if (sentBytes == -1)
         throw(std::runtime_error("Failed to send message to client\n")) ;
+    channel.addInvited(recipient.getNickName());
 }
 
 void    Server::replyWho(Client const &client) {
@@ -434,20 +451,35 @@ void    Server::replyUnknown(Client const &client, std::string const &command) {
         throw(std::runtime_error("Failed to send message to client\n")) ;
 }
 
-Channel &Server::findChannel(Client const &client, std::string const &name)
+void    Server::createChannel(Client const &client, std::string const &name)
 {
-    if (channels.find(name) == channels.end())
-    {
-        channels[name] = Channel(name);
-        channels[name].AddOper(client.getNickName());
-    }
-    channels[name].AddUser(client);
-    Channel &channel = channels[name];
-    return(channel);
+    this->channels[name] = Channel(name);
+    this->channels[name].addOper(client.getNickName());
+    // channels[name].AddUser(client);
 }
+
+// Channel &Server::findChannel(std::string const &name) {
+
+//     Channel channel;
+//     try {
+//         channel = this->channels.at(name);
+//     }
+//     if (channelIt == this->channels.end())
+//     {
+//         this->sendTemplate(*this, ERR_NOSUCHNICK(this->serverName, this->nickName, nickname));
+//         return ;
+//     }
+//     Channel &channel = channelIt->second;
+
+// }
 
 void    Server::deleteChannel(std::string const &name)
 {
     if (channels.find(name) != channels.end())
         channels.erase(name);
+}
+
+void    Server::clearChannels(void) {
+
+    this->channels.clear();
 }

@@ -75,7 +75,7 @@ void    Server::replyWrongPwd(Client &client) {
 }
 void    Server::replyMissPara(Client &client, std::string &command) {
 
-    std::string const message = ERR_NEEDMOREPARMS(client.getServerName(), client.getNickName(), command);
+    std::string const message = ERR_NEEDMOREPARAMS(client.getServerName(), client.getNickName(), command);
     sendTemplate(client, message);
 }
 

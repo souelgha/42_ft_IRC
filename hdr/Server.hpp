@@ -48,11 +48,11 @@ class   Server
         int                             listen_port;    // port d'ecoute
         int                             listen_fd;      // fd server
         std::vector<struct pollfd>      fds;            // liste des fds
-        std::vector<Client>             clients;        // liste des clients
         struct sockaddr_in              listenAddress;  // socket d'ecoute
         struct sockaddr_in              clientAddress;  // socket client        
+        std::vector<Client>             clients;        // liste des clients
         std::map<std::string, Channel>  channels;       // map le nom des channel vers les obj Channel
-        std::vector<std::string>        listChannel;    // liste des channels sur le server
+        // std::vector<std::string>        listChannel;    // liste des channels sur le server
         
     public:
 
@@ -71,13 +71,16 @@ class   Server
         void                            serverConnect(void);
         void                            newClient(void);
         void                            receiveMessage(Client &client);
+
+        /* UTILS */
         void                            closeFds(void);
         void                            clearClient(int fd);
         static void                     signalCatch(int signum);
+        bool                            isClient(std::string const &nickname);
         Client                          &findClient(std::string const &name);
 
+
         /* REPLIES */
-      
         void                            replyNick(Client &client, std::string const &newnick);
         void                            replyUser(Client const &client);
         void                            replyModeClient(Client const &client);
@@ -104,6 +107,8 @@ class   Server
         void                            replyUnknown(Client const &client, std::string const &command);
 
         /* CHANNEL FUNCTIONS*/
-        Channel                         &findChannel(Client const &client, std::string const &name);
+        void                            createChannel(Client const &client, std::string const &name);
+        // Channel                         &findChannel(std::string const &name);
         void                            deleteChannel(std::string const &name);
+        void                            clearChannels(void);
 };
