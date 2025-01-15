@@ -302,19 +302,15 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
         // if (realName.empty())
             // throw UserCommandException();
         this->setRealName(realName);
-        this->setSourceName();
-     
+        this->setSourceName();     
    
         server.replyUser(*this);
-        std::cout<<"welcome sourcename:<"<< sourceName<<">"<<std::endl;
+        std::cout<<"Welcome SourceName:<"<< sourceName<<">"<<std::endl;
     }
     catch (std::runtime_error &e) {
             throw;
     }
 }
-
-
-
 
 void    Client::commandMode(Server &server, std::string const &parameter) {
 
@@ -469,9 +465,3 @@ void    Client::commandTopic(Server &server, std::string const &parameter) {
 
     server.replyTopic(*this, channel, newTopic);
 }
-
-
-/*
-server.reply(*this, ERR_ERRONEUSNICKNAME(this->serverName, this->nickName));
-server.reply(*this, ERR_NEEDMOREPARMs(this->serverName, this->nickName, "USER") );
-*/
