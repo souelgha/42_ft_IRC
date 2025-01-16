@@ -21,7 +21,7 @@ class Channel
     private:
 
         std::string             name;
-        char                    mode[5];   // i k l o t
+        std::set<char>          mode;   // i k l o t
 
         std::string             topic;
         std::string             key;
@@ -41,7 +41,7 @@ class Channel
 
         /* GETTERS */
         std::string const           &getName(void) const;
-        char const                  *getMode(void) const;
+        std::set<char> const        &getMode(void) const;
         std::string const           &getTopic(void) const;
         std::string const           &getKey(void) const;
         std::vector<Client> const   &getUsers(void) const;
@@ -65,5 +65,5 @@ class Channel
         bool                        isInvited(std::string const &nickname);
 
         /* UTILS */
-        std::string const           convertMode(void) const ;
+        // std::string const           convertMode(void) const ;
 };

@@ -205,28 +205,6 @@ void    Server::replyErronNickUse(Client &client) {
     sendTemplate(client, message);
 }
 
-
-void    Server::replyModeClient(Client const &client) {
-
-    std::string const message = RPL_UMODEIS(client.getServerName(), client.getNickName(), client.getMode());
-    sendTemplate(client, message);
-}
-
-void    Server::replyModeChannel(Client const &client, Channel &channel, std::string const &mode) {
-
-    std::string message = "";
-
-    if (!mode.empty())
-    {
-        channel.setMode(mode);
-        message = RPL_CHANNELMODEIS1(client.getSourceName(), client.getNickName(), channel.getName(), mode);
-    }
-    else
-        message = RPL_CHANNELMODE(client.getServerName(), client.getNickName(), channel.getName(), channel.convertMode());
-
-    sendTemplate(client, message);
-}
-
 void    Server::replyQuit(Client &client, std::string const &reason) {
 
     std::string message = ":"

@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/15 16:51:41 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/16 10:48:09 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -282,50 +282,6 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
     }
 }
 
-static std::string  adjustMode(std::string &parameter) {
-
-    std::string mode = "";
-    size_t      i = 0;
-
-    if (parameter[i] != '+' && parameter[i] != '-')
-        return (mode);
-    mode += parameter[i];
-    i++;
-    for (; parameter[i] && (parameter[i] == 'i' || parameter[i] == 'k' || parameter[i] == 'l' || parameter[i] == 'o' || parameter[i] == 't'); i++)
-        mode += parameter[i];
-    return (mode);
-}
-
-void    Client::commandMode(Server &server, std::string const &parameter) {
-
-    std::istringstream  datas(parameter);
-    std::string         recipient;
-    std::string         value;
-    std::string         mode;
-
-    datas >> recipient;
-    datas >> value;
-    mode = adjustMode(value);
-    try {
-        if (server.getChannels().find(recipient) == server.getChannels().end())
-        {
-            this->setMode(mode);
-            server.replyModeClient(*this);
-        }
-        else
-        {
-            Channel &channel = server.getChannels()[recipient];
-            if (channel.isOperator(this->nickName))
-                server.replyModeChannel(*this, channel, mode);
-            else if (!value.empty())
-                server.sendTemplate(*this, ERR_CHANOPRIVSNEEDED(this->serverName, this->nickName, channel.getName()));
-        }
-    }
-    catch (std::exception &e) {
-        throw ;
-    }
-}
-
 void    Client::commandQuit(Server &server, std::string const &parameter) {
 
     try {
@@ -383,9 +339,6 @@ void    Client::commandWho(Server &server, std::string const &parameter)
         }
        
     }
-    
-
-    
 }
 void    Client::commandWhoIs(Server &server, std::string const &) {
 
@@ -439,9 +392,13 @@ void    Client::commandJoin(Server &server, std::string const &parameter)
     Channel &channel = channelIt->second;
 
     try {
-        std::cout << "Channel mode = " << static_cast<int>(channel.getMode()[0]) << static_cast<int>(channel.getMode()[1]) << static_cast<int>(channel.getMode()[2]) << static_cast<int>(channel.getMode()[3]) << static_cast<int>(channel.getMode()[4]) << std::endl;
-        if (channel.getMode()[INVITE_ONLY] && !channel.isInvited(this->nickName))
+        for (std::set<char>::iterator it = channel.getMode().begin(); it != channel.getMode().end(); it++)
+            std::cout << "channel mode dans set: " << *it << std::endl;
+        if (channel.getMode().find('i') != channel.getMode().end() && !channel.isInvited(this->nickName))
+        {
             server.sendTemplate(*this, ERR_INVITEONLYCHAN(this->serverName, this->nickName, channel.getName()));
+            std::cout << "mode i" << std::endl;
+        }
         else
         {
             channel.addUser(*this);

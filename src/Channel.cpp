@@ -2,12 +2,12 @@
 
 Channel::Channel(void) : name("default"), topic("") {
 
-    std::fill(mode, mode + 5, 0);
+    // std::fill(mode, mode + 5, 0);
 }
 
 Channel::Channel(std::string const &name) : name(name), topic("") {
 
-    std::fill(mode, mode + 5, 0);
+    // std::fill(mode, mode + 5, 0);
 }
 
 Channel::~Channel(void) { }
@@ -15,11 +15,6 @@ Channel::~Channel(void) { }
 std::string const   &Channel::getName(void) const {
 
     return(this->name);
-}
-
-char const  *Channel::getMode() const {
-
-    return (this->mode);
 }
 
 std::string const   &Channel::getTopic(void) const {
@@ -45,47 +40,6 @@ std::set<std::string> const &Channel::getOpers(void) const {
 std::set<std::string> const &Channel::getInvited(void) const {
 
     return (this->invited);
-}
-
-void    Channel::setMode(std::string const &mode) {
-
-    for (size_t i = 0; mode[i]; i++)
-    {
-        if (mode[i] == '+')
-        {
-            i++;
-            for (; mode[i] && isalpha(mode[i]); i++)
-            {
-                if (mode[i] == 'i')
-                    this->mode[0] = 1;
-                else if (mode[i] == 'k')
-                    this->mode[1] = 1;
-                else if (mode[i] == 'l')
-                    this->mode[2] = 1;
-                else if (mode[i] == 'o')
-                    this->mode[3] = 1;
-                else if (mode[i] == 't')
-                    this->mode[4] = 1;
-            }
-        }
-        if (mode[i] == '-')
-        {
-            i++;
-            for (; mode[i] && isalpha(mode[i]); i++)
-            {
-                if (mode[i] == 'i')
-                    this->mode[0] = 0;
-                else if (mode[i] == 'k')
-                    this->mode[1] = 0;
-                else if (mode[i] == 'l')
-                    this->mode[2] = 0;
-                else if (mode[i] == 'o')
-                    this->mode[3] = 0;
-                else if (mode[i] == 't')
-                    this->mode[4] = 0;
-            }
-        }
-    }
 }
 
 void    Channel::setTopic(std::string const &topic) {
@@ -134,7 +88,7 @@ void    Channel::remOper(std::string const &nickname) {
 
 void    Channel::remInvited(std::string const &nickname) {
 
-    if (!this->mode[INVITE_ONLY])
+    if (this->mode.find('i') == this->mode.end())
         return ;
     invited.erase(nickname);
 }
@@ -157,22 +111,4 @@ bool    Channel::isOperator(std::string const &nickname) {
 bool    Channel::isInvited(std::string const &nickname) {
 
     return (invited.find(nickname) != invited.end());
-}
-
-std::string const   Channel::convertMode(void) const {
-
-    std::string mode = "+";
-
-    if (this->mode[0])
-        mode += "i";
-    if (this->mode[1])
-        mode += "k";
-    if (this->mode[2])
-        mode += "l";
-    if (this->mode[3])
-        mode += "o";
-    if (this->mode[4])
-        mode += "t";
-
-    return(mode);
 }

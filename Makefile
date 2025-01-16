@@ -6,7 +6,8 @@ SRC = main.cpp \
 	Server.cpp \
 	Client.cpp \
 	Channel.cpp \
-	connect.cpp
+	connect.cpp \
+	mode.cpp
 
 
 OBJ_DIR = obj
@@ -15,7 +16,8 @@ OBJ = ${addprefix ${OBJ_DIR}/, ${SRC:.cpp=.o}}
 
 HDR_DIR = hdr
 HDR = Client.hpp \
-	Server.hpp
+	Server.hpp \
+	Channel.hpp
 INCLUDE = ${addprefix ${HDR_DIR}/, ${HDR}}
 
 TPL_DIR = tpl
