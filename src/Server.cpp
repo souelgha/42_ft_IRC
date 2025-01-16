@@ -59,6 +59,8 @@ void    Server::serverConnect(void)
     int en = 1;
 	if(setsockopt(this->listen_fd, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(en)) == -1)
 		throw(std::runtime_error("Failed to set option on socket\n"));
+    if (fcntl(this->listen_fd, F_SETFL, O_NONBLOCK) == -1) 
+		throw(std::runtime_error("faild to set option (O_NONBLOCK) on socket"));
 
     // lie le socket a l'adresse
     if(bind(this->listen_fd, (struct sockaddr*) &this->listenAddress, listenAddressLength) == -1)
@@ -223,9 +225,7 @@ void    Server::replyJoin(Client const &client, Channel &channel) {
 
     // message de bienvenue dans le canal
     {
-        std::string message = ":" + client.getNickName() + " JOIN :" + channel.getName() + "\r\n";
-
-        std::cout << GREEN << ">> " << message << WHITE << std::flush;
+        std::string message = ":" + client.getSourceName() + " JOIN :" + channel.getName() + "\r\n";
         for (size_t i = 0; i < channel.getUsers().size(); i++)
             sendTemplate(channel.getUsers()[i], message);
     }

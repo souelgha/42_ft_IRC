@@ -53,7 +53,7 @@
 #define ERR_KEYSET(servername,nickname, channelname) (std::string(":")+ servername +" 467 " + nickname + " #" + channelname + " :Channel key already set" + CRLF)
 
 /****** COMMAND MODE ERRORS sur le CHANNEL char => mode inconnu par ex j de -j********/
-#define ERR_UNKNOWNMODE(servername,nickname,char, channelname) (std::string(":")+ servername +" 472 "+ nickname + char+ " #" + channelname + " :is unknown mode char to me for " + channelname + CRLF)
+#define ERR_UNKNOWNMODE(servername,nickname,char, channelname) (std::string(":")+ servername +" 472 "+ nickname + " "+char+ " :is unknown mode char to me for " + channelname + CRLF)
 
 /* COMMAND MODE / TOPIC / INVITE ERRORS */
 //un utilisateur qui n a pas ls droits. des qu une commande est faite ss les droits oper*/

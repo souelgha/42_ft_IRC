@@ -63,6 +63,7 @@ class Channel
         bool                        isUser(std::string const &nickname);
         bool                        isOperator(std::string const &nickname);
         bool                        isInvited(std::string const &nickname);
+        std::string const           stringMode(void) const;
 
         /* UTILS */
         // std::string const           convertMode(void) const ;
