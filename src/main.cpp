@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:23 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/14 14:11:35 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/15 13:43:04 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,10 @@ int main(int argc, char **argv) {
         server.serverInit();
     }
     catch(const std::exception& e) {
-        server.closeFds();
         std::cerr << e.what() << std::endl;    
     }
+    server.closeFds();
+    server.clearChannels();
     std::cout<<"Server Closed"<< std::endl;
     return(0);
 }

@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/15 10:48:14 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/15 16:51:41 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -317,6 +317,8 @@ void    Client::commandMode(Server &server, std::string const &parameter) {
             Channel &channel = server.getChannels()[recipient];
             if (channel.isOperator(this->nickName))
                 server.replyModeChannel(*this, channel, mode);
+            else if (!value.empty())
+                server.sendTemplate(*this, ERR_CHANOPRIVSNEEDED(this->serverName, this->nickName, channel.getName()));
         }
     }
     catch (std::exception &e) {
@@ -419,15 +421,32 @@ void    Client::commandUnknown(Server &server, std::string const &parameter) {
 
 void    Client::commandJoin(Server &server, std::string const &parameter)
 {  
-    std::string channelName = "";
+    std::string                                 channelName = "";
 
     if (parameter [0] != '#')
         channelName = "#";
     channelName += parameter;
-    Channel channel = server.findChannel(*this, channelName);
-    
+
+    if (server.getChannels().find(channelName) == server.getChannels().end())
+        server.createChannel(*this, channelName);
+
+    std::map<std::string, Channel>::iterator    channelIt = server.getChannels().find(channelName);
+    if (channelIt == server.getChannels().end())
+    {
+        server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, channelName));
+        return ;
+    }
+    Channel &channel = channelIt->second;
+
     try {
-        server.replyJoin(*this, channel);
+        std::cout << "Channel mode = " << static_cast<int>(channel.getMode()[0]) << static_cast<int>(channel.getMode()[1]) << static_cast<int>(channel.getMode()[2]) << static_cast<int>(channel.getMode()[3]) << static_cast<int>(channel.getMode()[4]) << std::endl;
+        if (channel.getMode()[INVITE_ONLY] && !channel.isInvited(this->nickName))
+            server.sendTemplate(*this, ERR_INVITEONLYCHAN(this->serverName, this->nickName, channel.getName()));
+        else
+        {
+            channel.addUser(*this);
+            server.replyJoin(*this, channel);
+        }
     }
     catch (std::exception &e) {
         throw ;
@@ -436,12 +455,19 @@ void    Client::commandJoin(Server &server, std::string const &parameter)
 
 void    Client::commandPart(Server &server, std::string const &parameter) {
 
-    std::string channelName = "";
+    std::string                                 channelName = "";
 
     if (parameter [0] != '#')
         channelName = "#";
     channelName += parameter;
-    Channel &channel = server.getChannels()[channelName];
+
+    std::map<std::string, Channel>::iterator    channelIt = server.getChannels().find(channelName);
+    if (channelIt == server.getChannels().end())
+    {
+        server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, channelName));
+        return ;
+    }
+    Channel &channel = channelIt->second;
 
     try {
         server.replyPart(*this, channel);
@@ -459,18 +485,42 @@ void    Client::commandKick(Server &server, std::string const &parameter) {
     std::string         reason;
     Client              recipient;
 
-    // if (!channel.isOperator(this->getnickname())
-        // return error ;
     datas >> channelName;
     datas >> nickname;
+    if (datas.fail())
+    {
+        server.sendTemplate(*this, ERR_NEEDMOREPARAMS(this->serverName, this->nickName, "KICK"));
+        return ;
+    }
     std::getline(datas >> std::ws, reason);
     reason = reason.substr(1, reason.length() - 1);
 
-    Channel &channel = server.getChannels()[channelName];
-    // proteger si channel n'existe pas
-
-    if (!channel.IsUser(nickname))
+    std::map<std::string, Channel>::iterator    channelIt = server.getChannels().find(channelName);
+    if (channelIt == server.getChannels().end())
+    {
+        server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, channelName));
         return ;
+    }
+    Channel &channel = channelIt->second;
+
+    if (!channel.isOperator(this->nickName))
+    {
+        server.sendTemplate(*this, ERR_CHANOPRIVSNEEDED(this->serverName, this->nickName, channel.getName()));
+        return ;
+    }
+
+    if (!channel.isUser(nickname))
+    {
+        server.sendTemplate(*this, ERR_USERNOTINCHANNEL(this->serverName, this->nickName, nickName, channel.getName()));
+        return ;
+    }
+
+    if (!channel.isUser(this->nickName))
+    {
+        server.sendTemplate(*this, ERR_NOTONCHANNEL(this->serverName, this->nickName, channel.getName()));
+        return ;
+    }
+
     for (size_t i = 0; i < channel.getUsers().size(); i++)
     {
         if (channel.getUsers()[i].getNickName() == nickname)
@@ -491,9 +541,49 @@ void    Client::commandInvite(Server &server, std::string const &parameter) {
 
     datas >> nickname;
     datas >> channelName;
+    if (datas.fail())
+    {
+        server.sendTemplate(*this, ERR_NEEDMOREPARAMS(this->serverName, this->nickName, "INVITE"));
+        return ;
+    }
 
-    Channel &channel = server.getChannels()[channelName];
-    // proteger si channel n'existe pas
+    if (!server.isClient(nickname))
+    {
+        server.sendTemplate(*this, ERR_NOSUCHNICK(this->serverName, this->nickName, nickname));
+        return ;
+    }
+
+    std::map<std::string, Channel>::iterator    channelIt = server.getChannels().find(channelName);
+    if (channelIt == server.getChannels().end())
+    {
+        server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, channelName));
+        return ;
+    }
+    Channel &channel = channelIt->second;
+
+    if (!channel.isUser(this->nickName))
+    {
+        server.sendTemplate(*this, ERR_NOTONCHANNEL(this->serverName, this->nickName, channel.getName()));
+        return ;
+    }
+
+    if (!channel.isOperator(this->nickName))
+    {
+        server.sendTemplate(*this, ERR_CHANOPRIVSNEEDED(this->serverName, this->nickName, channel.getName()));
+        return ;
+    }
+
+    // if (!channel.getMode()[INVITE_ONLY])
+    // {
+    //     server.sendTemplate(*this, ERR_NOSUCHNICK(this->serverName, this->nickName, nickname));
+    //     return ;
+    // }
+
+    if (channel.isUser(nickname))
+    {
+        server.sendTemplate(*this, ERR_USERONCHANNEL(this->serverName, nickName, channel.getName()));
+        return ;
+    }
 
     for (size_t i = 0; i < server.getClients().size(); i++)
     {
@@ -515,8 +605,13 @@ void    Client::commandTopic(Server &server, std::string const &parameter) {
     std::getline(datas >> std::ws, newTopic);
     newTopic = newTopic.substr(1, newTopic.length() - 1);
 
-    Channel &channel = server.getChannels()[channelName];
-    // proteger si channel n'existe pas
+    std::map<std::string, Channel>::iterator    channelIt = server.getChannels().find(channelName);
+    if (channelIt == server.getChannels().end())
+    {
+        server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, channelName));
+        return ;
+    }
+    Channel &channel = channelIt->second;
 
     server.replyTopic(*this, channel, newTopic);
 }

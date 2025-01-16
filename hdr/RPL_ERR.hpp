@@ -34,17 +34,18 @@
 #define RPL_WHOISUSER(servername, nickname, username, hostname) (std::string(":") + servername + " 311 " + nickname + " " + username + " " + hostname + CRLF)
 /************************************************                 ERRORS             **************************************************************/
 
-/* COMMAND PRIVMSG /INVITE */
+/* COMMAND PRIVMSG / INVITE */
 /* ERRORS communes des plusieurs  COMMAND ==> PASS / USER/ OPER /SQUIT /JOIN /PART /MODE /TOPIC /INVITE /KICK /CONNECT et USERMODES  */
-#define ERR_NEEDMOREPARMS(servername, nickname, command) (std::string(":")+ servername  +" 461 " + nickname + " " + command + " :Not enough parameters" + CRLF)
+#define ERR_NEEDMOREPARAMS(servername, nickname, command) (std::string(":") + servername  + " 461 " + nickname + " " + command + " :Not enough parameters" + CRLF)
 
-/* COMMAND PRIVMSG /KILL/INVITE  ERRORS */
+/* COMMAND PRIVMSG / KILL / INVITE  ERRORS */
 //Used to indicate the nickname parameter supplied to a command is currently unused.
-#define ERR_NOSUCHNICK(servername, nickname) (std::string(":")+ servername +" 401 " + nickname +" "+ nickname + " :No such nick/channel" + CRLF )
-/* COMMAND PRIVMSG  ERRORS */
+#define ERR_NOSUCHNICK(servername, sender, recipient) (std::string(":") + servername + " 401 " + sender + " " + recipient + " :No such nick/channel" + CRLF )
+
+/* COMMAND PRIVMSG ERRORS */
 #define ERR_CANNOTSENDTOCHAN(servername, nickname,channelname) (std::string(":") + servername + " 404 " + nickname + channelname + " :Cannot send to channel" + CRLF) 
  
-/* COMMAND PASS /USER ERRORS */
+/* COMMAND PASS / USER ERRORS */
 #define ERR_ALREADYREGISTRED(servername, nickname) (std::string(":")+ servername  +" 462 " + nickname + " :Unauthorized command (already registered)" + CRLF )
 
 /****** COMMAND MODE -k ERRORS : ********/
@@ -54,34 +55,35 @@
 /****** COMMAND MODE ERRORS sur le CHANNEL char => mode inconnu par ex j de -j********/
 #define ERR_UNKNOWNMODE(servername,nickname,char, channelname) (std::string(":")+ servername +" 472 "+ nickname + char+ " #" + channelname + " :is unknown mode char to me for " + channelname + CRLF)
 
-// /* COMMAND MODE/TOPIC/INVITE ERRORS */
+/* COMMAND MODE / TOPIC / INVITE ERRORS */
 //un utilisateur qui n a pas ls droits. des qu une commande est faite ss les droits oper*/
-#define ERR_CHANOPRIVSNEEDED(servername,nickname,channelname) (std::string(":")+ servername +" 482 "+ nickname +" #" + channelname + " :You're not a channel operator" + CRLF)
+#define ERR_CHANOPRIVSNEEDED(servername, nickname, channelname) (std::string(":") + servername + " 482 " + nickname + " " + channelname + " :You're not a channel operator" + CRLF)
 
 /* COMMAND OPER ERRORS */
 #define ERR_PASSWDMISMATCH(servername,nickname) (std::string(":")+ servername +" 464 " + nickname + " :Password incorrect" + CRLF )
 
-// /* COMMAND NICK ERRORS */
+/* COMMAND NICK ERRORS */
 //Returned when a nickname parameter expected for a command and isn't found.
 #define ERR_NONICKNAMEGIVEN(servername, nickname) (std::string(":")+ servername  +" 431 " + nickname + " :No nickname given" + CRLF )
 #define ERR_NICKNAMEINUSE(servername, nickname) (std::string(":")+ servername +" 433 " + nickname + " :Nickname is already in use" + CRLF)
 //quand le pseudo est invalid : ne respecte pas les regles 
 #define ERR_ERRONEUSNICKNAME(servername,nickname) (std::string(":")+ servername  + " 432 " + nickname +" "+ nickname +  " :Erroneus nickname" + CRLF)
 
-// /**** COMMAND JOIN PART KICK ERRORS */
-//ERR_NOSUCHCHANNEL nom invalid du channel
-#define ERR_NOSUCHCHANNEL(servername,nickname,channelname) (std::string(":")+ servername +" 403 "+ nickname +" " + channelname + " :No such channel" + CRLF)
+/**** COMMAND JOIN / PART / KICK / INVITE ERRORS */
+// ERR_NOSUCHCHANNEL: nom invalide du channel
+#define ERR_NOSUCHCHANNEL(servername, nickname, channelname) (std::string(":") + servername + " 403 " + nickname + " " + channelname + " :No such channel" + CRLF)
 #define ERR_TOOMANYCHANNELS(servername,nickname,channelname) (std::string(":")+ servername +" 405 "+ nickname +" " + channelname + " :You have joined too many channels" + CRLF)
 #define ERR_BADCHANNELKEY(servername,nickname,channelname) (std::string(":")+ servername +" 475 "+ nickname +" " + channelname + " :cannot join channel (+k)" + CRLF)
-#define ERR_INVITEONLYCHAN(servername,nickname,channelname) (std::string(":")+ servername +" 473 "+ nickname +" " + channelname + " :Cannot join channel (+l)" + CRLF)
+#define ERR_INVITEONLYCHAN(servername, nickname, channelname) (std::string(":") + servername + " 473 " + nickname + " " + channelname + " :Cannot join channel (+i)" + CRLF)
 #define ERR_CHANNELISFULL(servername,nickname,channelname) (std::string(":")+ servername +" 471 "+ nickname +" " + channelname + " :Cannot join channel (+i)" + CRLF)
 
+/* COMMAND KICK */
+#define ERR_USERNOTINCHANNEL(servername, sender, channelname, recipient) (std::string(":") + servername + " 441 " + sender + " " + recipient + " " + channelname + " :They aren't on that channel" + CRLF)
 
-// /* COMMAND INVITE ERRORS */
-#define ERR_USERONCHANNEL(servername,nickname,channelname) (std::string(":")+ servername +" 443 "+ nickname +" "+ nickname +" "+ channelname + " :is already on channel" + CRLF)
-#define ERR_NOTONCHANNEL(servername,nickname,channelname) (std::string(":")+ servername +" 442 "+ nickname +" "+ channelname + " :You're not on that channel" + CRLF)
-#define ERR_USERNOTINCHANNEL(servername,nickname,channelname, nickname2) (std::string(":")+ servername +" 441 "+ nickname +" "+nickname2+" "+ channelname + " :They aren't on that channel" + CRLF)
+/* COMMAND INVITE ERRORS */
+#define ERR_NOTONCHANNEL(servername, nickname, channelname) (std::string(":") + servername + " 442 " + nickname + " " + channelname + " :You're not on that channel" + CRLF)
+#define ERR_USERONCHANNEL(servername, nickname, channelname) (std::string(":") + servername + " 443 " + nickname + " " + nickname + " " + channelname + " :is already on channel" + CRLF)
 
-// /**** GENERAL ERRORS */
+/**** GENERAL ERRORS */
 #define ERR_NOTREGISTERED(servername,nickname) (std::string(":")+ servername +" 451 " + nickname + " :You have not registered!" + CRLF)
 #define ERR_CMDNOTFOUND(servername, nickname, command) (std::string(":")+ servername+" 421 " + nickname + " " + command + " :Unknown command" + CRLF)
