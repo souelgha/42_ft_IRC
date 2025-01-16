@@ -258,8 +258,6 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
     std::string         serverName;
     std::string         realName;
 
-    // if (this->authentification == false)
-    //     throw (std::runtime_error("Not authentified\n"));
     try {
         datas >> userName;
         this->setUserName(userName);
@@ -348,8 +346,7 @@ void    Client::commandPrivmsg(Server &server, std::string const &parameter)
     datas >> recipient;
     std::getline(datas >> std::ws, message);
     message = message.substr(1, message.length() - 1);
-    if (server.getChannels().find(recipient) == server.getChannels().end())
-    {
+    if (server.getChannels().find(recipient) == server.getChannels().end())    {
         try {
             Client  client = server.findClient(recipient);
             server.replyPrivmsgClient(*this, client, message);
@@ -375,9 +372,7 @@ void    Client::commandWho(Server &server, std::string const &parameter)
     std::size_t found = parameter.find('#');
     if (found != std::string::npos)
     {
-        // std::string channelname = parameter.substr(1, parameter.length() - 1);
         Channel &channel = server.getChannels()[parameter];
-        // std::cout << "channel who:<"<< parameter<<">"<<std::endl;
         try {
             server.replyWho(*this, channel);
             }
@@ -393,12 +388,12 @@ void    Client::commandWho(Server &server, std::string const &parameter)
 void    Client::commandWhoIs(Server &server, std::string const &) {
 
     (void) server;
-    try {
-        // server.replyWho(*this);
-    }
-    catch (std::exception &e) {
-        throw ;
-    }
+    // try {
+    //     // server.replyWho(*this);
+    // }
+    // catch (std::exception &e) {
+    //     throw ;
+    // }
 }
 
 

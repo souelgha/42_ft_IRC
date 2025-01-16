@@ -4,7 +4,6 @@
 bool    Client::commandConnect(Server &server) 
 {
     std::string buffer = this->buffer;
-    // std::cout << RED<< "buf connect " << buffer<< WHITE << std::endl;
     std::size_t cap=buffer.find("CAP");
     std::size_t pwd = buffer.find("PASS");
     if(cap!=std::string::npos)

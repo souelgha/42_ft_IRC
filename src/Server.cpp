@@ -226,10 +226,6 @@ void    Server::replyQuit(Client &client, std::string const &reason) {
     message += CRLF;
 
     sendTemplate(client, message);
-    // std::cout << GREEN << ">> " << message << WHITE << std::flush;
-    // int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
-    // if (sentBytes == -1)
-    //     throw(std::runtime_error("Failed to send message to client\n")) ;
     clearClient(client.getFd());
 }
 
@@ -241,12 +237,7 @@ void    Server::replyJoin(Client const &client, Channel &channel) {
 
         std::cout << GREEN << ">> " << message << WHITE << std::flush;
         for (size_t i = 0; i < channel.getUsers().size(); i++)
-        {
-            // sendTemplate(channel.getUsers()[i], message);
-            int sentBytes = send(channel.getUsers()[i].getFd(), message.c_str(), message.length(), 0);
-            if (sentBytes == -1)
-                throw(std::runtime_error("Failed to send message to client\n")) ;
-        }
+            sendTemplate(channel.getUsers()[i], message);
     }
 
     // Le serveur envoie ensuite une liste des utilisateurs presents dans le canal. Le format est:
@@ -265,12 +256,8 @@ void    Server::replyJoin(Client const &client, Channel &channel) {
             message += channel.getUsers()[i].getNickName() + " ";
         }
         message += CRLF;
-        // sendTemplate(client, message);
+        sendTemplate(client, message);
 
-        std::cout << GREEN << ">> " << message << WHITE << std::flush;
-        int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
-        if (sentBytes == -1)
-            throw(std::runtime_error("Failed to send message to client\n")) ;
     }
 
     // Le serveur termine avec un message:
@@ -281,11 +268,7 @@ void    Server::replyJoin(Client const &client, Channel &channel) {
     // :<server> 366 <nickname> <channel> :End of /NAMES list.
     {
         std::string message = RPL_ENDOFNAMES(client.getServerName(), client.getNickName(), channel.getName());
-        // sendTemplate(client, message);
-        std::cout << GREEN << ">> " << message << WHITE << std::flush;
-        int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
-        if (sentBytes == -1)
-            throw(std::runtime_error("Failed to send message to client\n")) ;
+        sendTemplate(client, message);
     }
 
     // Le serveur peut envoyer un message facultatif RPL_TOPIC
@@ -306,12 +289,7 @@ void    Server::replyPart(Client const &client, Channel &channel) {
 
     std::cout << GREEN << ">> " << message << WHITE << std::flush;
     for (size_t i = 0; i < channel.getUsers().size(); i++)
-    {
         sendTemplate(channel.getUsers()[i], message);
-        // int sentBytes = send(channel.getUsers()[i].getFd(), message.c_str(), message.length(), 0);
-        // if (sentBytes == -1)
-        //     throw(std::runtime_error("Failed to send message to client\n")) ;
-    }
     channel.RemUser(client);
     channel.RemOper(client.getNickName());
 }
@@ -321,10 +299,6 @@ void    Server::replyPrivmsgClient(Client const &sender, Client const &recipient
     std::string message = ":" + sender.getNickName() + " PRIVMSG " + recipient.getNickName() + " " + toSend + "\r\n";
 
     sendTemplate(recipient, message);
-    // std::cout << GREEN << ">> " << message << WHITE << std::flush;    
-    // int sentBytes = send(recipient.getFd(), message.c_str(), message.length(), 0);
-    // if (sentBytes == -1)
-    //     throw(std::runtime_error("Failed to send message to client\n")) ;
 }
 
 void    Server::replyPrivmsgChannel(Client const &sender, Channel &channel, std::string const &toSend) {
@@ -335,12 +309,7 @@ void    Server::replyPrivmsgChannel(Client const &sender, Channel &channel, std:
     for (size_t i = 0; i < channel.getUsers().size(); i++)
     {
         if (channel.getUsers()[i].getNickName() != sender.getNickName())
-        {
             sendTemplate(channel.getUsers()[i], message);
-            // int sentBytes = send(channel.getUsers()[i].getFd(), message.c_str(), message.length(), 0);
-            // if (sentBytes == -1)
-            //     throw(std::runtime_error("Failed to send message to client\n")) ;
-        }
     }
 }
 
@@ -350,12 +319,7 @@ void    Server::replyTopic(Client const &client, Channel &channel, std::string c
 
     std::cout << GREEN << ">> " << message << WHITE << std::flush;
     for (size_t i = 0; i < channel.getUsers().size(); i++)
-    {
         sendTemplate(channel.getUsers()[i], message);
-        // int sentBytes = send(channel.getUsers()[i].getFd(), message.c_str(), message.length(), 0);
-        // if (sentBytes == -1)
-        //     throw(std::runtime_error("Failed to send message to client\n")) ;
-    }
 }
 
 void    Server::replyKick(Client const &client, Channel &channel, Client const &recipient, std::string const &reason) {
@@ -383,7 +347,10 @@ void    Server::replyWho(Client const &client, Channel &channel)
     // std::cout << "ici. channel size:" <<  channel.getUsers().size()<< std::endl;
     for (size_t i = 0; i < channel.getUsers().size(); i++)
     {
-        std::string message1 = RPL_WHOREPLY(client.getServerName(), client.getNickName(), channel.getName(), channel.getUsers()[i].getNickName(), channel.getUsers()[i].getUserName(), channel.getUsers()[i].getHostName(), channel.getUsers()[i].getRealName());
+        std::string message1 = RPL_WHOREPLY(client.getServerName(), client.getNickName(), 
+                                channel.getName(), channel.getUsers()[i].getNickName(), 
+                                channel.getUsers()[i].getUserName(), channel.getUsers()[i].getHostName(), 
+                                channel.getUsers()[i].getRealName());
         // std::cout << "message who:<"<<message1<<">"<< std::endl;
         sendTemplate(client, message1);
     }
@@ -391,12 +358,6 @@ void    Server::replyWho(Client const &client, Channel &channel)
     sendTemplate(client, message2);
 
 }
-// void    Server::replyWhoIs(Client const &client) {
-
-//     // std::string message = RPL_WHOISUSER(client.getServerName(), client.getNickName(), client.getUserName(), client.getHostName(), client.getRealName());
-//     // sendTemplate(client, message);
-
-// }
 
 void    Server::replyPing(Client const &client, std::string const &pong) {
 
@@ -406,16 +367,6 @@ void    Server::replyPing(Client const &client, std::string const &pong) {
     sendTemplate(client, message);
 }
 
-// void    Server::replyWrongConnect(Client &client) {
-
-//     std::string const message = ERR_PASSWDMISMATCH(client.getServerName(), client.getNickName());
-
-//     std::cout << GREEN << ">> " << message << WHITE << std::flush;
-//     int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
-//     if (sentBytes == -1)
-//         throw(std::runtime_error("Failed to send message to client\n")) ;
-
-// }
 
 void    Server::replyUnknown(Client const &client, std::string const &command) {
 
