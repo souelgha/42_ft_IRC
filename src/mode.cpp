@@ -23,44 +23,83 @@ void    Server::replyModeChannel(Client const &client, Channel &channel, std::st
     sendTemplate(client, message);
 }
 
-std::string  adjustMode(std::string &parameter) {
+static void insertNewMode(std::multimap<std::string, std::string> &mode, char sign, char sent, std::istringstream &parameter) {
 
-    std::string mode = "";
-    size_t      i = 0;
+    std::string key;
+    std::string value;
+    std::string check;
 
-    if (parameter[i] != '+' && parameter[i] != '-')
-        return (mode);
-    mode += parameter[i];
-    i++;
-    for (; parameter[i] && (parameter[i] == 'i' || parameter[i] == 'k' || parameter[i] == 'l' || parameter[i] == 'o' || parameter[i] == 't'); i++)
-        mode += parameter[i];
-    return (mode);
+    key = std::string(1, sign) + sent;
+    if (sent == 'i' || sent == 'k' || sent == 'l' || sent == 'o' || sent == 't')
+    {
+        check = std::string("+") + sent;
+        if (mode.find(check) != mode.end())
+            return ;
+        check = std::string("-") + sent;
+        if (mode.find(check) != mode.end())
+            return ;
+    }
+    if (sent == 'k' || sent == 'l' || sent == 'o')
+        parameter >> value;
+    else if(sent == 'i' || sent == 't')
+        value = "";
+    else
+        value = "unknown";
+    mode.insert(std::make_pair(key, value));
+}
+
+static void adjustMode(std::multimap<std::string, std::string> &mode, std::string &value) {
+
+    std::istringstream                      parameter(value);
+    std::string                             keys;
+    size_t                                  i = 0;
+
+    parameter >> keys;
+    while (keys[i])
+    {
+        char    sign;
+        if (keys[i] == '+')
+            sign = '+';
+        else
+            sign = '-';
+        i++;
+        for (; keys[i] && keys[i] != '+' && keys[i] != '-'; i++)
+            insertNewMode(mode, static_cast<char>(sign), keys[i], parameter);
+    }
 }
 
 void    Client::commandMode(Server &server, std::string const &parameter) {
 
-    std::istringstream  datas(parameter);
-    std::string         recipient;
-    std::string         value;
-    std::string         mode;
+    std::istringstream                      datas(parameter);
+    std::string                             recipient;
+    std::string                             value;
+    std::multimap<std::string, std::string> mode;
 
     datas >> recipient;
-    datas >> value;
-    mode = adjustMode(value);
+    std::getline(datas >> std::ws, value);
+    adjustMode(mode, value);
     try {
         if (server.getChannels().find(recipient) == server.getChannels().end())
         {
-            std::cout << "mode client" << std::endl;
-            this->setMode(mode);
-            server.replyModeClient(*this);
+            if (this->mode.empty())
+            {
+                this->setMode("+i");
+                server.replyModeClient(*this);
+            }
+            else
+                server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, recipient));
         }
         else
         {
-            std::cout << "mode channel" << std::endl;
+            std::cout << "Mode:" << std::endl;
+            for (std::multimap<std::string, std::string>::iterator it = mode.begin(); it != mode.end(); it++)
+                std::cout << it->first << " = " << it->second << std::endl;
             Channel &channel = server.getChannels()[recipient];
-            if (channel.isOperator(this->nickName))
-                server.replyModeChannel(*this, channel, mode);
-            else if (!value.empty())
+            if (value.empty())
+                server.sendTemplate(*this, RPL_CHANNELMODEIS1(this->serverName, this->nickName, channel.getName(), channel.stringMode()));
+            else if (channel.isOperator(this->nickName))
+                server.replyModeChannel(*this, channel, "");
+            else
                 server.sendTemplate(*this, ERR_CHANOPRIVSNEEDED(this->serverName, this->nickName, channel.getName()));
         }
     }
@@ -101,7 +140,7 @@ void    Channel::setMode(std::string const &mode) {
                 if (mode[i] == 'i')
                 {
                     this->mode.erase('i');
-                    // clear liste invites
+                    this->invited.clear();
                 }
                 else if (mode[i] == 'k')
                     this->key.clear();
@@ -116,20 +155,12 @@ void    Channel::setMode(std::string const &mode) {
     }
 }
 
-// std::string const   Channel::convertMode(void) const {
+std::string const   Channel::stringMode(void) const {
 
-//     std::string mode = "+";
+    std::string mode = "+";
 
-//     if (this->mode[0])
-//         mode += "i";
-//     if (this->mode[1])
-//         mode += "k";
-//     if (this->mode[2])
-//         mode += "l";
-//     if (this->mode[3])
-//         mode += "o";
-//     if (this->mode[4])
-//         mode += "t";
+    for (std::set<char>::iterator it = this->mode.begin(); it != this->mode.end(); it++)
+        mode += *it;
 
-//     return(mode);
-// }
+    return(mode);
+}

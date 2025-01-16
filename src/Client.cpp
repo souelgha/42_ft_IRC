@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/16 10:48:09 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/16 11:41:11 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -233,8 +233,6 @@ void    Client::commandNick(Server &server, std::string const &parameter)
     server.replyNick(*this, parameter);
     this->setNickName(parameter);
     this->setSourceName();
-    std::cout<< "Nvx NickName: <"<< this->nickName<< ">"<<std::endl;
-    std::cout<< "sourceName: <"<< this->sourceName<< ">"<<std::endl;
 }
 
 static std::string extractRealName(std::string parameter) {
@@ -392,13 +390,8 @@ void    Client::commandJoin(Server &server, std::string const &parameter)
     Channel &channel = channelIt->second;
 
     try {
-        for (std::set<char>::iterator it = channel.getMode().begin(); it != channel.getMode().end(); it++)
-            std::cout << "channel mode dans set: " << *it << std::endl;
         if (channel.getMode().find('i') != channel.getMode().end() && !channel.isInvited(this->nickName))
-        {
             server.sendTemplate(*this, ERR_INVITEONLYCHAN(this->serverName, this->nickName, channel.getName()));
-            std::cout << "mode i" << std::endl;
-        }
         else
         {
             channel.addUser(*this);

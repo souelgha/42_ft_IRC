@@ -65,5 +65,5 @@ class Channel
         bool                        isInvited(std::string const &nickname);
 
         /* UTILS */
-        // std::string const           convertMode(void) const ;
+        std::string const           stringMode(void) const ;
 };

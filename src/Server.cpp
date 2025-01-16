@@ -223,9 +223,8 @@ void    Server::replyJoin(Client const &client, Channel &channel) {
 
     // message de bienvenue dans le canal
     {
-        std::string message = ":" + client.getNickName() + " JOIN :" + channel.getName() + "\r\n";
+        std::string message = ":" + client.getSourceName() + " JOIN :" + channel.getName() + "\r\n";
 
-        std::cout << GREEN << ">> " << message << WHITE << std::flush;
         for (size_t i = 0; i < channel.getUsers().size(); i++)
             sendTemplate(channel.getUsers()[i], message);
     }
