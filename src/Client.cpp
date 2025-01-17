@@ -390,7 +390,7 @@ void    Client::commandJoin(Server &server, std::string const &parameter)
         return ;
     }
     Channel &channel = channelIt->second;
-
+//ajouter le check si mode i n existe pas, de check si on a une key active
     try {
         for (std::set<char>::iterator it = channel.getMode().begin(); it != channel.getMode().end(); it++)
             std::cout << "channel mode dans set: " << *it << std::endl;

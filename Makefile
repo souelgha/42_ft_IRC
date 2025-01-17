@@ -4,10 +4,11 @@ NAME = ircserv
 SRC_DIR = src
 SRC = main.cpp \
 	Server.cpp \
+	mode.cpp \
 	Client.cpp \
 	Channel.cpp \
-	connect.cpp \
-	mode.cpp
+	connect.cpp 
+	
 
 
 OBJ_DIR = obj

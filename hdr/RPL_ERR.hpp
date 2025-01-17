@@ -75,7 +75,7 @@
 #define ERR_TOOMANYCHANNELS(servername,nickname,channelname) (std::string(":")+ servername +" 405 "+ nickname +" " + channelname + " :You have joined too many channels" + CRLF)
 #define ERR_BADCHANNELKEY(servername,nickname,channelname) (std::string(":")+ servername +" 475 "+ nickname +" " + channelname + " :cannot join channel (+k)" + CRLF)
 #define ERR_INVITEONLYCHAN(servername, nickname, channelname) (std::string(":") + servername + " 473 " + nickname + " " + channelname + " :Cannot join channel (+i)" + CRLF)
-#define ERR_CHANNELISFULL(servername,nickname,channelname) (std::string(":")+ servername +" 471 "+ nickname +" " + channelname + " :Cannot join channel (+i)" + CRLF)
+#define ERR_CHANNELISFULL(servername,nickname,channelname) (std::string(":")+ servername +" 471 "+ nickname +" " + channelname + " :Cannot join channel (+l)" + CRLF)
 
 /* COMMAND KICK */
 #define ERR_USERNOTINCHANNEL(servername, sender, channelname, recipient) (std::string(":") + servername + " 441 " + sender + " " + recipient + " " + channelname + " :They aren't on that channel" + CRLF)

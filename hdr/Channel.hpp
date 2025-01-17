@@ -21,27 +21,34 @@ class Channel
     private:
 
         std::string             name;
-        std::set<char>          mode;   // i k l o t
+        // std::set<char>          mode;   // i k l o t
+        std::map<std::string, std::string> mode;
 
         std::string             topic;
         std::string             key;
+        int                     limitUsers;
+        bool                    iMode; // actif ou pas
+        bool                    tMode;
 
         std::vector<Client>     users;
         std::set<std::string>   operators;
         std::set<std::string>   invited;
+    
     
     public:
 
         /* CONSTRUCTORS */
         Channel(void);
         Channel(std::string const &channelName);
+        // Channel(const Channel &other);
+        // Channel &operator=(const Channel &other);
 
         /* DESTRUCTORS */
         ~Channel(void);
 
         /* GETTERS */
         std::string const           &getName(void) const;
-        std::set<char> const        &getMode(void) const;
+        // std::set<char> const        &getMode(void) const;
         std::string const           &getTopic(void) const;
         std::string const           &getKey(void) const;
         std::vector<Client> const   &getUsers(void) const;
@@ -64,7 +71,20 @@ class Channel
         bool                        isOperator(std::string const &nickname);
         bool                        isInvited(std::string const &nickname);
         std::string const           stringMode(void) const;
+        void                        applyMode();
+        void                        adjustMode(std::string &value);
+        void                        insertNewMode(char sign, char sent, std::istringstream &parameter);
 
+        /* GESTION DES MODES */
+        // void                        modeKey(std::string const &value);
+        void                        modeKey(std::map<std::string, std::string>::iterator &it);
+        void                        modeL(std::map<std::string, std::string>::iterator &it);
+        void                        modeI(std::map<std::string, std::string>::iterator &it);
+        void                        modeO(std::map<std::string, std::string>::iterator &it);
+        void                        modeT(std::map<std::string, std::string>::iterator &it);
+        
+        
+        
         /* UTILS */
         // std::string const           convertMode(void) const ;
 };

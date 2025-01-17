@@ -699,7 +699,7 @@ RFC 2812          Internet Relay Chat: Client Protocol        April 2000
    Numeric Replies:
 
            ERR_NEEDMOREPARAMS              ERR_USERSDONTMATCH
-           ERR_UMODEUNKNOWNFLAG            RPL_UMODEIS
+                     RPL_UMODEIS
 
    Examples:
 
@@ -3280,7 +3280,7 @@ RFC 2812          Internet Relay Chat: Client Protocol        April 2000
            client's host as an operator, this error MUST be
            returned.
 
-       501    ERR_UMODEUNKNOWNFLAG
+       501   ERR_UMODEUNKNOWNFLAG
               ":Unknown MODE flag"
 
          - Returned by the server to indicate that a MODE

@@ -1,13 +1,23 @@
 #include"Channel.hpp"
 
-Channel::Channel(void) : name("default"), topic("") {
+Channel::Channel(void) {
 
-    // std::fill(mode, mode + 5, 0);
+    this->name =  "default";
+    this->key = "";
+    this->topic = "";
+    this->iMode = false;
+    this->tMode = false;
+    this->limitUsers = 10000;
 }
 
-Channel::Channel(std::string const &name) : name(name), topic("") {
+Channel::Channel(std::string const &name){
 
-    // std::fill(mode, mode + 5, 0);
+    this->name =  "default";
+    this->key = "";
+    this->topic = "";
+    this->iMode = false;
+    this->tMode = false;
+    this->limitUsers = 10000;
 }
 
 Channel::~Channel(void) { }
@@ -88,7 +98,7 @@ void    Channel::remOper(std::string const &nickname) {
 
 void    Channel::remInvited(std::string const &nickname) {
 
-    if (this->mode.find('i') == this->mode.end())
+    if (this->iMode == false)
         return ;
     invited.erase(nickname);
 }

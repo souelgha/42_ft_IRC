@@ -23,3 +23,40 @@ pour le parsing
  argv[3] = PASS 
  il faut analyser que le pwd recu du client est le bon = argv[3] . /ircserver 6697 55
  
+/*  si key existe 
+        si on recoit -k => detruit la clef 
+        si -k args => si arg != clef on detruit la clef */
+/*  mode +/- k : key channel */
+/* check du privilege du user => si pas oper :
+        => renvoie erreur => fait dans commandMode
+        ERR_CHANOPRIVSNEEDED(482) dans le channel pas dans l interface
+        => ne fait rien, pas de chgt.
+        +k => ajoute une key ou on la modifie
+    on recoit parameters
+        recipient => channel
+        value => mode
+        
+    typo attendu pour k
+        =>  /mode #channel +k pwd ===> ajout key
+        => ou mode #channel -k ===> retrait de la key
+        +> /mode #channel -k+k newkey => execute uniquement -k [-k , this->key]
+        => si +k ss argument => ne fait rien et ne renvoie pas d erreur
+        => si +k avec plusieurs commandes 
+    retour vers tous les  clients avec la reponse 324 dans le channel : 
+        => si seule : [+k pwd] ou [-k pwd] 
+        => si plusieurs commmandes on ajoute les commandes dans l ordre recu avec les arg si besoin
+            [-ik hello] [+ok dfg hello]
+            on retire les signes en plus lors du renvoie.
+    si des arguments sont manquants ex : mode -o-k hello  ou hello est la key du channel
+        hello: No such nick/channel
+        hello #wert They aren't on that channel
+    join #channel ss key, on renvoie l erreur
+       =>   Cannot join to channel #wert (Bad channel key)
+    mode -o+k he : 
+        => he: No such nick/channel
+        => he #wert They aren't on that channel . 
+        ne change pas la key.
+        on doit d abord faire -k avant de modifier la clef
+    /mode +k+o he:
+        => chg la key
+        => ne met pas d erreur sur le +o*/
