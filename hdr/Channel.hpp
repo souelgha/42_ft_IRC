@@ -53,6 +53,7 @@ class Channel
         bool                                            getTMode(void) const;
         bool                                            getLMode(void) const;
         bool                                            getKMode(void) const;
+        int                                             getLimitUsers(void) const;
         std::vector<Client> const                       &getUsers(void) const;
         std::set<std::string> const                     &getOpers(void) const;
         std::set<std::string> const                     &getInvited(void) const;

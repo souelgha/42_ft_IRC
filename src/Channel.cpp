@@ -56,6 +56,11 @@ bool    Channel::getKMode(void) const {
 
     return(this->kMode);
 }
+
+int    Channel::getLimitUsers(void) const{
+    
+    return(this->limitUsers);
+ }
 std::vector<Client> const   &Channel::getUsers(void) const {
 
     return (this->users);

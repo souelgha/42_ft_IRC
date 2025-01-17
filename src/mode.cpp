@@ -232,15 +232,15 @@ void Channel:: modeO(std::vector<std::pair<std::string, std::string> >::iterator
     if(it->first == "+o" && it->second != "")
     {  
         addOper(it->second);        
-        //ajouter le user dans oper 
-        //check de l operator se fait avant ?
+        //ajouter le user dans oper et cehck de l affichage
+        // ajouter le check operateur.         
     }        
     else if(it->first == "-o" && it->second != "")
     {
         remOper(it->second);
         //retirer user dans op
-        //check de l operator se fait avant ?
     }
+    // check de l operateur avant ?
     
 }
 

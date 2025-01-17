@@ -230,12 +230,6 @@ void    Server::replyJoin(Client const &client, Channel &channel) {
             sendTemplate(channel.getUsers()[i], message);
     }
 
-    // Le serveur envoie ensuite une liste des utilisateurs presents dans le canal. Le format est:
-    //     :<servername> 353 <nickname> = <channel> :<users>
-    //     353: code numerique pour RPL_NAMREPLY
-    //     <nickname>: nom de l'utilisateur qui a rejoint le canal
-    //     <channel>: nom du canal
-    //     <users>: liste des utilisateurs dans le canal, separes par des espace. Les prefixes (@, +) indiquent les privileges (operateurs, ...)
     {
         std::string message = RPL_NAMREPLY(client.getServerName(), client.getNickName(), channel.getName());
 
@@ -250,27 +244,11 @@ void    Server::replyJoin(Client const &client, Channel &channel) {
 
     }
 
-    // Le serveur termine avec un message:
-    //     :<servername> 366 <nickname> <channel> :End of /NAMES list
-    //     366: code numerique pour RPL_ENDOFNAMES
-    //     <nickname>: nom de l'utilisateur qui a rejoint le canal
-    //     <channel>: nom du canal
-    // :<server> 366 <nickname> <channel> :End of /NAMES list.
     {
         std::string message = RPL_ENDOFNAMES(client.getServerName(), client.getNickName(), channel.getName());
         sendTemplate(client, message);
     }
 
-    // Le serveur peut envoyer un message facultatif RPL_TOPIC
-    //     :<servername> 332 <nickname> <channel> :<topic>
-    // {
-    //     std::string message = client.getNickName() + " has join " + channel.getName() + "\r\n";
-
-    //     std::cout << GREEN << ">> " << message << WHITE << std::flush;
-    //     int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
-    //     if (sentBytes == -1)
-    //         throw(std::runtime_error("Failed to send message to client\n")) ;
-    // }
 }
 
 void    Server::replyPart(Client const &client, Channel &channel) {
@@ -348,7 +326,6 @@ void    Server::replyWho(Client const &client, Channel &channel)
                                 channel.getName(), channel.getUsers()[i].getNickName(), 
                                 channel.getUsers()[i].getUserName(), channel.getUsers()[i].getHostName(), 
                                 channel.getUsers()[i].getRealName());
-        // std::cout << "message who:<"<<message1<<">"<< std::endl;
         sendTemplate(client, message1);
     }
     std::string message2 = RPL_ENDOFWHO(client.getServerName(), client.getNickName(), channel.getName());
