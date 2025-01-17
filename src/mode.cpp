@@ -25,16 +25,13 @@ void    Server::replyModeChannel(Client const &client, Channel &channel, std::st
         sendTemplate(channel.getUsers()[i], message);
 }
 
-static bool isDuplicate(std::map<std::string, std::string> &mode, char sent) {
+static bool isDuplicate(std::vector<std::pair<std::string, std::string> > &mode, char sent) {
 
-    std::string check;
-
-    check = std::string("+") + sent;
-    if (mode.find(check) != mode.end())
-        return (true);
-    check = std::string("-") + sent;
-    if (mode.find(check) != mode.end())
-        return (true);
+    for (std::vector<std::pair<std::string, std::string> >::iterator it = mode.begin(); it != mode.end(); it++)
+    {
+        if (it->first[1] == sent)
+            return (true);
+    }
     return (false);
 }
 
@@ -77,7 +74,7 @@ void    Channel::insertNewMode(Server &server, Client &client, char sign, char s
     else if (sent == 'i' || sent == 't' || key == "-l")
         value = "";
     std::cout << "mode inserted: key = " << key << ", value = " << value << std::endl;
-    mode.insert(std::make_pair(key, value));
+    mode.push_back(std::make_pair(key, value));
 }
 
 void    Channel::adjustMode(Server &server, Client &client, std::string &value) {
@@ -149,40 +146,29 @@ void    Client::commandMode(Server &server, std::string const &parameter) {
 }
 
 void    Channel::applyMode(void) 
-{
-    
-    std::map<std::string, std::string>::iterator it;
+{    
+   std::vector<std::pair<std::string, std::string> >::iterator it;
     for (it = mode.begin() ; it != mode.end(); it++)
     {
         if(it->first == "+i" || it->first == "-i")
-        {
-            // modeI(it);
-        }
+            modeI(it);
         else if(it->first == "+t" || it->first == "-t")
-        {
-            // modeT(it);
-        }
+            modeT(it);
         else if(it->first == "+k" || it->first == "-k")
-        {
             modeKey(it);
-        }
         else if(it->first == "+l" || (it->first == "-l"))
-        {
             modeL(it);
-        }
         else if(it->first == "+o" || it->first == "-o")
-        {
-            // modeO(it);
-        }        
+            modeO(it);
     }
 }
 
-std::map<std::string, std::string> const    &Channel::getMode() const {
+std::vector<std::pair<std::string, std::string> > const    &Channel::getMode() const {
 
     return (this->mode);
 }
 
-void Channel:: modeKey(std::map<std::string, std::string>::iterator &it) 
+void Channel:: modeKey(std::vector<std::pair<std::string, std::string> >::iterator &it) 
 {
     if(it->first == "+k")
     {
@@ -193,25 +179,28 @@ void Channel:: modeKey(std::map<std::string, std::string>::iterator &it)
     {
         this->key = "";
     }
+    //ajout dans join et check si mode i active
 }
 
-void Channel:: modeL(std::map<std::string, std::string>::iterator &it) 
+void Channel:: modeL(std::vector<std::pair<std::string, std::string> >::iterator &it) 
 {
     if(it->first == "+l" && it->second!= "")
     {
         char const *val = ((it->second).c_str());
         this->limitUsers = std::atoi(val);
+        this->lMode = true;
         //si it->second == "" renvoyer => ERROR 461
     }        
-    else 
+    else if(it->second == "-l") 
     {
         this->limitUsers = 10000;
+        this->lMode = false;
     }
     //renvoyer ERROR 471 dans Join si channel is full
     
 }
 
-void Channel:: modeI(std::map<std::string, std::string>::iterator &it) 
+void Channel:: modeI(std::vector<std::pair<std::string, std::string> >::iterator &it) 
 {
     if(it->first == "+i")
     {
@@ -225,10 +214,39 @@ void Channel:: modeI(std::map<std::string, std::string>::iterator &it)
    // si IMode = false => +k necessaire.
     
 }
+void Channel:: modeT(std::vector<std::pair<std::string, std::string> >::iterator &it) 
+{
+    if(it->first == "+t")
+    {
+        this->tMode = true;
+    }        
+    else if(it->first == "-t")
+    {
+        this->tMode = false;
+    }
+    
+}
+
+void Channel:: modeO(std::vector<std::pair<std::string, std::string> >::iterator &it) 
+{
+    if(it->first == "+o" && it->second != "")
+    {  
+        addOper(it->second);        
+        //ajouter le user dans oper 
+        //check de l operator se fait avant ?
+    }        
+    else if(it->first == "-o" && it->second != "")
+    {
+        remOper(it->second);
+        //retirer user dans op
+        //check de l operator se fait avant ?
+    }
+    
+}
 
 std::string const   Channel::stringMode(void) {
 
-    std::map<std::string, std::string>::iterator    it = this->mode.begin();
+   std::vector<std::pair<std::string, std::string> >::iterator    it = this->mode.begin();
     std::string                                     mode = it->first;
     char                                            sign = it->first[0];
 

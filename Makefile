@@ -7,7 +7,8 @@ SRC = main.cpp \
 	mode.cpp \
 	Client.cpp \
 	Channel.cpp \
-	connect.cpp 
+	connect.cpp \
+	Join.cpp
 	
 
 

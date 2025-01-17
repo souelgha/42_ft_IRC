@@ -7,6 +7,7 @@ Channel::Channel(void) {
     this->topic = "";
     this->iMode = false;
     this->tMode = false;
+    this->lMode = false;
     this->limitUsers = 10000;
 }
 
@@ -17,6 +18,7 @@ Channel::Channel(std::string const &name){
     this->topic = "";
     this->iMode = false;
     this->tMode = false;
+    this->lMode = false;
     this->limitUsers = 10000;
 }
 
@@ -32,7 +34,7 @@ std::string const   &Channel::getTopic(void) const {
     return(this->topic);
 }
 
-std::string const   &Channel::getKey(void) const {
+std::string const   Channel::getKey(void) const {
 
     return(this->key);
 }
@@ -46,7 +48,14 @@ bool    Channel::getTMode(void) const {
 
     return(this->tMode);
 }
+bool    Channel::getLMode(void) const {
 
+    return(this->lMode);
+}
+bool    Channel::getKMode(void) const {
+
+    return(this->kMode);
+}
 std::vector<Client> const   &Channel::getUsers(void) const {
 
     return (this->users);

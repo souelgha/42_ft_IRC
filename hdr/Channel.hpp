@@ -15,14 +15,16 @@ class Channel
 {
     private:
 
-        std::string                             name;
-        std::map<std::string, std::string>      mode;
-        std::set<char>                          modeSet;   // i k l o t
+        std::string                                 name;
+        std::vector<std::pair<std::string, std::string> >     mode;
+        // std::set<char>                          modeSet;   // i k l o t
 
         std::string             topic;
         std::string             key;
         bool                    iMode;
+        bool                    kMode;
         bool                    tMode;
+        bool                    lMode;
         int                     limitUsers;
 
         std::vector<Client>     users;
@@ -43,12 +45,14 @@ class Channel
 
         /* GETTERS */
         std::string const                               &getName(void) const;
-        std::map<std::string, std::string> const        &getMode(void) const;
+        std::vector<std::pair<std::string, std::string> >  const        &getMode(void) const;
         std::set<char> const                            &getModeSet(void) const;
         std::string const                               &getTopic(void) const;
-        std::string const                               &getKey(void) const;
+        std::string const                               getKey(void) const;
         bool                                            getIMode(void) const;
         bool                                            getTMode(void) const;
+        bool                                            getLMode(void) const;
+        bool                                            getKMode(void) const;
         std::vector<Client> const                       &getUsers(void) const;
         std::set<std::string> const                     &getOpers(void) const;
         std::set<std::string> const                     &getInvited(void) const;
@@ -59,6 +63,7 @@ class Channel
         void                                            setKey(std::string const &key);
         void                                            setIMode(bool mode);
         void                                            setTMode(bool mode);
+        void                                            setKMode(bool mode);
 
         /* OPERATIONS */
         void                                            addUser(Client const &client);
@@ -74,11 +79,11 @@ class Channel
         /* GESTION DES MODES */
         // void                        modeKey(std::string const &value);
         void                        applyMode(void) ;
-        void                        modeKey(std::map<std::string, std::string>::iterator &it);
-        void                        modeL(std::map<std::string, std::string>::iterator &it);
-        void                        modeI(std::map<std::string, std::string>::iterator &it);
-        // void                        modeO(std::map<std::string, std::string>::iterator &it);
-        // void                        modeT(std::map<std::string, std::string>::iterator &it);
+        void                        modeKey(std::vector<std::pair<std::string, std::string> > ::iterator &it);
+        void                        modeL(std::vector<std::pair<std::string, std::string> > ::iterator &it);
+        void                        modeI(std::vector<std::pair<std::string, std::string> > ::iterator &it);
+        void                        modeO(std::vector<std::pair<std::string, std::string> > ::iterator &it);
+        void                        modeT(std::vector<std::pair<std::string, std::string> >::iterator &it);
         
         
         
