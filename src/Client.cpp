@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/16 11:41:11 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/17 12:03:03 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -390,7 +390,7 @@ void    Client::commandJoin(Server &server, std::string const &parameter)
     Channel &channel = channelIt->second;
 
     try {
-        if (channel.getMode().find('i') != channel.getMode().end() && !channel.isInvited(this->nickName))
+        if (channel.getIMode() && !channel.isInvited(this->nickName))
             server.sendTemplate(*this, ERR_INVITEONLYCHAN(this->serverName, this->nickName, channel.getName()));
         else
         {
@@ -522,12 +522,6 @@ void    Client::commandInvite(Server &server, std::string const &parameter) {
         server.sendTemplate(*this, ERR_CHANOPRIVSNEEDED(this->serverName, this->nickName, channel.getName()));
         return ;
     }
-
-    // if (!channel.getMode()[INVITE_ONLY])
-    // {
-    //     server.sendTemplate(*this, ERR_NOSUCHNICK(this->serverName, this->nickName, nickname));
-    //     return ;
-    // }
 
     if (channel.isUser(nickname))
     {

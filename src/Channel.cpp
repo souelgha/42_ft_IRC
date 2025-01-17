@@ -1,11 +1,11 @@
 #include"Channel.hpp"
 
-Channel::Channel(void) : name("default"), topic("") {
+Channel::Channel(void) : name("default"), topic(""), iMode(false), tMode(false) {
 
     // std::fill(mode, mode + 5, 0);
 }
 
-Channel::Channel(std::string const &name) : name(name), topic("") {
+Channel::Channel(std::string const &name) : name(name), topic(""), iMode(false), tMode(false) {
 
     // std::fill(mode, mode + 5, 0);
 }
@@ -25,6 +25,16 @@ std::string const   &Channel::getTopic(void) const {
 std::string const   &Channel::getKey(void) const {
 
     return(this->key);
+}
+
+bool    Channel::getIMode(void) const {
+
+    return(this->iMode);
+}
+
+bool    Channel::getTMode(void) const {
+
+    return(this->tMode);
 }
 
 std::vector<Client> const   &Channel::getUsers(void) const {
@@ -50,6 +60,16 @@ void    Channel::setTopic(std::string const &topic) {
 void    Channel::setKey(std::string const &key) {
 
     this->key = key;
+}
+
+void    Channel::setIMode(bool mode) {
+
+    this->iMode = mode;
+}
+
+void    Channel::setTMode(bool mode) {
+
+    this->tMode = mode;
 }
 
 void    Channel::addUser(Client const &client) {
@@ -88,7 +108,7 @@ void    Channel::remOper(std::string const &nickname) {
 
 void    Channel::remInvited(std::string const &nickname) {
 
-    if (this->mode.find('i') == this->mode.end())
+    if (this->modeSet.find('i') == this->modeSet.end())
         return ;
     invited.erase(nickname);
 }
