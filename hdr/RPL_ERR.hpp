@@ -16,7 +16,7 @@
 #define RPL_YOUREOPER(servername, nickname,channelname) (std::string(":") + servername + " 381 " + nickname +channelname + " :You are now an IRC operator" + CRLF)
 #define RPL_WHOISOPERATOR(servername, nickname,channelname) (std::string(":") + servername + " 313 " + nickname +" " +nickname+ " :is an IRC operator of #" + channelname+ CRLF)
 #define RPL_ENDOFWHOIS(servername, nickname) (std::string(":") + servername + " 318 " + nickname + " " +nickname+ " :End of WHOIS list" + CRLF)
-#define RPL_CHANNELMODEIS1(servername,nickname, channelname, channelmode) (std::string(":") + servername +" 324 " + nickname + " MODE " + " " + channelname + " " + channelmode + CRLF)
+#define RPL_CHANNELMODEIS1(sourcename, channelname, channelmode) (std::string(":") + sourcename + " MODE " + channelname + " " + channelmode + CRLF)
 #define RPL_CHANNELMODE(servername, nickname, channelname, channelmode) (std::string(":") + servername + " 324 " + nickname + " " + channelname + CRLF)
 
 /* COMMAND KICK */

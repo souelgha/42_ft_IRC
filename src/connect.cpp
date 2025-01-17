@@ -85,7 +85,7 @@ void    Server::replyErrRegistered(Client &client) {
 }
 void    Server::sendTemplate(Client const &client, std::string const &message)
 {
-     std::cout << ">> " << message << std::flush;
+    std::cout << GREEN << ">> " << message << WHITE << std::flush;
     int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
     if (sentBytes == -1)
         throw(std::runtime_error("Failed to send message to client\n")) ;
