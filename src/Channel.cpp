@@ -4,10 +4,12 @@ Channel::Channel(void) {
 
     this->name =  "default";
     this->key = "";
+    this->oldkey = "";
     this->topic = "";
     this->iMode = false;
     this->tMode = false;
     this->lMode = false;
+    this->kMode = false;
     this->limitUsers = 10000;
 }
 
@@ -15,10 +17,12 @@ Channel::Channel(std::string const &name){
 
     this->name = name;
     this->key = "";
+    this->oldkey = "";
     this->topic = "";
     this->iMode = false;
     this->tMode = false;
     this->lMode = false;
+    this->kMode = false;
     this->limitUsers = 10000;
 }
 
@@ -57,7 +61,7 @@ bool    Channel::getKMode(void) const {
     return(this->kMode);
 }
 
-int    Channel::getLimitUsers(void) const{
+size_t    Channel::getLimitUsers(void) const{
     
     return(this->limitUsers);
  }

@@ -21,11 +21,12 @@ class Channel
 
         std::string             topic;
         std::string             key;
+        std::string             oldkey;
         bool                    iMode;
         bool                    kMode;
         bool                    tMode;
         bool                    lMode;
-        int                     limitUsers;
+        size_t                  limitUsers;
 
         std::vector<Client>     users;
         std::set<std::string>   operators;
@@ -53,7 +54,7 @@ class Channel
         bool                                            getTMode(void) const;
         bool                                            getLMode(void) const;
         bool                                            getKMode(void) const;
-        int                                             getLimitUsers(void) const;
+        size_t                                             getLimitUsers(void) const;
         std::vector<Client> const                       &getUsers(void) const;
         std::set<std::string> const                     &getOpers(void) const;
         std::set<std::string> const                     &getInvited(void) const;
