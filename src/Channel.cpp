@@ -3,21 +3,25 @@
 Channel::Channel(void) {
 
     this->name =  "default";
-    this->key = "";
     this->topic = "";
-    this->iMode = false;
-    this->tMode = false;
+    this->key = "";
     this->limitUsers = 10000;
+    this->tMode = false;
+    this->iMode = false;
+    this->lMode = false;
+    this->kMode = false;
 }
 
 Channel::Channel(std::string const &name){
 
     this->name = name;
-    this->key = "";
     this->topic = "";
-    this->iMode = false;
-    this->tMode = false;
+    this->key = "";
     this->limitUsers = 10000;
+    this->tMode = false;
+    this->iMode = false;
+    this->lMode = false;
+    this->kMode = false;
 }
 
 Channel::~Channel(void) { }
@@ -45,6 +49,11 @@ bool    Channel::getIMode(void) const {
 bool    Channel::getTMode(void) const {
 
     return(this->tMode);
+}
+
+std::string const   &Channel::getStringMode(void) const {
+
+    return (this->stringMode);
 }
 
 std::vector<Client> const   &Channel::getUsers(void) const {
@@ -80,6 +89,28 @@ void    Channel::setIMode(bool mode) {
 void    Channel::setTMode(bool mode) {
 
     this->tMode = mode;
+}
+
+void    Channel::setStringMode(void) {
+
+    this->stringMode = "+";
+
+    if (this->tMode)
+        this->stringMode += "t";
+    if (this->iMode)
+        this->stringMode += "i";
+    if (this->lMode)
+        this->stringMode += "l";
+    if (this->kMode)
+        this->stringMode += "k";
+    if (this->lMode)
+    {
+        std::stringstream limit;
+        limit << this->limitUsers;
+        this->stringMode += " " + limit.str();
+    }
+    if (this->kMode)
+        this->stringMode += " " + this->key;
 }
 
 void    Channel::addUser(Client const &client) {

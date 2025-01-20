@@ -81,7 +81,7 @@ void    Server::serverConnect(void)
 void Server::newClient(void)
 {
     std::cout
-        << BLUE << "New Client " << WHITE << std::endl;
+        << BLUE << "New Client" << WHITE << std::endl;
 
     Client newClient;
 
@@ -225,17 +225,11 @@ void    Server::replyJoin(Client const &client, Channel &channel) {
 
     // message de bienvenue dans le canal
     {
-        std::string message = ":" + client.getSourceName() + " JOIN :" + channel.getName() + "\r\n";
         for (size_t i = 0; i < channel.getUsers().size(); i++)
-            sendTemplate(channel.getUsers()[i], message);
+            sendTemplate(channel.getUsers()[i], RPL_JOIN(client.getSourceName(), channel.getName()));
     }
 
-    // Le serveur envoie ensuite une liste des utilisateurs presents dans le canal. Le format est:
-    //     :<servername> 353 <nickname> = <channel> :<users>
-    //     353: code numerique pour RPL_NAMREPLY
-    //     <nickname>: nom de l'utilisateur qui a rejoint le canal
-    //     <channel>: nom du canal
-    //     <users>: liste des utilisateurs dans le canal, separes par des espace. Les prefixes (@, +) indiquent les privileges (operateurs, ...)
+    // liste des utilisateurs presents dans le canal
     {
         std::string message = RPL_NAMREPLY(client.getServerName(), client.getNickName(), channel.getName());
 
@@ -247,15 +241,7 @@ void    Server::replyJoin(Client const &client, Channel &channel) {
         }
         message += CRLF;
         sendTemplate(client, message);
-
     }
-
-    // Le serveur termine avec un message:
-    //     :<servername> 366 <nickname> <channel> :End of /NAMES list
-    //     366: code numerique pour RPL_ENDOFNAMES
-    //     <nickname>: nom de l'utilisateur qui a rejoint le canal
-    //     <channel>: nom du canal
-    // :<server> 366 <nickname> <channel> :End of /NAMES list.
     {
         std::string message = RPL_ENDOFNAMES(client.getServerName(), client.getNickName(), channel.getName());
         sendTemplate(client, message);
@@ -308,9 +294,8 @@ void    Server::replyPrivmsgChannel(Client const &sender, Channel &channel, std:
 
 void    Server::replyTopic(Client const &client, Channel &channel, std::string const &topic) {
 
-    std::string message = RPL_TOPIC(client.getServerName(), client.getNickName(), channel.getName(), topic);
+    std::string message = RPL_TOPIC(client.getSourceName(), channel.getName(), topic);
 
-    std::cout << GREEN << ">> " << message << WHITE << std::flush;
     for (size_t i = 0; i < channel.getUsers().size(); i++)
         sendTemplate(channel.getUsers()[i], message);
 }

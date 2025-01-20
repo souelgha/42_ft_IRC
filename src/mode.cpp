@@ -4,38 +4,24 @@
 
 void    Server::replyModeClient(Client const &client) {
 
-    std::string const message = RPL_UMODEIS(client.getServerName(), client.getNickName(), client.getMode());
-    sendTemplate(client, message);
+    sendTemplate(client, RPL_YOURHOST(client.getServerName(), client.getNickName()));
+    sendTemplate(client, RPL_UMODEIS(client.getServerName(), client.getNickName(), client.getMode()));
 }
 
 void    Server::replyModeChannel(Client const &client, Channel &channel, std::string const &mode) {
 
     std::string message = "";
 
-    std::cout << "In reply mode channel, mode = " << mode << std::endl;
     if (!mode.empty())
     {
         channel.applyMode();   
-        message = RPL_CHANNELMODEIS1(client.getSourceName(), channel.getName(), mode);
+        message = RPL_CHANNELMODEIS(client.getSourceName(), channel.getName(), mode);
     }
     else
         message = RPL_CHANNELMODE(client.getServerName(), client.getNickName(), channel.getName(), mode);
 
     for (size_t i = 0; i < channel.getUsers().size(); i++)
         sendTemplate(channel.getUsers()[i], message);
-}
-
-static bool isDuplicate(std::map<std::string, std::string> &mode, char sent) {
-
-    std::string check;
-
-    check = std::string("+") + sent;
-    if (mode.find(check) != mode.end())
-        return (true);
-    check = std::string("-") + sent;
-    if (mode.find(check) != mode.end())
-        return (true);
-    return (false);
 }
 
 void    Channel::insertNewMode(Server &server, Client &client, char sign, char sent, std::istringstream &parameter) {
@@ -46,8 +32,11 @@ void    Channel::insertNewMode(Server &server, Client &client, char sign, char s
     key = std::string(1, sign) + sent;
     if (sent == 'i' || sent == 'k' || sent == 'l' || sent == 'o' || sent == 't')
     {
-        if (isDuplicate(mode, sent))
-            return ;
+        for (std::vector<std::pair<std::string, std::string> >::iterator it = mode.begin(); it != mode.end(); it++)
+        {
+            if (it->first[1] == sent)
+                return ;
+        }
     }
     if (sent == 'k' || sent == 'o')
     {
@@ -76,26 +65,22 @@ void    Channel::insertNewMode(Server &server, Client &client, char sign, char s
     }
     else if (sent == 'i' || sent == 't' || key == "-l")
         value = "";
-    std::cout << "mode inserted: key = " << key << ", value = " << value << std::endl;
-    mode.insert(std::make_pair(key, value));
+    mode.push_back(std::make_pair(key, value));
 }
 
 void    Channel::adjustMode(Server &server, Client &client, std::string &value) {
 
     std::string         keys;
     size_t              i = 0;
+    char                sign;
 
     if (value.empty() || (value[0] != '+' && value[0] != '-'))
-    {
-        value.clear();
         return ;
-    }
 
     std::istringstream  parameter(value);
     parameter >> keys;
     while (keys[i])
     {
-        char    sign;
         if (keys[i] == '-')
             sign = '-';
         else
@@ -105,7 +90,8 @@ void    Channel::adjustMode(Server &server, Client &client, std::string &value) 
         {
             if (keys[i] != 'i' && keys[i] != 'k' && keys[i] != 'l' && keys[i] != 'o' && keys[i] != 't')
                 server.sendTemplate(client, ERR_UNKNOWNMODE(client.getServerName(), client.getNickName(), keys[i], this->name));
-            insertNewMode(server, client, static_cast<char>(sign), keys[i], parameter);
+            else
+                insertNewMode(server, client, static_cast<char>(sign), keys[i], parameter);
         }
     }
 }
@@ -136,11 +122,21 @@ void    Client::commandMode(Server &server, std::string const &parameter) {
             Channel &channel = server.getChannels()[recipient];
             channel.adjustMode(server, *this, value);
             if (value.empty())
-                server.sendTemplate(*this, RPL_CHANNELMODE(this->serverName, this->nickName, channel.getName(), "+"));
+            {
+                channel.setStringMode();
+                server.sendTemplate(*this, RPL_CHANNELMODE(this->serverName, this->nickName, channel.getName(), channel.getStringMode()));
+            }
+            else if (channel.getMode().empty())
+            {
+                if (value == "b")
+                    server.sendTemplate(*this, RPL_ENDOFBANLIST(this->serverName, this->nickName, channel.getName()));
+                return ;
+            }
             else if (channel.isOperator(this->nickName))
-                server.replyModeChannel(*this, channel, channel.stringMode());
+                server.replyModeChannel(*this, channel, channel.modeToSend());
             else
                 server.sendTemplate(*this, ERR_CHANOPRIVSNEEDED(this->serverName, this->nickName, channel.getName()));
+            channel.clearMode();
         }
     }
     catch (std::exception &e) {
@@ -151,7 +147,7 @@ void    Client::commandMode(Server &server, std::string const &parameter) {
 void    Channel::applyMode(void) 
 {
     
-    std::map<std::string, std::string>::iterator it;
+    std::vector<std::pair<std::string, std::string> >::iterator it;
     for (it = mode.begin() ; it != mode.end(); it++)
     {
         if(it->first == "+i" || it->first == "-i")
@@ -177,12 +173,12 @@ void    Channel::applyMode(void)
     }
 }
 
-std::map<std::string, std::string> const    &Channel::getMode() const {
+std::vector<std::pair<std::string, std::string> > const    &Channel::getMode() const {
 
     return (this->mode);
 }
 
-void Channel:: modeKey(std::map<std::string, std::string>::iterator &it) 
+void Channel:: modeKey(std::vector<std::pair<std::string, std::string> >::iterator &it) 
 {
     if(it->first == "+k")
     {
@@ -195,13 +191,12 @@ void Channel:: modeKey(std::map<std::string, std::string>::iterator &it)
     }
 }
 
-void Channel:: modeL(std::map<std::string, std::string>::iterator &it) 
+void Channel:: modeL(std::vector<std::pair<std::string, std::string> >::iterator &it) 
 {
     if(it->first == "+l" && it->second!= "")
     {
         char const *val = ((it->second).c_str());
         this->limitUsers = std::atoi(val);
-        //si it->second == "" renvoyer => ERROR 461
     }        
     else 
     {
@@ -211,7 +206,7 @@ void Channel:: modeL(std::map<std::string, std::string>::iterator &it)
     
 }
 
-void Channel:: modeI(std::map<std::string, std::string>::iterator &it) 
+void Channel:: modeI(std::vector<std::pair<std::string, std::string> >::iterator &it) 
 {
     if(it->first == "+i")
     {
@@ -226,12 +221,15 @@ void Channel:: modeI(std::map<std::string, std::string>::iterator &it)
     
 }
 
-std::string const   Channel::stringMode(void) {
+std::string const   Channel::modeToSend(void) {
 
-    std::map<std::string, std::string>::iterator    it = this->mode.begin();
+    std::vector<std::pair<std::string, std::string> >::iterator    it = this->mode.begin();
     std::string                                     mode = it->first;
     char                                            sign = it->first[0];
 
+    // std::cout << "Modes:" <<std::endl;
+    // for (std::vector<std::pair<std::string, std::string> >::iterator i = this->mode.begin(); i != this->mode.end(); i++)
+    //     std::cout << i->first << " = " << i->second << std::endl;
     it++;
     for (; it != this->mode.end(); it++)
     {
@@ -251,3 +249,7 @@ std::string const   Channel::stringMode(void) {
     return(mode);
 }
 
+void    Channel::clearMode(void) {
+
+    this->mode.clear();
+}
