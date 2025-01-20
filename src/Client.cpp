@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/20 12:25:37 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/20 16:06:34 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,7 +202,12 @@ void    Client::commandPass(Server &server, std::string const &parameter) {
 
     if (parameter.empty() || parameter != PASSWORD)
     {
-        server.replyWrongPwd(*this);
+        try {
+            server.replyWrongPwd(*this);
+        }
+        catch (std::exception &e) {
+            throw ;
+        }
     }
     this->authentification = true;
 }
@@ -213,24 +218,44 @@ void    Client::commandNick(Server &server, std::string const &parameter)
     {
         if (server.getClients()[i].getNickName() == parameter)
         {
-            server.replyErrNick(*this);
+            try {
+                server.replyErrNick(*this);
+            }
+            catch (std::exception &e) {
+                throw ;
+            }
             return;
         }
         if(parameter.length() > 9 || (!std::isalnum(parameter[0])))
         {
-            server.replyErronNickUse(*this);
+            try {
+                server.replyErronNickUse(*this);
+            }
+            catch (std::exception &e) {
+                throw ;
+            }
             return;
         }
         for (size_t i = 1; i < parameter.size(); i++)
         {
             if(!std::isalnum(parameter[i]) && (parameter[i] != '-' || parameter[i] != '_' || parameter[i] != '|' ))
             {
-                server.replyErronNickUse(*this);
+                try {
+                    server.replyErronNickUse(*this);
+                }
+                catch (std::exception &e) {
+                    throw ;
+                }
                 return;
             }
         }            
     }
-    server.replyNick(*this, parameter);
+    try {
+        server.replyNick(*this, parameter);
+    }
+    catch (std::exception &e) {
+        throw ;
+    }
     this->setNickName(parameter);
     this->setSourceName();
 }
@@ -267,7 +292,12 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
         this->setRealName(realName);
         this->setSourceName();
 
-        server.replyUser(*this);
+        try {
+            server.replyUser(*this);
+        }
+        catch (std::exception &e) {
+            throw ;
+        }
     }
     catch (std::exception &e) {
             throw;
@@ -280,7 +310,12 @@ void    Client::commandQuit(Server &server, std::string const &parameter) {
         std::string   reason = parameter;
         if (!parameter.empty())
             reason = parameter.substr(1, parameter.length() - 1);
-        server.replyQuit(*this, reason);
+        try {
+            server.replyQuit(*this, reason);
+        }
+        catch (std::exception &e) {
+            throw ;
+        }
     }
     catch (std::exception &e) {
         throw ;
@@ -296,18 +331,40 @@ void    Client::commandPrivmsg(Server &server, std::string const &parameter)
     datas >> recipient;
     std::getline(datas >> std::ws, message);
     message = message.substr(1, message.length() - 1);
-    if (server.getChannels().find(recipient) == server.getChannels().end())    {
-        try {
+    if (server.getChannels().find(recipient) == server.getChannels().end())
+    {
+            if (!server.isClient(recipient))
+            {
+                try {
+                    server.sendTemplate(*this, ERR_NOSUCHNICK(this->serverName, this->nickName, recipient));
+                }
+                catch (std::exception &e) {
+                    throw ;
+                }
+                return ;
+            }
             Client  client = server.findClient(recipient);
-            server.replyPrivmsgClient(*this, client, message);
-        }
-        catch (std::exception &e) {
-            throw ;
-        }
+            try {
+                server.replyPrivmsgClient(*this, client, message);
+            }
+            catch (std::exception &e) {
+                throw ;
+            }
     }
     else
     {
-        Channel &channel = server.getChannels()[recipient];
+        std::map<std::string, Channel>::iterator    channelIt = server.getChannels().find(recipient);
+        if (channelIt == server.getChannels().end())
+        {
+            try {
+                server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, recipient));
+            }
+            catch (std::exception &e) {
+                throw ;
+            }
+            return ;
+        }
+        Channel &channel = channelIt->second;
         try {
             server.replyPrivmsgChannel(*this, channel, message);
         }
@@ -322,14 +379,24 @@ void    Client::commandWho(Server &server, std::string const &parameter)
     std::size_t found = parameter.find('#');
     if (found != std::string::npos)
     {
-        Channel &channel = server.getChannels()[parameter];
+        std::map<std::string, Channel>::iterator    channelIt = server.getChannels().find(recipient);
+        if (channelIt == server.getChannels().end())
+        {
+            try {
+                server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, recipient));
+            }
+            catch (std::exception &e) {
+                throw ;
+            }
+            return ;
+        }
+        Channel &channel = channelIt->second;
         try {
             server.replyWho(*this, channel);
-            }
+        }
         catch (std::exception &e) {
             throw ;
         }
-       
     }
 }
 // void    Client::commandWhoIs(Server &server, std::string const &) {
@@ -408,7 +475,12 @@ void    Client::commandPart(Server &server, std::string const &parameter) {
     std::map<std::string, Channel>::iterator    channelIt = server.getChannels().find(channelName);
     if (channelIt == server.getChannels().end())
     {
-        server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, channelName));
+        try {
+            server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, channelName));
+        }
+        catch (std::exception &e) {
+            throw ;
+        }
         return ;
     }
     Channel &channel = channelIt->second;
@@ -431,49 +503,54 @@ void    Client::commandKick(Server &server, std::string const &parameter) {
 
     datas >> channelName;
     datas >> nickname;
-    if (datas.fail())
-    {
-        server.sendTemplate(*this, ERR_NEEDMOREPARAMS(this->serverName, this->nickName, "KICK"));
-        return ;
-    }
-    std::getline(datas >> std::ws, reason);
-    reason = reason.substr(1, reason.length() - 1);
+    try {
+        if (datas.fail())
+        {
+            server.sendTemplate(*this, ERR_NEEDMOREPARAMS(this->serverName, this->nickName, "KICK"));
+            return ;
+        }
+        std::getline(datas >> std::ws, reason);
+        reason = reason.substr(1, reason.length() - 1);
 
-    std::map<std::string, Channel>::iterator    channelIt = server.getChannels().find(channelName);
-    if (channelIt == server.getChannels().end())
-    {
-        server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, channelName));
-        return ;
-    }
-    Channel &channel = channelIt->second;
+        std::map<std::string, Channel>::iterator    channelIt = server.getChannels().find(channelName);
+        if (channelIt == server.getChannels().end())
+        {
+            server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, channelName));
+            return ;
+        }
+        Channel &channel = channelIt->second;
 
-    if (!channel.isOperator(this->nickName))
-    {
-        server.sendTemplate(*this, ERR_CHANOPRIVSNEEDED(this->serverName, this->nickName, channel.getName()));
-        return ;
-    }
+        if (!channel.isOperator(this->nickName))
+        {
+            server.sendTemplate(*this, ERR_CHANOPRIVSNEEDED(this->serverName, this->nickName, channel.getName()));
+            return ;
+        }
 
-    if (!channel.isUser(nickname))
-    {
-        server.sendTemplate(*this, ERR_USERNOTINCHANNEL(this->serverName, this->nickName, nickName, channel.getName()));
-        return ;
-    }
+        if (!channel.isUser(nickname))
+        {
+            server.sendTemplate(*this, ERR_USERNOTINCHANNEL(this->serverName, this->nickName, nickName, channel.getName()));
+            return ;
+        }
 
-    if (!channel.isUser(this->nickName))
-    {
-        server.sendTemplate(*this, ERR_NOTONCHANNEL(this->serverName, this->nickName, channel.getName()));
-        return ;
-    }
+        if (!channel.isUser(this->nickName))
+        {
+            server.sendTemplate(*this, ERR_NOTONCHANNEL(this->serverName, this->nickName, channel.getName()));
+            return ;
+        }
 
-    for (size_t i = 0; i < channel.getUsers().size(); i++)
-    {
-        if (channel.getUsers()[i].getNickName() == nickname)
-            recipient = channel.getUsers()[i];
+        for (size_t i = 0; i < channel.getUsers().size(); i++)
+        {
+            if (channel.getUsers()[i].getNickName() == nickname)
+                recipient = channel.getUsers()[i];
+        }
+        
+        if (reason.empty())
+            reason = this->nickName;
+        server.replyKick(*this, channel, recipient, reason);
     }
-    
-    if (reason.empty())
-        reason = this->nickName;
-    server.replyKick(*this, channel, recipient, reason);
+    catch (std::exception &e) {
+        throw ;
+    }
 }
 
 void    Client::commandInvite(Server &server, std::string const &parameter) {

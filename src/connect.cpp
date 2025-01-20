@@ -4,17 +4,17 @@
 bool    Client::commandConnect(Server &server) 
 {
     std::string buffer = this->buffer;
-    std::size_t cap=buffer.find("CAP");
+    std::size_t cap = buffer.find("CAP");
     std::size_t pwd = buffer.find("PASS");
-    if(cap!=std::string::npos)
+    if(cap != std::string::npos)
     {        
-        if (pwd==std::string::npos)
+        if (pwd == std::string::npos)
         {
             std::string command = "PASS";
             server.replyMissPara(*this, command);
             return(false);
         }
-        if(commandReactConnect(server))
+        if (commandReactConnect(server))
             return(true);
         else
             return(false);
