@@ -13,11 +13,7 @@ void    Client::commandJoin(Server &server, std::string const &parameter)
     datas >> channelName;
     datas >> keyvalue;
 
-    // if (parameter [0] != '#')
-    //     channelName = "#";
-    // channelName += parameter;
-
-     if (channelName [0] != '#')
+    if (channelName [0] != '#')
         channelName += '#';
     std::cout<<"joinchannel name:" << channelName<< std::endl;   
     std::cout<<"keyvalue:" << keyvalue<< std::endl;  
