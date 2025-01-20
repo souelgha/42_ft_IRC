@@ -60,11 +60,11 @@ void    Server::serverConnect(void)
 	if(setsockopt(this->listen_fd, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(en)) == -1)
 		throw(std::runtime_error("Failed to set option on socket\n"));
     if (fcntl(this->listen_fd, F_SETFL, O_NONBLOCK) == -1) 
-		throw(std::runtime_error("faild to set option (O_NONBLOCK) on socket"));
+		throw(std::runtime_error("Failed to set option on socket"));
 
     // lie le socket a l'adresse
     if(bind(this->listen_fd, (struct sockaddr*) &this->listenAddress, listenAddressLength) == -1)
-        throw(std::runtime_error("Failed to bind socket " + std::string(strerror(errno)))); // supprimer errno
+        throw(std::runtime_error("Failed to bind socket "));
 
     // commence a ecouter
     if(listen(this->listen_fd, MAX_CLIENTS) == -1)
@@ -329,15 +329,15 @@ void    Server::replyWho(Client const &client, Channel &channel)
     // std::cout << "ici. channel size:" <<  channel.getUsers().size()<< std::endl;
     for (size_t i = 0; i < channel.getUsers().size(); i++)
     {
-        std::string message1 = RPL_WHOREPLY(client.getServerName(), client.getNickName(), 
+        std::string message = RPL_WHOREPLY(client.getServerName(), client.getNickName(), 
                                 channel.getName(), channel.getUsers()[i].getNickName(), 
                                 channel.getUsers()[i].getUserName(), channel.getUsers()[i].getHostName(), 
                                 channel.getUsers()[i].getRealName());
-        // std::cout << "message who:<"<<message1<<">"<< std::endl;
-        sendTemplate(client, message1);
+        // std::cout << "message who:<"<<message<<">"<< std::endl;
+        sendTemplate(client, message);
     }
-    std::string message2 = RPL_ENDOFWHO(client.getServerName(), client.getNickName(), channel.getName());
-    sendTemplate(client, message2);
+    std::string message = RPL_ENDOFWHO(client.getServerName(), client.getNickName(), channel.getName());
+    sendTemplate(client, message);
 
 }
 

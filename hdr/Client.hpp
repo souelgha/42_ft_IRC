@@ -83,7 +83,7 @@ class   Client
         void                commandQuit(Server &server, std::string const &parameter);
         void                commandPrivmsg(Server &server, std::string const &parameter);
         void                commandWho(Server &server, std::string const &);
-        void                commandWhoIs(Server &server, std::string const &);
+        // void                commandWhoIs(Server &server, std::string const &);
         void                commandPing(Server &server, std::string const &parameter);
         void                commandUnknown(Server &server, std::string const &parameter);
 

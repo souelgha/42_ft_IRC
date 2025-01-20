@@ -32,6 +32,7 @@ class Channel
         std::set<std::string>                               operators;
         std::set<std::string>                               invited;
     
+        void                                                    insertNewMode(Server &server, Client &client, char sign, char sent, std::istringstream &parameter);
     
     public:
 
@@ -82,8 +83,7 @@ class Channel
         void                                                    modeI(std::vector<std::pair<std::string, std::string> >::iterator &it);
         // void                        modeO(std::vector<std::pair<std::string, std::string> >::iterator &it);
         // void                        modeT(std::vector<std::pair<std::string, std::string> >::iterator &it);
-        std::string const                                       modeToSend(void);
         void                                                    adjustMode(Server &server, Client &client, std::string &value);
-        void                                                    insertNewMode(Server &server, Client &client, char sign, char sent, std::istringstream &parameter);
+        std::string const                                       modeToSend(void);
         void                                                    clearMode(void);
 };

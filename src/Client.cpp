@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/17 16:51:45 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/20 11:36:48 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,16 +168,16 @@ void    Client::commandReact(Server &server) {
 void    Client::handleCommand(Server &server, std::string const &, std::string const &command, std::string const &parameter) {
     
   
-    void        (Client::*actions[14])(Server &, std::string const &) =
+    void        (Client::*actions[13])(Server &, std::string const &) =
         {&Client::commandPass, &Client::commandNick, &Client::commandUser,
         &Client::commandMode, &Client::commandQuit, // retravailler la commande QUIT
         &Client::commandJoin, &Client::commandPart, &Client::commandPrivmsg,
         &Client::commandKick, &Client::commandInvite, &Client::commandTopic,
-        &Client::commandWho, &Client::commandWhoIs, &Client::commandPing};
-    std::string sent[] = {"PASS", "NICK", "USER", "MODE", "QUIT", "JOIN", "PART", "PRIVMSG", "KICK", "INVITE", "TOPIC", "WHO", "WHOIS", "PING"};
+        &Client::commandWho, /* &Client::commandWhoIs, */&Client::commandPing};
+    std::string sent[] = {"PASS", "NICK", "USER", "MODE", "QUIT", "JOIN", "PART", "PRIVMSG", "KICK", "INVITE", "TOPIC", "WHO", /*"WHOIS", */"PING"};
     int         i;
 
-    for (i = 0; i < 14; i++)
+    for (i = 0; i < 13; i++)
     {
         if (command == sent[i])
         {
@@ -332,16 +332,16 @@ void    Client::commandWho(Server &server, std::string const &parameter)
        
     }
 }
-void    Client::commandWhoIs(Server &server, std::string const &) {
+// void    Client::commandWhoIs(Server &server, std::string const &) {
 
-    (void) server;
+//     (void) server;
     // try {
     //     // server.replyWho(*this);
     // }
     // catch (std::exception &e) {
     //     throw ;
     // }
-}
+// }
 
 
 void    Client::commandPing(Server &server, std::string const &parameter) {

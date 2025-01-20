@@ -6,7 +6,6 @@
 #include <unistd.h>
 #include <sstream>
 #include <signal.h>
-#include <errno.h>
 #include <vector>
 #include <netinet/in.h>
 #include <arpa/inet.h>
