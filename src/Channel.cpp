@@ -99,7 +99,10 @@ void    Channel::setTMode(bool mode) {
 
     this->tMode = mode;
 }
+void    Channel::setKMode(bool mode) {
 
+    this->kMode = mode;
+}
 void    Channel::addUser(Client const &client) {
 
     users.push_back(client);

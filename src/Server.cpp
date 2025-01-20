@@ -348,10 +348,15 @@ void    Server::replyUnknown(Client const &client, std::string const &command) {
     sendTemplate(client, message);
 }
 
-void    Server::createChannel(Client const &client, std::string const &name)
+void    Server::createChannel(Client const &client, std::string const &name, std::string const &key)
 {
     this->channels[name] = Channel(name);
     this->channels[name].addOper(client.getNickName());
+    if(key != "")
+    {
+        this->channels[name].setKey(key);
+        this->channels[name].setKMode(true);
+    }
     // channels[name].AddUser(client);
 }
 

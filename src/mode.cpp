@@ -53,11 +53,7 @@ void    Channel::insertNewMode(Server &server, Client &client, char sign, char s
         std::cout<< "dans le if insertkey:" << key<< "_value:"<< value<<std::endl;
         if ((sign == '+' && (value.empty()))
             || (sign == '-' && (sent == 'k' && value.empty() && this->oldkey.empty())))
-            {
-                std::cout<< "dans le 2e if :insertkey:" << key<< " _value:"<< value<< " oldvalue: "<< this->oldkey<<std::endl;
-                return ;
-            }
-            
+            return ;
         if (sent == 'o' && !this->isUser(value))
         {
             server.sendTemplate(client, ERR_USERNOTINCHANNEL(client.getServerName(), client.getNickName(), this->name, value));
@@ -68,7 +64,6 @@ void    Channel::insertNewMode(Server &server, Client &client, char sign, char s
         if (sign == '-' && sent == 'k')
         {
             value = this->oldkey;
-            std::cout<< "dans le 3e if :insertkey:" << key<< "_value:"<< value<< " oldvalue: "<< this->oldkey<<std::endl;
         }
     }
     else if (key == "+l")
@@ -114,11 +109,8 @@ void    Channel::adjustMode(Server &server, Client &client, std::string &value) 
             if (keys[i] != 'i' && keys[i] != 'k' && keys[i] != 'l' && keys[i] != 'o' && keys[i] != 't')
                 server.sendTemplate(client, ERR_UNKNOWNMODE(client.getServerName(), client.getNickName(), keys[i], this->name));
             insertNewMode(server, client, static_cast<char>(sign), keys[i], parameter);
-            std::cout << "fin adjmode_key[i] =  " <<key[i] << std::endl;
         }
-        std::cout << "fin du for adjmode .key[i]=" << key[i]  << std::endl;
     }
-     std::cout << "sortie d adjmode .key[i]=" <<std::endl;
 }
 
 void    Client::commandMode(Server &server, std::string const &parameter) {
@@ -145,13 +137,9 @@ void    Client::commandMode(Server &server, std::string const &parameter) {
         else
         {
             Channel &channel = server.getChannels()[recipient];
-            std::cout << "value: " << value << std::endl; 
             channel.adjustMode(server, *this, value); 
-            std::cout << "value apres adjust: " << value << std::endl; 
-            if (value.empty()){
-                server.sendTemplate(*this, RPL_CHANNELMODE(this->serverName, this->nickName, channel.getName(), "+"));
-                std::cout << "ici command mode: " << value << std::endl; 
-            }
+            if (value.empty())
+                server.sendTemplate(*this, RPL_CHANNELMODE(this->serverName, this->nickName, channel.getName(), "+"));            
             else if (channel.isOperator(this->nickName))
                 server.replyModeChannel(*this, channel, channel.stringMode());
             else

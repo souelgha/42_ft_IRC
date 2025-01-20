@@ -109,7 +109,8 @@ class   Server
         void                            replyUnknown(Client const &client, std::string const &command);
 
         /* CHANNEL FUNCTIONS*/
-        void                            createChannel(Client const &client, std::string const &name);
+        // void                            createChannel(Client const &client, std::string const &name);
+        void                            createChannel(Client const &client, std::string const &name, std::string const &key);
         // Channel                         &findChannel(std::string const &name);
         void                            deleteChannel(std::string const &name);
         void                            clearChannels(void);

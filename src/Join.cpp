@@ -24,7 +24,7 @@ void    Client::commandJoin(Server &server, std::string const &parameter)
 
 
     if (server.getChannels().find(channelName) == server.getChannels().end())
-        server.createChannel(*this, channelName);
+        server.createChannel(*this, channelName, keyvalue);
 
     std::map<std::string, Channel>::iterator    channelIt = server.getChannels().find(channelName);
     if (channelIt == server.getChannels().end())
