@@ -8,7 +8,7 @@ bool    Client::commandConnect(Server &server)
     std::size_t pwd = buffer.find("PASS");
     if(cap!=std::string::npos)
     {        
-        if(pwd==std::string::npos)
+        if (pwd==std::string::npos)
         {
             std::string command = "PASS";
             server.replyMissPara(*this, command);
@@ -33,7 +33,6 @@ bool    Client::commandReactConnect(Server &server) {
     while (!buffer.empty() && buffer.find(DELIMITER) != std::string::npos)
     {
         message = extractMessage(buffer);
-        std::cout << "<< " << message << std::endl;
         prefix = extractPrefix(message);
         command = extractCommand(message);
         parameter = message;

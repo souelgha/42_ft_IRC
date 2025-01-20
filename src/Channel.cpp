@@ -11,6 +11,7 @@ Channel::Channel(void) {
     this->lMode = false;
     this->kMode = false;
     this->limitUsers = 10000;
+
 }
 
 Channel::Channel(std::string const &name){
@@ -24,6 +25,7 @@ Channel::Channel(std::string const &name){
     this->lMode = false;
     this->kMode = false;
     this->limitUsers = 10000;
+
 }
 
 Channel::~Channel(void) { }
@@ -65,6 +67,12 @@ size_t    Channel::getLimitUsers(void) const{
     
     return(this->limitUsers);
  }
+
+std::string const   &Channel::getStringMode(void) const {
+
+    return (this->stringMode);
+}
+
 std::vector<Client> const   &Channel::getUsers(void) const {
 
     return (this->users);
@@ -103,6 +111,28 @@ void    Channel::setKMode(bool mode) {
 
     this->kMode = mode;
 }
+void    Channel::setStringMode(void) {
+
+    this->stringMode = "+";
+
+    if (this->tMode)
+        this->stringMode += "t";
+    if (this->iMode)
+        this->stringMode += "i";
+    if (this->lMode)
+        this->stringMode += "l";
+    if (this->kMode)
+        this->stringMode += "k";
+    if (this->lMode)
+    {
+        std::stringstream limit;
+        limit << this->limitUsers;
+        this->stringMode += " " + limit.str();
+    }
+    if (this->kMode)
+        this->stringMode += " " + this->key;
+}
+
 void    Channel::addUser(Client const &client) {
 
     users.push_back(client);

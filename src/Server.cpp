@@ -81,7 +81,7 @@ void    Server::serverConnect(void)
 void Server::newClient(void)
 {
     std::cout
-        << BLUE << "New Client " << WHITE << std::endl;
+        << BLUE << "New Client" << WHITE << std::endl;
 
     Client newClient;
 
@@ -225,10 +225,11 @@ void    Server::replyJoin(Client const &client, Channel &channel) {
 
     // message de bienvenue dans le canal
     {
-        std::string message = ":" + client.getSourceName() + " JOIN :" + channel.getName() + "\r\n";
         for (size_t i = 0; i < channel.getUsers().size(); i++)
-            sendTemplate(channel.getUsers()[i], message);
+            sendTemplate(channel.getUsers()[i], RPL_JOIN(client.getSourceName(), channel.getName()));
     }
+
+    // liste des utilisateurs presents dans le canal
 
     {
         std::string message = RPL_NAMREPLY(client.getServerName(), client.getNickName(), channel.getName());
@@ -241,7 +242,6 @@ void    Server::replyJoin(Client const &client, Channel &channel) {
         }
         message += CRLF;
         sendTemplate(client, message);
-
     }
 
     {
@@ -286,9 +286,8 @@ void    Server::replyPrivmsgChannel(Client const &sender, Channel &channel, std:
 
 void    Server::replyTopic(Client const &client, Channel &channel, std::string const &topic) {
 
-    std::string message = RPL_TOPIC(client.getServerName(), client.getNickName(), channel.getName(), topic);
+    std::string message = RPL_TOPIC(client.getSourceName(), channel.getName(), topic);
 
-    std::cout << GREEN << ">> " << message << WHITE << std::flush;
     for (size_t i = 0; i < channel.getUsers().size(); i++)
         sendTemplate(channel.getUsers()[i], message);
 }

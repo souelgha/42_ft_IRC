@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/17 12:03:03 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/17 16:51:45 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,7 +156,7 @@ void    Client::commandReact(Server &server) {
     while (!buffer.empty() && buffer.find(DELIMITER) != std::string::npos)
     {
         message = extractMessage(buffer);
-        std::cout << "<< " << message << std::endl;
+        std::cout << CYAN << "<< " << message << WHITE << std::endl;
         prefix = extractPrefix(message);
         command = extractCommand(message);
         parameter = message;
@@ -259,21 +259,15 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
     try {
         datas >> userName;
         this->setUserName(userName);
-        std::cout<<"username:<"<< userName<<">"<<std::endl;
         datas >> hostName;
         this->setHostName(hostName);
-         std::cout<<"hostname:<"<< hostName<<">"<<std::endl;
         datas >> serverName;
         this->setServerName(serverName);
-        std::cout<<"servername:<"<< serverName<<">"<<std::endl;
         realName = extractRealName(parameter);
-        std::cout<<"realname:<"<< realName<<">"<<std::endl;
         this->setRealName(realName);
-        this->setSourceName();     
-   
+        this->setSourceName();
+
         server.replyUser(*this);
-        std::cout<<"Welcome SourceName:<"<< sourceName<<">"<<std::endl;
-        
     }
     catch (std::exception &e) {
             throw;
