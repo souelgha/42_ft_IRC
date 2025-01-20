@@ -127,6 +127,7 @@ void    Client::commandMode(Server &server, std::string const &parameter) {
         else
         {
             Channel &channel = server.getChannels()[recipient];
+            std::cout<<"value commandmode: "<< value<<std::endl;
             channel.adjustMode(server, *this, value); 
             if (value.empty())
             {
@@ -173,7 +174,7 @@ std::vector<std::pair<std::string, std::string> > const    &Channel::getMode() c
 
     return (this->mode);
 }
-
+//done
 void Channel:: modeKey(std::vector<std::pair<std::string, std::string> >::iterator &it) 
 {
     if(it->first == "+k")
@@ -183,18 +184,16 @@ void Channel:: modeKey(std::vector<std::pair<std::string, std::string> >::iterat
             this->key = it->second;
             this->oldkey = it->second;
             this->kMode = true;
-        }
-        
+        }        
     }        
     else if(it->first == "-k")
     {        
         this->key = "";
         this->kMode = false;
     }
-    //ajout dans join et check si mode i active
     std::cout<<"modekey value : "<< kMode<< " ; keyvalue "<< this->key<< std::endl; 
 }
-
+//done
 void Channel:: modeL(std::vector<std::pair<std::string, std::string> >::iterator &it) 
 {
     if(it->first == "+l" && it->second!= "")
@@ -202,31 +201,22 @@ void Channel:: modeL(std::vector<std::pair<std::string, std::string> >::iterator
         char const *val = ((it->second).c_str());
         this->limitUsers = std::atoi(val);
         this->lMode = true;
-        //si it->second == "" renvoyer => ERROR 461
     }        
-    else if(it->second == "-l") 
+    else if(it->first == "-l") 
     {
         this->limitUsers = 10000;
         this->lMode = false;
+        
     }
-    //renvoyer ERROR 471 dans Join si channel is full
     
 }
-
+//done
 void Channel:: modeI(std::vector<std::pair<std::string, std::string> >::iterator &it) 
 {
     if(it->first == "+i")
-    {
-        this->iMode = true;
-    }        
+        this->iMode = true;       
     else if(it->first == "-i")
-    {
         this->iMode = false;
-    }
-   // si iMode == true => le +k ne sert pas 
-   // si IMode = false => +k necessaire.
-
-
     
 }
 void Channel:: modeT(std::vector<std::pair<std::string, std::string> >::iterator &it) 
@@ -241,7 +231,7 @@ void Channel:: modeT(std::vector<std::pair<std::string, std::string> >::iterator
     }
     
 }
-
+//done
 void Channel:: modeO(std::vector<std::pair<std::string, std::string> >::iterator &it) 
 {
     if(it->first == "+o" && it->second != "")
@@ -253,28 +243,13 @@ void Channel:: modeO(std::vector<std::pair<std::string, std::string> >::iterator
                 addOper(it->second); 
                 break;
             }
-        }
-    // voir ou est gere l erreur si c est dans la fonction mode ou la mettre ici
-        //ajouter le user dans oper et cehck de l affichage       
+        }    
     }        
     else if(it->first == "-o" && it->second != "")
     {
         if(operators.find(it->second) != operators.end())
-        {
             remOper(it->second);
-        }
-        else
-        {
-            //message d erreur 
-                   /*tt: No such nick/channel
-        19:19 -!- tt #42 They aren't on that channel
-        error 401 et 441
-        ERR_NOSUCHNICK
-        ERR_USERNOTINCHANNEL*/        
-        //retirer user dans op
-        }
-    }
-    
+    }    
 }
 
 std::string const   Channel::modeToSend(void) {
@@ -283,9 +258,9 @@ std::string const   Channel::modeToSend(void) {
     std::string                                     mode = it->first;
     char                                            sign = it->first[0];
 
-    // std::cout << "Modes:" <<std::endl;
-    // for (std::vector<std::pair<std::string, std::string> >::iterator i = this->mode.begin(); i != this->mode.end(); i++)
-    //     std::cout << i->first << " = " << i->second << std::endl;
+    std::cout << "Modes:" <<std::endl;
+    for (std::vector<std::pair<std::string, std::string> >::iterator i = this->mode.begin(); i != this->mode.end(); i++)
+        std::cout << i->first << " = " << i->second << std::endl;
     it++;
     for (; it != this->mode.end(); it++)
     {

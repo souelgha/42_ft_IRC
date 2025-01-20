@@ -8,7 +8,9 @@ SRC = main.cpp \
 	Client.cpp \
 	Channel.cpp \
 	connect.cpp \
-	Join.cpp
+	Join.cpp \
+	Kick.cpp \
+	Invite.cpp
 	
 
 

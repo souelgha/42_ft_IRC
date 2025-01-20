@@ -16,7 +16,7 @@ void    Client::commandJoin(Server &server, std::string const &parameter)
     if (channelName [0] != '#')
         channelName += '#';
     std::cout<<"joinchannel name:" << channelName<< std::endl;   
-    std::cout<<"keyvalue:" << keyvalue<< std::endl;  
+    std::cout<<"keyvalue: " << keyvalue<< std::endl;  
 
 
     if (server.getChannels().find(channelName) == server.getChannels().end())
@@ -29,7 +29,6 @@ void    Client::commandJoin(Server &server, std::string const &parameter)
         return ;
     }
     Channel &channel = channelIt->second;
-//ajouter le check si mode i n existe pas, de check si on a une key active
     try {
         if(channel.getLMode() && channel.getUsers().size() >=channel.getLimitUsers())
             server.sendTemplate(*this, ERR_CHANNELISFULL(this->serverName, this->nickName, channel.getName()));

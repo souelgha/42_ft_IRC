@@ -92,8 +92,6 @@ class Channel
         void                                                    modeT(std::vector<std::pair<std::string, std::string> >::iterator &it);
         
         
-       
-        std::string const                                       modeToSend(void);
         void                                                    adjustMode(Server &server, Client &client, std::string &value);
         std::string const                                       modeToSend(void);
         void                                                    clearMode(void);
