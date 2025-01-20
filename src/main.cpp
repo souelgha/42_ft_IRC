@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:23 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/15 13:43:04 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/20 11:40:36 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,9 @@ int main(int argc, char **argv) {
 
     Server server;
 
-    if (argc != 3)  // a modifier: 2 => 3
+    if (argc != 3)
     {
-        std::cerr << "Usage: ./ircserv <port> <password>" /* <password>" */ << std::endl;
+        std::cerr << "Usage: ./ircserv <port> <password>" << std::endl;
         return (1);
     }
     try {
@@ -47,6 +47,6 @@ int main(int argc, char **argv) {
     }
     server.closeFds();
     server.clearChannels();
-    std::cout<<"Server Closed"<< std::endl;
+    std::cout << "Server Closed" << std::endl;
     return(0);
 }
