@@ -3,25 +3,29 @@
 Channel::Channel(void) {
 
     this->name =  "default";
-    this->topic = "";
     this->key = "";
-    this->limitUsers = 10000;
-    this->tMode = false;
+    this->oldkey = "";
+    this->topic = "";
     this->iMode = false;
+    this->tMode = false;
     this->lMode = false;
     this->kMode = false;
+    this->limitUsers = 10000;
+
 }
 
 Channel::Channel(std::string const &name){
 
     this->name = name;
-    this->topic = "";
     this->key = "";
-    this->limitUsers = 10000;
-    this->tMode = false;
+    this->oldkey = "";
+    this->topic = "";
     this->iMode = false;
+    this->tMode = false;
     this->lMode = false;
     this->kMode = false;
+    this->limitUsers = 10000;
+
 }
 
 Channel::~Channel(void) { }
@@ -36,7 +40,7 @@ std::string const   &Channel::getTopic(void) const {
     return(this->topic);
 }
 
-std::string const   &Channel::getKey(void) const {
+std::string const   Channel::getKey(void) const {
 
     return(this->key);
 }
@@ -50,6 +54,19 @@ bool    Channel::getTMode(void) const {
 
     return(this->tMode);
 }
+bool    Channel::getLMode(void) const {
+
+    return(this->lMode);
+}
+bool    Channel::getKMode(void) const {
+
+    return(this->kMode);
+}
+
+size_t    Channel::getLimitUsers(void) const{
+    
+    return(this->limitUsers);
+ }
 
 std::string const   &Channel::getStringMode(void) const {
 
@@ -90,7 +107,10 @@ void    Channel::setTMode(bool mode) {
 
     this->tMode = mode;
 }
+void    Channel::setKMode(bool mode) {
 
+    this->kMode = mode;
+}
 void    Channel::setStringMode(void) {
 
     this->stringMode = "+";

@@ -30,6 +30,7 @@ void    Channel::insertNewMode(Server &server, Client &client, char sign, char s
     std::string value;
 
     key = std::string(1, sign) + sent;
+    std::cout<< "insertkey:" << key<< std::endl;
     if (sent == 'i' || sent == 'k' || sent == 'l' || sent == 'o' || sent == 't')
     {
         for (std::vector<std::pair<std::string, std::string> >::iterator it = mode.begin(); it != mode.end(); it++)
@@ -41,8 +42,9 @@ void    Channel::insertNewMode(Server &server, Client &client, char sign, char s
     if (sent == 'k' || sent == 'o')
     {
         parameter >> value;
+        std::cout<< "dans le if insertkey:" << key<< "_value:"<< value<<std::endl;
         if ((sign == '+' && (value.empty()))
-            || (sign == '-' && (sent == 'k' && value.empty() && this->key.empty())))
+            || (sign == '-' && (sent == 'k' && value.empty() && this->oldkey.empty())))
             return ;
         if (sent == 'o' && !this->isUser(value))
         {
@@ -50,6 +52,10 @@ void    Channel::insertNewMode(Server &server, Client &client, char sign, char s
             if (!server.isClient(value))
                 server.sendTemplate(client, ERR_NOSUCHNICK(client.getServerName(), client.getNickName(), value));
             return ;
+        }
+        if (sign == '-' && sent == 'k')
+        {
+            value = this->oldkey;
         }
     }
     else if (key == "+l")
@@ -65,6 +71,7 @@ void    Channel::insertNewMode(Server &server, Client &client, char sign, char s
     }
     else if (sent == 'i' || sent == 't' || key == "-l")
         value = "";
+    std::cout << "mode inserted: key = " << key << ", value = " << value << std::endl;
     mode.push_back(std::make_pair(key, value));
 }
 
@@ -120,7 +127,7 @@ void    Client::commandMode(Server &server, std::string const &parameter) {
         else
         {
             Channel &channel = server.getChannels()[recipient];
-            channel.adjustMode(server, *this, value);
+            channel.adjustMode(server, *this, value); 
             if (value.empty())
             {
                 channel.setStringMode();
@@ -145,31 +152,20 @@ void    Client::commandMode(Server &server, std::string const &parameter) {
 }
 
 void    Channel::applyMode(void) 
-{
-    
-    std::vector<std::pair<std::string, std::string> >::iterator it;
+{    
+   std::vector<std::pair<std::string, std::string> >::iterator it;
     for (it = mode.begin() ; it != mode.end(); it++)
     {
         if(it->first == "+i" || it->first == "-i")
-        {
-            // modeI(it);
-        }
+            modeI(it);
         else if(it->first == "+t" || it->first == "-t")
-        {
-            // modeT(it);
-        }
+            modeT(it);
         else if(it->first == "+k" || it->first == "-k")
-        {
             modeKey(it);
-        }
         else if(it->first == "+l" || (it->first == "-l"))
-        {
             modeL(it);
-        }
         else if(it->first == "+o" || it->first == "-o")
-        {
-            // modeO(it);
-        }        
+            modeO(it);
     }
 }
 
@@ -183,12 +179,20 @@ void Channel:: modeKey(std::vector<std::pair<std::string, std::string> >::iterat
     if(it->first == "+k")
     {
         if(it->second != "")
+        {
             this->key = it->second;
+            this->oldkey = it->second;
+            this->kMode = true;
+        }
+        
     }        
     else if(it->first == "-k")
-    {
+    {        
         this->key = "";
+        this->kMode = false;
     }
+    //ajout dans join et check si mode i active
+    std::cout<<"modekey value : "<< kMode<< " ; keyvalue "<< this->key<< std::endl; 
 }
 
 void Channel:: modeL(std::vector<std::pair<std::string, std::string> >::iterator &it) 
@@ -197,10 +201,13 @@ void Channel:: modeL(std::vector<std::pair<std::string, std::string> >::iterator
     {
         char const *val = ((it->second).c_str());
         this->limitUsers = std::atoi(val);
+        this->lMode = true;
+        //si it->second == "" renvoyer => ERROR 461
     }        
-    else 
+    else if(it->second == "-l") 
     {
         this->limitUsers = 10000;
+        this->lMode = false;
     }
     //renvoyer ERROR 471 dans Join si channel is full
     
@@ -218,6 +225,55 @@ void Channel:: modeI(std::vector<std::pair<std::string, std::string> >::iterator
     }
    // si iMode == true => le +k ne sert pas 
    // si IMode = false => +k necessaire.
+
+
+    
+}
+void Channel:: modeT(std::vector<std::pair<std::string, std::string> >::iterator &it) 
+{
+    if(it->first == "+t")
+    {
+        this->tMode = true;
+    }        
+    else if(it->first == "-t")
+    {
+        this->tMode = false;
+    }
+    
+}
+
+void Channel:: modeO(std::vector<std::pair<std::string, std::string> >::iterator &it) 
+{
+    if(it->first == "+o" && it->second != "")
+    {  
+        for (size_t i = 0; i < users.size(); i++)
+        {
+            if(users[i].getNickName() == it->second)
+            {
+                addOper(it->second); 
+                break;
+            }
+        }
+    // voir ou est gere l erreur si c est dans la fonction mode ou la mettre ici
+        //ajouter le user dans oper et cehck de l affichage       
+    }        
+    else if(it->first == "-o" && it->second != "")
+    {
+        if(operators.find(it->second) != operators.end())
+        {
+            remOper(it->second);
+        }
+        else
+        {
+            //message d erreur 
+                   /*tt: No such nick/channel
+        19:19 -!- tt #42 They aren't on that channel
+        error 401 et 441
+        ERR_NOSUCHNICK
+        ERR_USERNOTINCHANNEL*/        
+        //retirer user dans op
+        }
+    }
     
 }
 
@@ -246,6 +302,7 @@ std::string const   Channel::modeToSend(void) {
         if (!it->second.empty())
             mode += " " + it->second;
     }
+    std::cout << "stringMode pour modechannel: "<< mode<<std::endl;
     return(mode);
 }
 

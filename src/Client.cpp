@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/20 11:36:48 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/20 12:25:37 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -364,38 +364,38 @@ void    Client::commandUnknown(Server &server, std::string const &parameter) {
     }
 }
 
-void    Client::commandJoin(Server &server, std::string const &parameter)
-{  
-    std::string                                 channelName = "";
+// void    Client::commandJoin(Server &server, std::string const &parameter)
+// {  
+//     std::string                                 channelName = "";
 
-    if (parameter [0] != '#')
-        channelName = "#";
-    channelName += parameter;
+//     if (parameter [0] != '#')
+//         channelName = "#";
+//     channelName += parameter;
 
-    if (server.getChannels().find(channelName) == server.getChannels().end())
-        server.createChannel(*this, channelName);
+//     if (server.getChannels().find(channelName) == server.getChannels().end())
+//         server.createChannel(*this, channelName);
 
-    std::map<std::string, Channel>::iterator    channelIt = server.getChannels().find(channelName);
-    if (channelIt == server.getChannels().end())
-    {
-        server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, channelName));
-        return ;
-    }
-    Channel &channel = channelIt->second;
-//ajouter le check si mode i n existe pas, de check si on a une key active
-    try {
-        if (channel.getIMode() && !channel.isInvited(this->nickName))
-            server.sendTemplate(*this, ERR_INVITEONLYCHAN(this->serverName, this->nickName, channel.getName()));
-        else
-        {
-            channel.addUser(*this);
-            server.replyJoin(*this, channel);
-        }
-    }
-    catch (std::exception &e) {
-        throw ;
-    }
-}
+//     std::map<std::string, Channel>::iterator    channelIt = server.getChannels().find(channelName);
+//     if (channelIt == server.getChannels().end())
+//     {
+//         server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, channelName));
+//         return ;
+//     }
+//     Channel &channel = channelIt->second;
+// //ajouter le check si mode i n existe pas, de check si on a une key active
+//     try {
+//         if (channel.getIMode() && !channel.isInvited(this->nickName))
+//             server.sendTemplate(*this, ERR_INVITEONLYCHAN(this->serverName, this->nickName, channel.getName()));
+//         else
+//         {
+//             channel.addUser(*this);
+//             server.replyJoin(*this, channel);
+//         }
+//     }
+//     catch (std::exception &e) {
+//         throw ;
+//     }
+// }
 
 void    Client::commandPart(Server &server, std::string const &parameter) {
 

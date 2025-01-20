@@ -230,6 +230,7 @@ void    Server::replyJoin(Client const &client, Channel &channel) {
     }
 
     // liste des utilisateurs presents dans le canal
+
     {
         std::string message = RPL_NAMREPLY(client.getServerName(), client.getNickName(), channel.getName());
 
@@ -242,21 +243,12 @@ void    Server::replyJoin(Client const &client, Channel &channel) {
         message += CRLF;
         sendTemplate(client, message);
     }
+
     {
         std::string message = RPL_ENDOFNAMES(client.getServerName(), client.getNickName(), channel.getName());
         sendTemplate(client, message);
     }
 
-    // Le serveur peut envoyer un message facultatif RPL_TOPIC
-    //     :<servername> 332 <nickname> <channel> :<topic>
-    // {
-    //     std::string message = client.getNickName() + " has join " + channel.getName() + "\r\n";
-
-    //     std::cout << GREEN << ">> " << message << WHITE << std::flush;
-    //     int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
-    //     if (sentBytes == -1)
-    //         throw(std::runtime_error("Failed to send message to client\n")) ;
-    // }
 }
 
 void    Server::replyPart(Client const &client, Channel &channel) {
@@ -333,7 +325,6 @@ void    Server::replyWho(Client const &client, Channel &channel)
                                 channel.getName(), channel.getUsers()[i].getNickName(), 
                                 channel.getUsers()[i].getUserName(), channel.getUsers()[i].getHostName(), 
                                 channel.getUsers()[i].getRealName());
-        // std::cout << "message who:<"<<message<<">"<< std::endl;
         sendTemplate(client, message);
     }
     std::string message = RPL_ENDOFWHO(client.getServerName(), client.getNickName(), channel.getName());
@@ -356,10 +347,15 @@ void    Server::replyUnknown(Client const &client, std::string const &command) {
     sendTemplate(client, message);
 }
 
-void    Server::createChannel(Client const &client, std::string const &name)
+void    Server::createChannel(Client const &client, std::string const &name, std::string const &key)
 {
     this->channels[name] = Channel(name);
     this->channels[name].addOper(client.getNickName());
+    if(key != "")
+    {
+        this->channels[name].setKey(key);
+        this->channels[name].setKMode(true);
+    }
     // channels[name].AddUser(client);
 }
 
