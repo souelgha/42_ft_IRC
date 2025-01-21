@@ -126,7 +126,6 @@ void Server::receiveMessage(Client &client)
         clearClient(client.getFd());
     else
         client.commandReact(*this);
-        
 }
 
 void Server::closeFds(void)
@@ -274,7 +273,7 @@ void    Server::replyPrivmsgClient(Client const &sender, Client const &recipient
 
 void    Server::replyPrivmsgChannel(Client const &sender, Channel &channel, std::string const &toSend) {
 
-    std::string message = ":" + sender.getNickName() + " PRIVMSG " + channel.getName() + " :" + toSend + "\r\n";
+    std::string message = ":" + sender.getSourceName() + " PRIVMSG " + channel.getName() + " :" + toSend + "\r\n";
 
     std::cout << GREEN << ">> " << message << WHITE << std::flush;
     for (size_t i = 0; i < channel.getUsers().size(); i++)
