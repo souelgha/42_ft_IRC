@@ -150,11 +150,11 @@ void Server::receiveMessage(Client &client)
         clearClient(client.getFd());
         return ;
     }
-    std::cout<<MAGENTA<< "client.buffer_avantinco: " << client.buffer<< WHITE<< std::endl;
+    // std::cout<<MAGENTA<< "client.buffer_avantinco: " << client.buffer<< WHITE<< std::endl;
     if (incompleteCommand(client.buffer))
         return ;
     client.buffer[receivedBytes+ buffer_len] = '\0';
-    std::cout<<MAGENTA<< "client.buffer " << client.buffer<< WHITE<< std::endl;
+    // std::cout<<MAGENTA<< "client.buffer " << client.buffer<< WHITE<< std::endl;
     client.commandReact(*this);
 }
 
