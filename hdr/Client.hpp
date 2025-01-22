@@ -20,7 +20,7 @@ class   Server;
 
 class   Client
 {
-    private:
+    protected:
 
         int             fd;                     // fd du client
         std::string     ipAddress;              // adresse socket client
@@ -43,11 +43,12 @@ class   Client
 
         char            buffer[BUFFER_SIZE];    // buffer personnel du client
         bool            authentification;
+
         /* CONSTRUCTORS */
         Client(void);
 
         /* DESTRUCTORS */
-        ~Client(void);
+        virtual ~Client(void);
 
         /* GETTERS */
         int                 getFd(void) const;

@@ -11,8 +11,6 @@ SRC = main.cpp \
 	Join.cpp \
 	Kick.cpp \
 	Invite.cpp
-	
-
 
 OBJ_DIR = obj
 OBJ = ${addprefix ${OBJ_DIR}/, ${SRC:.cpp=.o}}

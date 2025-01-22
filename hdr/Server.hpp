@@ -7,6 +7,7 @@
 #include <sstream>
 #include <signal.h>
 #include <vector>
+#include <map>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -54,7 +55,7 @@ class   Server
         std::vector<Client>             clients;        // liste des clients
         std::map<std::string, Channel>  channels;       // map le nom des channel vers les obj Channel
         // std::vector<std::string>        listChannel;    // liste des channels sur le server
-        
+
         /* CONSTRUCTOR */
         Server(void);
 

@@ -68,7 +68,6 @@ bool    Client::commandReactConnect(Server &server) {
                 this->authentification = true;
                 // return(true);
             }
-            std::cout<< "autent: "<<authentification<<std::endl;
         }
         if(command == "NICK") 
         {
@@ -110,10 +109,11 @@ void    Server::replyErrRegistered(Client &client) {
     std::string const message = ERR_ALREADYREGISTRED(client.getServerName(), client.getNickName());
     sendTemplate(client, message);
 }
+
 void    Server::sendTemplate(Client const &client, std::string const &message)
 {
     // std::cout << GREEN << ">> " << message << WHITE << std::flush;
     int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
     if (sentBytes == -1)
-        throw(std::runtime_error("Failed to send message to client\n")) ;
+        throw(std::runtime_error("Failed to send message to client")) ;
 }
