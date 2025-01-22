@@ -25,7 +25,7 @@ class   Client
         int             fd;                     // fd du client
         std::string     ipAddress;              // adresse socket client
 
-        bool            authentification;
+        // bool            authentification;
 
         std::string     realName;
         std::string     hostName;
@@ -38,7 +38,7 @@ class   Client
     public:
 
         char            buffer[BUFFER_SIZE];    // buffer personnel du client
-
+        bool            authentification;
         /* CONSTRUCTORS */
         Client(void);
 
@@ -86,6 +86,7 @@ class   Client
         // void                commandWhoIs(Server &server, std::string const &);
         void                commandPing(Server &server, std::string const &parameter);
         void                commandUnknown(Server &server, std::string const &parameter);
+        void                commandCap(Server &server, std::string const &parameter) ;
 
         /* CHANNEL COMMANDS */
         void                commandJoin(Server &server, std::string const &parameter);

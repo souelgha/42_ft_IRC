@@ -168,16 +168,16 @@ void    Client::commandReact(Server &server) {
 void    Client::handleCommand(Server &server, std::string const &, std::string const &command, std::string const &parameter) {
     
   
-    void        (Client::*actions[13])(Server &, std::string const &) =
+    void        (Client::*actions[14])(Server &, std::string const &) =
         {&Client::commandPass, &Client::commandNick, &Client::commandUser,
         &Client::commandMode, &Client::commandQuit, // retravailler la commande QUIT
         &Client::commandJoin, &Client::commandPart, &Client::commandPrivmsg,
         &Client::commandKick, &Client::commandInvite, &Client::commandTopic,
-        &Client::commandWho, &Client::commandPing};
-    std::string sent[] = {"PASS", "NICK", "USER", "MODE", "QUIT", "JOIN", "PART", "PRIVMSG", "KICK", "INVITE", "TOPIC", "WHO", "PING"};
+        &Client::commandWho, &Client::commandPing, &Client::commandCap};
+    std::string sent[] = {"PASS", "NICK", "USER", "MODE", "QUIT", "JOIN", "PART", "PRIVMSG", "KICK", "INVITE", "TOPIC", "WHO", "PING", "CAP"};
     int         i;
 
-    for (i = 0; i < 13; i++)
+    for (i = 0; i < 14; i++)
     {
         if (command == sent[i])
         {
@@ -197,7 +197,10 @@ void    Client::handleCommand(Server &server, std::string const &, std::string c
         throw ;
     }
 }
+void    Client::commandCap(Server &, std::string const &) {
 
+  return;
+}
 void    Client::commandPass(Server &server, std::string const &parameter) {
 
     if (parameter.empty() || parameter != server.getPassword())
@@ -214,6 +217,13 @@ void    Client::commandPass(Server &server, std::string const &parameter) {
 
 void    Client::commandNick(Server &server, std::string const &parameter) 
 {
+    if(this->authentification == false)
+    {
+        std::string command ="PASS";
+        server.replyMissPara(*this,command);
+        server.clearClient(this->fd);
+        return;
+    }
     for (size_t i = 0; i < server.getClients().size(); i++)
     {
         if (server.getClients()[i].getNickName() == parameter)
@@ -251,7 +261,8 @@ void    Client::commandNick(Server &server, std::string const &parameter)
         }            
     }
     try {
-        server.replyNick(*this, parameter);
+        if(!this->nickName.empty())
+            server.replyNick(*this, parameter);
     }
     catch (std::exception &e) {
         throw ;
@@ -281,6 +292,18 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
     std::string         serverName;
     std::string         realName;
 
+    if( this->nickName.empty())
+    {
+        try {
+            server.sendTemplate(*this, ERR_NONICKNAMEGIVEN(this->serverName, this->nickName));
+            server.clearClient(fd);
+            return;
+        }
+        catch (std::exception &e) {
+            throw ;
+        }
+        
+    }
     try {
         datas >> userName;
         this->setUserName(userName);

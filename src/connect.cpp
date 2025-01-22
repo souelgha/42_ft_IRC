@@ -4,24 +4,44 @@
 bool    Client::commandConnect(Server &server) 
 {
     std::string buffer = this->buffer;
-    std::size_t cap = buffer.find("CAP");
+    // std::size_t cap = buffer.find("CAP");
+    // if(cap != std::string::npos)
+    //     return(true);
     std::size_t pwd = buffer.find("PASS");
-    if(cap != std::string::npos)
-    {        
-        if (pwd == std::string::npos)
-        {
-            std::string command = "PASS";
-            server.replyMissPara(*this, command);
-            return(false);
-        }
-        if (commandReactConnect(server))
-            return(true);
-        else
-            return(false);
+    if (pwd == std::string::npos && this->authentification == false)
+    {
+        std::string command = "PASS";
+        server.replyMissPara(*this, command);
+        return(false);
     }
+    if (commandReactConnect(server))
+        return(true);
+    else
+        return(false);
     return(true);
    
 }
+// bool    Client::commandConnect(Server &server) 
+// {
+//     std::string buffer = this->buffer;
+//     std::size_t cap = buffer.find("CAP");
+// //     std::size_t pwd = buffer.find("PASS");
+//     if(cap != std::string::npos)
+//     {        
+//         if (pwd == std::string::npos)
+//         {
+//             std::string command = "PASS";
+//             server.replyMissPara(*this, command);
+//             return(false);
+//         }
+//         if (commandReactConnect(server))
+//             return(true);
+//         else
+//             return(false);
+//     }
+//     return(true);
+   
+// }
 bool    Client::commandReactConnect(Server &server) {
 
     std::string buffer = this->buffer;
@@ -43,6 +63,12 @@ bool    Client::commandReactConnect(Server &server) {
                  server.replyWrongPwd(*this);                 
                  return(false);
             }
+            else
+            {
+                this->authentification = true;
+                // return(true);
+            }
+            std::cout<< "autent: "<<authentification<<std::endl;
         }
         if(command == "NICK") 
         {
@@ -56,13 +82,15 @@ bool    Client::commandReactConnect(Server &server) {
             }
             this->setNickName(parameter);
             this->setSourceName();
+            // return(true);
         }
         if(command == "USER")
         {
             commandUser(server, message);
         }  
         buffer = this->buffer;
-    }    
+        // return(true);
+    }  
     return(true);
 }
 void    Server::replyWrongPwd(Client &client) {

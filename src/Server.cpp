@@ -133,7 +133,8 @@ void Server::receiveMessage(Client &client)
 
     size_t  buffer_len = std::strlen(client.buffer);
     int     receivedBytes = recv(client.getFd(), client.buffer + buffer_len, BUFFER_SIZE, 0);
-    if (receivedBytes == -1)
+    std::cout<< "rec: "<<receivedBytes<< std::endl;
+    if (receivedBytes <= 0)
     {
         std::cerr
             << "Failed to receive client's message" << std::endl;
@@ -142,11 +143,18 @@ void Server::receiveMessage(Client &client)
     }
     if (incompleteCommand(client.buffer))
         return ;
-    client.buffer[receivedBytes] = '\0';
-    if(!client.commandConnect(*this))
-        clearClient(client.getFd());
-    else
-        client.commandReact(*this);
+    client.buffer[receivedBytes+ buffer_len] = '\0';
+    std::cout<<MAGENTA<< "client.buffer " << client.buffer<< WHITE<< std::endl;
+    // if(!client.commandConnect(*this))
+    //     clearClient(client.getFd());
+    // else
+    // {
+    client.commandReact(*this);
+    std::cout<<"aut: "<< client.authentification << std::endl;
+        
+
+    // }
+        
 }
 
 void Server::closeFds(void)
