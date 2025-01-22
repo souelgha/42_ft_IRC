@@ -4,12 +4,17 @@ bool    Server::signal = false;
 
 Server::Server(void) { }
 
-Server::Server(int listening_port, std::string const &password) : password(password), listen_port(listening_port), listen_fd(-1) { }
+Server::Server(int listening_port, std::string const &password) : name("ourIRC"), password(password), listen_port(listening_port), listen_fd(-1) { }
 
 Server::~Server(void) {
 
     this->closeFds();
     this->clearChannels();
+}
+
+std::string const   &Server::getName(void) const {
+
+    return (this->name);
 }
 
 std::string const   &Server::getPassword(void) const {

@@ -6,13 +6,13 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/22 16:56:24 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/22 17:31:57 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client(void) : authentification(false) {
+Client::Client(void) : pass_command(false), authentification(false) {
 
     std::fill(buffer, buffer + BUFFER_SIZE, 0);
 }
@@ -130,7 +130,7 @@ std::string Client::extractMessage(std::string const &buffer) {
     return (message);
 }
 
-std::string Client::extractPrefix(std::string &message) {
+std::string extractPrefix(std::string &message) {
 
     std::istringstream  split(message);
     std::string         prefix = "";
@@ -141,7 +141,7 @@ std::string Client::extractPrefix(std::string &message) {
     return (prefix);
 }
 
-std::string Client::extractCommand(std::string &message) {
+std::string extractCommand(std::string &message) {
 
     std::istringstream  split(message);
     std::string         command;
@@ -167,8 +167,8 @@ void    Client::commandReact(Server &server) {
         std::cout
             << CYAN << "<< " << message << WHITE << std::endl;
 
-        prefix = this->extractPrefix(message);
-        command = this->extractCommand(message);
+        prefix = extractPrefix(message);
+        command = extractCommand(message);
         parameter = message;
         try {
             this->handleCommand(server, prefix, command, parameter);
@@ -184,12 +184,11 @@ void    Client::handleCommand(Server &server, std::string const &, std::string c
     
   
     void        (Client::*actions[14])(Server &, std::string const &) =
-        {&Client::commandPass, &Client::commandNick, &Client::commandUser,
-        &Client::commandMode, &Client::commandQuit, // retravailler la commande QUIT
+        {&Client::commandPass, &Client::commandNick, &Client::commandUser, &Client::commandQuit,
         &Client::commandJoin, &Client::commandPart, &Client::commandPrivmsg,
-        &Client::commandKick, &Client::commandInvite, &Client::commandTopic,
+        &Client::commandKick, &Client::commandInvite, &Client::commandTopic, &Client::commandMode,
         &Client::commandWho, &Client::commandPing, &Client::commandCap};
-    std::string sent[] = {"PASS", "NICK", "USER", "MODE", "QUIT", "JOIN", "PART", "PRIVMSG", "KICK", "INVITE", "TOPIC", "WHO", "PING", "CAP"};
+    std::string sent[] = {"PASS", "NICK", "USER", "QUIT", "JOIN", "PART", "PRIVMSG", "KICK", "INVITE", "TOPIC", "MODE", "WHO", "PING", "CAP"};
     int         i;
 
     for (i = 0; i < 14; i++)
@@ -212,24 +211,13 @@ void    Client::handleCommand(Server &server, std::string const &, std::string c
         throw ;
     }
 }
-void    Client::commandCap(Server &, std::string const &) {
 
-  return;
-}
 void    Client::commandPass(Server &server, std::string const &parameter) {
 
+    this->pass_command = true;
+
     if (parameter.empty() || parameter != server.getPassword())
-    {
-        try {
-            server.replyWrongPwd(*this);           
-            server.clearClient(this->fd);
-            server.clearbuffer(this->buffer);
-            std::cout << MAGENTA<< "Error pwd: connection du client fermee fd: " << this->fd<< WHITE<<std::endl;  
-        }
-        catch (std::exception &e) {
-            throw ;
-        }
-    }
+        return ;
     this->authentification = true;
 }
 
@@ -237,12 +225,18 @@ void    Client::commandNick(Server &server, std::string const &parameter)
 {
     if (this->authentification == false)
     {
-        std::string command ="PASS";
-        server.replyMissPara(*this,command);
-        server.clearClient(this->fd);
-        server.clearbuffer(this->buffer);
-        std::cout << MAGENTA<< "Error misspwd: connection du client fermee fd: " << this->fd<< WHITE<<std::endl;
-        return;
+        try {
+            if (this->pass_command == false)
+                server.sendTemplate(*this, ERR_NOTREGISTERED(server.getName(), parameter));
+            else
+                server.sendTemplate(*this, ERR_PASSWDMISMATCH(server.getName(), parameter));
+            server.clearClient(this->fd);
+            server.clearbuffer(this->buffer);
+            return;
+        }
+        catch (std::exception &e) {
+            throw ;
+        }
     }
     for (size_t i = 0; i < server.getClients().size(); i++)
     {
@@ -281,7 +275,7 @@ void    Client::commandNick(Server &server, std::string const &parameter)
         }            
     }
     try {
-        if(!this->nickName.empty())
+        if (!this->nickName.empty())
             server.replyNick(*this, parameter);
     }
     catch (std::exception &e) {
@@ -331,7 +325,7 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
         datas >> hostName;
         this->setHostName(hostName);
         datas >> serverName;
-        this->setServerName(serverName);
+        this->setServerName(server.getName());
         realName = extractRealName(parameter);
         this->setRealName(realName);
         this->setSourceName();
@@ -517,4 +511,9 @@ void    Client::commandTopic(Server &server, std::string const &parameter) {
         return;
     }
     server.replyTopic(*this, channel, newTopic);
+}
+
+void    Client::commandCap(Server &, std::string const &) {
+
+    return;
 }

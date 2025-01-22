@@ -45,6 +45,8 @@ class   Server
 {
     private:
 
+        std::string const               name;
+
         std::string const               password;       // mot de passe pour se connecter au serveur
         static bool                     signal;         // track du signal
         int                             listen_port;    // port d'ecoute
@@ -67,6 +69,7 @@ class   Server
         ~Server(void);
 
         /* GETTERS */
+        std::string const               &getName(void) const ;
         std::string const               &getPassword(void) const ;
         int                             getListenPort(void) const ;
         std::vector<Client>             &getClients(void) ;
@@ -103,6 +106,7 @@ class   Server
         void                            replyPing(Client const &client, std::string const &pong);
        
        /* REPLY ERRORS */
+        void                            replyNotRegistered(Client &client);
         void                            replyWrongPwd(Client &client);
         void                            replyErrNick(Client &client);
         void                            replyErronNickUse(Client &client);

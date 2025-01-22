@@ -25,6 +25,7 @@ class   Client
         int             fd;                     // fd du client
         std::string     ipAddress;              // adresse socket client
 
+        bool            pass_command;
         bool            authentification;
 
         std::string     realName;
@@ -36,8 +37,6 @@ class   Client
         std::string     mode;
 
         std::string         extractMessage(std::string const &buffer);
-        std::string         extractPrefix(std::string &message);
-        std::string         extractCommand(std::string &message);
 
     public:
 
@@ -85,7 +84,7 @@ class   Client
         void                commandWho(Server &server, std::string const &);
         void                commandPing(Server &server, std::string const &parameter);
         void                commandUnknown(Server &server, std::string const &parameter);
-        void                commandCap(Server &server, std::string const &parameter) ;
+        void                commandCap(Server &, std::string const &) ;
 
         /* CHANNEL COMMANDS */
         void                commandJoin(Server &server, std::string const &parameter);
