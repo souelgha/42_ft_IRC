@@ -2,9 +2,20 @@
 
 bool    Server::signal = false;
 
-Server::Server(void) : listen_port(LISTENING_PORT), listen_fd(-1) { }
+Server::Server(void) { }
 
-Server::~Server(void) { }
+Server::Server(int listening_port, std::string const &password) : password(password), listen_port(listening_port), listen_fd(-1) { }
+
+Server::~Server(void) {
+
+    this->closeFds();
+    this->clearChannels();
+}
+
+std::string const   &Server::getPassword(void) const {
+
+    return (this->password);
+}
 
 int Server::getListenPort(void) const {
 
@@ -108,12 +119,20 @@ void Server::newClient(void)
     }
 }
 
+static bool incompleteCommand(char *buffer) {
+
+    if (strstr(buffer, DELIMITER))
+        return (false);
+    return (true);
+}
+
 void Server::receiveMessage(Client &client)
 {
     std::cout
         << YELLOW << "Message received from " << client.getNickName() << " (" << client.getFd() << "):" << WHITE << std::endl;
 
-    int     receivedBytes = recv(client.getFd(), client.buffer, BUFFER_SIZE, 0);
+    size_t  buffer_len = std::strlen(client.buffer);
+    int     receivedBytes = recv(client.getFd(), client.buffer + buffer_len, BUFFER_SIZE, 0);
     if (receivedBytes == -1)
     {
         std::cerr
@@ -121,6 +140,8 @@ void Server::receiveMessage(Client &client)
         clearClient(client.getFd());   // supprime le client
         return ;
     }
+    if (incompleteCommand(client.buffer))
+        return ;
     client.buffer[receivedBytes] = '\0';
     if(!client.commandConnect(*this))
         clearClient(client.getFd());
@@ -266,7 +287,7 @@ void    Server::replyPart(Client const &client, Channel &channel) {
 
 void    Server::replyPrivmsgClient(Client const &sender, Client const &recipient, std::string const &toSend) {
 
-    std::string message = ":" + sender.getNickName() + " PRIVMSG " + recipient.getNickName() + " " + toSend + "\r\n";
+    std::string message = ":" + sender.getSourceName() + " PRIVMSG " + recipient.getNickName() + " :" + toSend + "\r\n";
 
     sendTemplate(recipient, message);
 }

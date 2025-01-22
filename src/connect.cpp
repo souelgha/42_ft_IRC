@@ -38,7 +38,7 @@ bool    Client::commandReactConnect(Server &server) {
         parameter = message;
         if(command == "PASS")
         {
-            if (parameter != PASSWORD)
+            if (parameter != server.getPassword())
             {
                  server.replyWrongPwd(*this);                 
                  return(false);

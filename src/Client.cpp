@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/20 16:17:45 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/22 11:19:35 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,7 +200,7 @@ void    Client::handleCommand(Server &server, std::string const &, std::string c
 
 void    Client::commandPass(Server &server, std::string const &parameter) {
 
-    if (parameter.empty() || parameter != PASSWORD)
+    if (parameter.empty() || parameter != server.getPassword())
     {
         try {
             server.replyWrongPwd(*this);

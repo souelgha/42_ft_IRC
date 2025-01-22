@@ -18,16 +18,16 @@
 #include "RPL_ERR.hpp"
 
 #ifndef MAX_CLIENTS
-# define MAX_CLIENTS 10
+# define MAX_CLIENTS 100
 #endif
 
-#ifndef LISTENING_PORT
-# define LISTENING_PORT 6697
-#endif
+// #ifndef LISTENING_PORT
+// # define LISTENING_PORT 6697
+// #endif
 
-#ifndef PASSWORD
-# define PASSWORD "42"
-#endif
+// #ifndef PASSWORD
+// # define PASSWORD "42"
+// #endif
 
 #define RED "\033[0;31m"
 #define GREEN "\033[0;32m"
@@ -44,7 +44,8 @@ class   Server
 {
     private:
 
-        static bool                     signal ;        // track du signal
+        std::string const               password;       // mot de passe pour se connecter au serveur
+        static bool                     signal;         // track du signal
         int                             listen_port;    // port d'ecoute
         int                             listen_fd;      // fd server
         std::vector<struct pollfd>      fds;            // liste des fds
@@ -54,15 +55,19 @@ class   Server
         std::map<std::string, Channel>  channels;       // map le nom des channel vers les obj Channel
         // std::vector<std::string>        listChannel;    // liste des channels sur le server
         
+        /* CONSTRUCTOR */
+        Server(void);
+
     public:
 
         /* CONSTRUCTOR */
-        Server(void);
+        Server(int listening_port, std::string const &password);
 
         /* DESTRUCTOR */
         ~Server(void);
 
         /* GETTERS */
+        std::string const               &getPassword(void) const ;
         int                             getListenPort(void) const ;
         std::vector<Client>             &getClients(void) ;
         std::map<std::string, Channel>  &getChannels(void) ;
