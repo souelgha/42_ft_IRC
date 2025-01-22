@@ -53,7 +53,6 @@ class   Server
         struct sockaddr_in              clientAddress;  // socket client        
         std::vector<Client>             clients;        // liste des clients
         std::map<std::string, Channel>  channels;       // map le nom des channel vers les obj Channel
-        // std::vector<std::string>        listChannel;    // liste des channels sur le server
         
         /* CONSTRUCTOR */
         Server(void);
@@ -80,6 +79,7 @@ class   Server
         /* UTILS */
         void                            closeFds(void);
         void                            clearClient(int fd);
+        void                            clearbuffer(char *buffer);
         static void                     signalCatch(int signum);
         bool                            isClient(std::string const &nickname);
         Client                          &findClient(std::string const &name);
@@ -99,23 +99,18 @@ class   Server
         void                            replyInvite(Client const &sender, Client const &recipient, Channel &channel);
         void                            replyTopic(Client const &client, Channel &channel, std::string const &topic);
         void                            replyWho(Client const &client, Channel &channel);
-        // void                            replyWhoIs(Client const &client);
         void                            replyPing(Client const &client, std::string const &pong);
        
        /* REPLY ERRORS */
-        void                            replyErrRegistered(Client &client);
         void                            replyWrongPwd(Client &client);
         void                            replyErrNick(Client &client);
         void                            replyErronNickUse(Client &client);
         void                            replyMissPara(Client &client, std::string &command);
         void                            sendTemplate(Client const &client, std::string const &message);
-        // void                            replyWrongConnect(Client &client);
         void                            replyUnknown(Client const &client, std::string const &command);
 
         /* CHANNEL FUNCTIONS*/
-        // void                            createChannel(Client const &client, std::string const &name);
         void                            createChannel(Client const &client, std::string const &name, std::string const &key);
-        // Channel                         &findChannel(std::string const &name);
         void                            deleteChannel(std::string const &name);
         void                            clearChannels(void);
 };

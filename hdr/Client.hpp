@@ -25,7 +25,7 @@ class   Client
         int             fd;                     // fd du client
         std::string     ipAddress;              // adresse socket client
 
-        // bool            authentification;
+        bool            authentification;
 
         std::string     realName;
         std::string     hostName;
@@ -41,8 +41,7 @@ class   Client
 
     public:
 
-        char            buffer[BUFFER_SIZE];    // buffer personnel du client
-        bool            authentification;
+        char            buffer[BUFFER_SIZE];    
         /* CONSTRUCTORS */
         Client(void);
 
@@ -55,10 +54,11 @@ class   Client
         std::string const   &getRealName(void) const;
         std::string const   &getHostName(void) const;
         std::string const   &getUserName(void) const;
-        std::string         getNickName(void) const; // mod sonia
+        std::string         getNickName(void) const; 
         std::string const   &getServerName(void) const;
         std::string const   &getSourceName(void) const;
         std::string const   &getMode(void) const;
+        bool                getAuthentification(void) const;
 
         /* SETTERS */
         void                setFd(int fd);
@@ -73,8 +73,6 @@ class   Client
 
         void                commandReact(Server &server);
         void                handleCommand(Server &server, std::string const &, std::string const &command, std::string const &parameter);
-        bool                commandConnect(Server &server);
-        bool                commandReactConnect(Server &server);
 
         /* COMMANDS */
         void                commandPass(Server &, std::string const &parameter);
@@ -84,7 +82,6 @@ class   Client
         void                commandQuit(Server &server, std::string const &parameter);
         void                commandPrivmsg(Server &server, std::string const &parameter);
         void                commandWho(Server &server, std::string const &);
-        // void                commandWhoIs(Server &server, std::string const &);
         void                commandPing(Server &server, std::string const &parameter);
         void                commandUnknown(Server &server, std::string const &parameter);
         void                commandCap(Server &server, std::string const &parameter) ;

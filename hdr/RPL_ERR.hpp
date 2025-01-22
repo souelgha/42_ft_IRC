@@ -11,7 +11,6 @@
 /* AUTOMATIC COMMANDS */
 #define RPL_UMODEIS(serverName, nickname, mode) (std::string(":") + nickname + " MODE " + nickname + " :" + mode + CRLF)
 #define RPL_ENDOFBANLIST(serverName, nickname, channelName) (std::string(":") + serverName + " 368 " + nickname + " " + channelName + " :End of Channel Ban List" + CRLF)
-// #define RPL_WHOREPLY(servername, nickname, username, hostname, realname) (std::string(":") + servername + " 352 " + nickname + " * "+ username + " " + hostname + " " + servername + " " + nickname + " H" + " :0 " + realname+ CRLF)
 #define RPL_WHOREPLY(serverName, nickRequest, channelName, nickname, userName, hostName, realName) (std::string(":") + serverName + " 352 " + nickRequest + " " + channelName + " " + userName + " " + hostName + " " + serverName + " " + nickname + " H :0 " + realName + CRLF)
 #define RPL_ENDOFWHO(serverName, nickname, channelName) (std::string(":") + serverName + " 315 " + nickname + " " + channelName + " :End of WHO list" + CRLF)
 
@@ -28,19 +27,11 @@
 
 /* COMMAND TOPIC */
 #define RPL_TOPIC(sourceName, channelName, topic) (std::string(":") + sourceName + " TOPIC " + channelName + " :" + topic + CRLF)
-// Unnecessary
 #define RPL_NOTOPIC(serverName, nickname, channelName) (std::string(":") + serverName + " 331 " + nickname + " " + channelName + " :No topic is set" + CRLF)
 
 /* COMMAND MODE */
-// #define RPL_YOUREOPER(servername, nickname,channelname) (std::string(":") + servername + " 381 " + nickname +channelname + " :You are now an IRC operator" + CRLF)
-// #define RPL_WHOISOPERATOR(servername, nickname,channelname) (std::string(":") + servername + " 313 " + nickname +" " +nickname+ " :is an IRC operator of #" + channelname+ CRLF)
-// #define RPL_ENDOFWHOIS(servername, nickname) (std::string(":") + servername + " 318 " + nickname + " " +nickname+ " :End of WHOIS list" + CRLF)
 #define RPL_CHANNELMODEIS(sourceName, channelName, channelMode) (std::string(":") + sourceName + " MODE " + channelName + " " + channelMode + CRLF)
 #define RPL_CHANNELMODE(serverName, nickname, channelName, channelmode) (std::string(":") + serverName + " 324 " + nickname + " " + channelName + " " + channelmode + CRLF)
-
-/* COMMAND WHOIS */
-// #define RPL_WHOISUSER(servername, nickname, username, hostname, realname) (std::string(":") + servername + " 311 " + nickname + " " + username + " " + hostname + " * :" + realname + CRLF)
-// #define RPL_WHOISUSER(servername, nickname, username, hostname) (std::string(":") + servername + " 311 " + nickname + " " + username + " " + hostname + CRLF)
 
 
 /************************************************                 ERRORS             **************************************************************/
@@ -81,7 +72,6 @@
 #define ERR_ERRONEUSNICKNAME(servername,nickname) (std::string(":") + servername  + " 432 " + nickname + " " + nickname +  " :Erroneus nickname" + CRLF)
 
 /**** COMMAND JOIN / PART / KICK / INVITE ERRORS */
-// ERR_NOSUCHCHANNEL: nom invalide du channel
 #define ERR_NOSUCHCHANNEL(servername, nickname, channelname) (std::string(":") + servername + " 403 " + nickname + " " + channelname + " :No such channel" + CRLF)
 #define ERR_TOOMANYCHANNELS(servername,nickname,channelname) (std::string(":") + servername + " 405 " + nickname + " " + channelname + " :You have joined too many channels" + CRLF)
 #define ERR_BADCHANNELKEY(servername,nickname,channelname) (std::string(":") + servername + " 475 " + nickname + " " + channelname + " :cannot join channel (+k)" + CRLF)

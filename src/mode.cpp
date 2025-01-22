@@ -30,7 +30,6 @@ void    Channel::insertNewMode(Server &server, Client &client, char sign, char s
     std::string value;
 
     key = std::string(1, sign) + sent;
-    std::cout<< "insertkey:" << key<< std::endl;
     if (sent == 'i' || sent == 'k' || sent == 'l' || sent == 'o' || sent == 't')
     {
         for (std::vector<std::pair<std::string, std::string> >::iterator it = mode.begin(); it != mode.end(); it++)
@@ -42,7 +41,6 @@ void    Channel::insertNewMode(Server &server, Client &client, char sign, char s
     if (sent == 'k' || sent == 'o')
     {
         parameter >> value;
-        std::cout<< "dans le if insertkey:" << key<< "_value:"<< value<<std::endl;
         if ((sign == '+' && (value.empty()))
             || (sign == '-' && (sent == 'k' && value.empty() && this->oldkey.empty())))
             return ;
@@ -127,7 +125,6 @@ void    Client::commandMode(Server &server, std::string const &parameter) {
         else
         {
             Channel &channel = server.getChannels()[recipient];
-            std::cout<<"value commandmode: "<< value<<std::endl;
             channel.adjustMode(server, *this, value); 
             if (value.empty())
             {

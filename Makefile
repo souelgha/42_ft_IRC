@@ -7,7 +7,7 @@ SRC = main.cpp \
 	mode.cpp \
 	Client.cpp \
 	Channel.cpp \
-	connect.cpp \
+	Reply.cpp \
 	Join.cpp \
 	Kick.cpp \
 	Invite.cpp

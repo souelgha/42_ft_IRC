@@ -14,20 +14,6 @@
 #include "Client.hpp"
 #include "Server.hpp"
 
-// static void checkArgs(char **argv, int listening_port) {
-
-//     for (size_t i = 0; argv[1][i]; i++)
-//     {
-//         if (!isdigit(argv[1][i]))
-//             throw(std::runtime_error("Wrong port\n"));
-//     }
-//     if (atoi(argv[1]) != listening_port)
-//         throw(std::runtime_error("Wrong port\n"));
-//     // ajout du check du password et enregistrement du pwd
-//     if(strcmp(argv[2], PASSWORD) != 0)
-//         throw(std::runtime_error("Wrong password\n"));
-// }
-
 static int  getListeningPort(char *arg) {
 
     int         listening_port;
@@ -59,7 +45,6 @@ static std::string const    getPassword(char *arg) {
 
 int main(int argc, char **argv) {
 
-    // Server server;
 
     if (argc != 3)
     {
@@ -69,9 +54,8 @@ int main(int argc, char **argv) {
     try {
         int                 listening_port = getListeningPort(argv[1]);
         std::string const   password = getPassword(argv[2]);
-
         Server              server(listening_port, password);
-        // checkArgs(argv, server.getListenPort());
+
         signal(SIGINT, Server::signalCatch);
         signal(SIGQUIT, Server::signalCatch);
         server.serverInit();
@@ -79,8 +63,6 @@ int main(int argc, char **argv) {
     catch(const std::exception& e) {
         std::cerr << e.what() << std::endl;    
     }
-    // server.closeFds();
-    // server.clearChannels();
     std::cout << "Server Closed" << std::endl;
     return(0);
 }

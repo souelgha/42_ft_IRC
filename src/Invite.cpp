@@ -3,7 +3,6 @@
 #include "Channel.hpp"
 
 
-
 void    Client::commandInvite(Server &server, std::string const &parameter) {
 
     std::istringstream  datas(parameter);
@@ -51,4 +50,14 @@ void    Client::commandInvite(Server &server, std::string const &parameter) {
             recipient = server.getClients()[i];
     }
     server.replyInvite(*this, recipient, channel);
+}
+
+void    Server::replyInvite(Client const &sender, Client const &recipient, Channel &channel) {
+
+    std::string message = RPL_INVITING(sender.getServerName(), sender.getNickName(), recipient.getNickName(), channel.getName());
+
+    std::cout << GREEN << ">> " << message << WHITE << std::flush;
+    sendTemplate(sender, message);
+    sendTemplate(recipient, message);
+    channel.addInvited(recipient.getNickName());
 }

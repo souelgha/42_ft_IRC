@@ -46,5 +46,30 @@ void    Client::commandJoin(Server &server, std::string const &parameter)
         throw ;
     }
 }
-//ajouter check de key si modeI non active 
-//ajouter le check du nbre utilisateur si mode l active.
+
+void    Server::replyJoin(Client const &client, Channel &channel) {
+
+    {
+        for (size_t i = 0; i < channel.getUsers().size(); i++)
+            sendTemplate(channel.getUsers()[i], RPL_JOIN(client.getSourceName(), channel.getName()));
+    }
+
+    {
+        std::string message = RPL_NAMREPLY(client.getServerName(), client.getNickName(), channel.getName());
+
+        for (size_t i = 0; i < channel.getUsers().size(); i++)
+        {
+            if (channel.isOperator(channel.getUsers()[i].getNickName()))
+                message += "@";
+            message += channel.getUsers()[i].getNickName() + " ";
+        }
+        message += CRLF;
+        sendTemplate(client, message);
+    }
+
+    {
+        std::string message = RPL_ENDOFNAMES(client.getServerName(), client.getNickName(), channel.getName());
+        sendTemplate(client, message);
+    }
+
+}

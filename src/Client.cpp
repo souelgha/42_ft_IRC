@@ -49,6 +49,11 @@ std::string Client::getNickName(void) const {
     return(this->nickName);
 }
 
+bool  Client::getAuthentification(void) const{
+    
+    return(this->authentification);
+}
+
 std::string const   &Client::getServerName(void) const {
 
     return(this->serverName);
@@ -213,7 +218,10 @@ void    Client::commandPass(Server &server, std::string const &parameter) {
     if (parameter.empty() || parameter != server.getPassword())
     {
         try {
-            server.replyWrongPwd(*this);
+            server.replyWrongPwd(*this);           
+            server.clearClient(this->fd);
+            server.clearbuffer(this->buffer);
+            std::cout << MAGENTA<< "Error pwd: connection du client fermee fd: " << this->fd<< WHITE<<std::endl;  
         }
         catch (std::exception &e) {
             throw ;
@@ -229,6 +237,8 @@ void    Client::commandNick(Server &server, std::string const &parameter)
         std::string command ="PASS";
         server.replyMissPara(*this,command);
         server.clearClient(this->fd);
+        server.clearbuffer(this->buffer);
+        std::cout << MAGENTA<< "Error misspwd: connection du client fermee fd: " << this->fd<< WHITE<<std::endl;
         return;
     }
     for (size_t i = 0; i < server.getClients().size(); i++)
@@ -304,6 +314,7 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
         try {
             server.sendTemplate(*this, ERR_NONICKNAMEGIVEN(this->serverName, this->nickName));
             server.clearClient(fd);
+            std::cout << MAGENTA<< "Error nonick: connection du client fermee fd: " << this->fd<< WHITE<<std::endl;
             return;
         }
         catch (std::exception &e) {
@@ -476,7 +487,8 @@ void    Client::commandPart(Server &server, std::string const &parameter) {
 void    Client::commandTopic(Server &server, std::string const &parameter) {
 
     std::cout<<"parameter : <" <<parameter<<">" << std::endl;
-    if(parameter == "TOPIC ")
+    std::size_t chan = parameter.find("#");
+    if(chan == std::string::npos)
     {   
         server.sendTemplate(*this, ERR_NEEDMOREPARAMS(this->serverName, this->nickName, "TOPIC"));
         return;

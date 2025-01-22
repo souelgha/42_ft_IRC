@@ -32,15 +32,13 @@ class Channel
         std::set<std::string>                               operators;
         std::set<std::string>                               invited;
     
-        void                                                    insertNewMode(Server &server, Client &client, char sign, char sent, std::istringstream &parameter);
+        void                                                insertNewMode(Server &server, Client &client, char sign, char sent, std::istringstream &parameter);
     
     public:
 
         /* CONSTRUCTORS */
         Channel(void);
         Channel(std::string const &channelName);
-        // Channel(const Channel &other);
-        // Channel &operator=(const Channel &other);
 
         /* DESTRUCTORS */
         ~Channel(void);
@@ -48,7 +46,7 @@ class Channel
         /* GETTERS */
 
         std::string const                                       &getName(void) const;
-        std::vector<std::pair<std::string, std::string> > const  &getMode(void) const;
+        std::vector<std::pair<std::string, std::string> > const &getMode(void) const;
   
         std::string const                                       &getTopic(void) const;
         std::string const                                       getKey(void) const;
@@ -83,7 +81,6 @@ class Channel
         bool                                                    isInvited(std::string const &nickname);
 
         /* GESTION DES MODES */
-        // void                        modeKey(std::string const &value);
         void                                                    applyMode(void) ;
         void                                                    modeKey(std::vector<std::pair<std::string, std::string> > ::iterator &it);
         void                                                    modeL(std::vector<std::pair<std::string, std::string> > ::iterator &it);
