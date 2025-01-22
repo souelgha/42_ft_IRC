@@ -35,6 +35,10 @@ class   Client
         std::string     sourceName;
         std::string     mode;
 
+        std::string         extractMessage(std::string const &buffer);
+        std::string         extractPrefix(std::string &message);
+        std::string         extractCommand(std::string &message);
+
     public:
 
         char            buffer[BUFFER_SIZE];    // buffer personnel du client
@@ -67,9 +71,6 @@ class   Client
         void                setSourceName(void);
         void                setMode(std::string const &mode);
 
-        std::string         extractMessage(std::string const &buffer);
-        std::string         extractPrefix(std::string &message);
-        std::string         extractCommand(std::string &message);
         void                commandReact(Server &server);
         void                handleCommand(Server &server, std::string const &, std::string const &command, std::string const &parameter);
         bool                commandConnect(Server &server);

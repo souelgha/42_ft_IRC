@@ -34,7 +34,12 @@ std::map<std::string, Channel>  &Server::getChannels(void) {
 
 void    Server::serverInit(void)
 {
-    serverConnect();
+    try {
+        serverConnect();
+    }
+    catch (std::exception &e) {
+        throw ;
+    }
 
     std::cout
         << RED << "En attente de nouvelles connexions..." << WHITE << std::endl;
@@ -46,14 +51,19 @@ void    Server::serverInit(void)
         {
             if (this->fds[i].revents & POLLIN)    // si un evenement a eu lieu
             {
-                if (this->fds[i].fd == this->listen_fd)  // si cet evenement a lieu sur le port d'ecoute => ajouter un nouveau client
-                    newClient();
-                else
-                    receiveMessage(this->clients[i - 1]);
+                try {
+                    if (this->fds[i].fd == this->listen_fd)  // si cet evenement a lieu sur le port d'ecoute => ajouter un nouveau client
+                        newClient();
+                    else
+                        receiveMessage(this->clients[i - 1]);
+                }
+                catch (std::exception &e) {
+                    throw ;
+                }
             }
         }
     }   
-    closeFds();
+    // closeFds();
 }
 
 void    Server::serverConnect(void)
@@ -61,7 +71,7 @@ void    Server::serverConnect(void)
     this->listenAddress.sin_family = AF_INET;                     
     this->listenAddress.sin_port = htons(this->listen_port);      
     this->listenAddress.sin_addr.s_addr = INADDR_ANY;             
-    socklen_t listenAddressLength = sizeof(this->listenAddress);  
+    socklen_t   listenAddressLength = sizeof(this->listenAddress);  
 
     this->listen_fd = socket(AF_INET, SOCK_STREAM, 0);
     if(this->listen_fd == -1)
@@ -98,7 +108,7 @@ void Server::newClient(void)
 
     int clientAddressLength = sizeof(this->clientAddress);
     int connection_fd = accept(this->listen_fd, (struct sockaddr*) &this->clientAddress, (socklen_t *) &clientAddressLength);
-    if(connection_fd == -1)
+    if (connection_fd == -1)
         throw(std::runtime_error("Failed to accept\n")); 
     if (this->fds.size() < MAX_CLIENTS)
     {

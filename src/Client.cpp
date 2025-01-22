@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/22 11:19:35 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/22 12:19:22 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,12 +155,19 @@ void    Client::commandReact(Server &server) {
 
     while (!buffer.empty() && buffer.find(DELIMITER) != std::string::npos)
     {
-        message = extractMessage(buffer);
-        std::cout << CYAN << "<< " << message << WHITE << std::endl;
-        prefix = extractPrefix(message);
-        command = extractCommand(message);
+        message = this->extractMessage(buffer);
+        std::cout
+            << CYAN << "<< " << message << WHITE << std::endl;
+
+        prefix = this->extractPrefix(message);
+        command = this->extractCommand(message);
         parameter = message;
-        this->handleCommand(server, prefix, command, parameter);
+        try {
+            this->handleCommand(server, prefix, command, parameter);
+        }
+        catch (std::exception &e) {
+            throw ;
+        }
         buffer = this->buffer;
     }
 }
