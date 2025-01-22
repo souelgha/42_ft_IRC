@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/22 11:19:35 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/22 12:19:22 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,12 +155,19 @@ void    Client::commandReact(Server &server) {
 
     while (!buffer.empty() && buffer.find(DELIMITER) != std::string::npos)
     {
-        message = extractMessage(buffer);
-        std::cout << CYAN << "<< " << message << WHITE << std::endl;
-        prefix = extractPrefix(message);
-        command = extractCommand(message);
+        message = this->extractMessage(buffer);
+        std::cout
+            << CYAN << "<< " << message << WHITE << std::endl;
+
+        prefix = this->extractPrefix(message);
+        command = this->extractCommand(message);
         parameter = message;
-        this->handleCommand(server, prefix, command, parameter);
+        try {
+            this->handleCommand(server, prefix, command, parameter);
+        }
+        catch (std::exception &e) {
+            throw ;
+        }
         buffer = this->buffer;
     }
 }
@@ -168,16 +175,16 @@ void    Client::commandReact(Server &server) {
 void    Client::handleCommand(Server &server, std::string const &, std::string const &command, std::string const &parameter) {
     
   
-    void        (Client::*actions[13])(Server &, std::string const &) =
-        {&Client::commandPass, &Client::commandNick, &Client::commandUser,
+    void        (Client::*actions[12])(Server &, std::string const &) =
+        {&Client::commandNick, &Client::commandUser,
         &Client::commandMode, &Client::commandQuit, // retravailler la commande QUIT
         &Client::commandJoin, &Client::commandPart, &Client::commandPrivmsg,
         &Client::commandKick, &Client::commandInvite, &Client::commandTopic,
         &Client::commandWho, &Client::commandPing};
-    std::string sent[] = {"PASS", "NICK", "USER", "MODE", "QUIT", "JOIN", "PART", "PRIVMSG", "KICK", "INVITE", "TOPIC", "WHO", "PING"};
+    std::string sent[] = {"NICK", "USER", "MODE", "QUIT", "JOIN", "PART", "PRIVMSG", "KICK", "INVITE", "TOPIC", "WHO", "PING"};
     int         i;
 
-    for (i = 0; i < 13; i++)
+    for (i = 0; i < 12; i++)
     {
         if (command == sent[i])
         {
@@ -198,19 +205,19 @@ void    Client::handleCommand(Server &server, std::string const &, std::string c
     }
 }
 
-void    Client::commandPass(Server &server, std::string const &parameter) {
+// void    Client::commandPass(Server &server, std::string const &parameter) {
 
-    if (parameter.empty() || parameter != server.getPassword())
-    {
-        try {
-            server.replyWrongPwd(*this);
-        }
-        catch (std::exception &e) {
-            throw ;
-        }
-    }
-    this->authentification = true;
-}
+//     if (parameter.empty() || parameter != server.getPassword())
+//     {
+//         try {
+//             server.replyWrongPwd(*this);
+//         }
+//         catch (std::exception &e) {
+//             throw ;
+//         }
+//     }
+//     this->authentification = true;
+// }
 
 void    Client::commandNick(Server &server, std::string const &parameter) 
 {
