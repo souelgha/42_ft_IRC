@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/22 12:19:22 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/22 16:56:24 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,9 +123,10 @@ std::string Client::extractMessage(std::string const &buffer) {
 
     end = buffer.find(DELIMITER);
     message = buffer.substr(0, end);
-    remainder = buffer.substr(end + 2, buffer.length() - (end + 2));
+    remainder = buffer.substr(end + std::strlen(DELIMITER), buffer.length() - (end + std::strlen(DELIMITER)));
     std::fill(this->buffer, this->buffer + BUFFER_SIZE, 0);
-    std::memcpy(this->buffer, remainder.c_str(), remainder.length());
+    if (!remainder.empty())
+        std::memcpy(this->buffer, remainder.c_str(), remainder.length());
     return (message);
 }
 
@@ -147,6 +148,8 @@ std::string Client::extractCommand(std::string &message) {
 
     split >> command;
     std::getline(split >> std::ws, message);
+    if (split.fail())
+        message.clear();
     return (command);
 }
 
@@ -232,7 +235,7 @@ void    Client::commandPass(Server &server, std::string const &parameter) {
 
 void    Client::commandNick(Server &server, std::string const &parameter) 
 {
-    if(this->authentification == false)
+    if (this->authentification == false)
     {
         std::string command ="PASS";
         server.replyMissPara(*this,command);
@@ -483,12 +486,9 @@ void    Client::commandPart(Server &server, std::string const &parameter) {
     }
 }
 
-//done
 void    Client::commandTopic(Server &server, std::string const &parameter) {
 
-    std::cout<<"parameter : <" <<parameter<<">" << std::endl;
-    std::size_t chan = parameter.find("#");
-    if(chan == std::string::npos)
+    if (parameter.empty())
     {   
         server.sendTemplate(*this, ERR_NEEDMOREPARAMS(this->serverName, this->nickName, "TOPIC"));
         return;
@@ -498,10 +498,7 @@ void    Client::commandTopic(Server &server, std::string const &parameter) {
     std::string         channelName;
     std::string         newTopic;
     
-    datas >> channelName;    
-    std::getline(datas >> std::ws, newTopic);
-    newTopic = newTopic.substr(1, newTopic.length() - 1);
-
+    datas >> channelName;
     std::map<std::string, Channel>::iterator    channelIt = server.getChannels().find(channelName);
     if (channelIt == server.getChannels().end())
     {
@@ -509,7 +506,12 @@ void    Client::commandTopic(Server &server, std::string const &parameter) {
         return ;
     }
     Channel &channel = channelIt->second;
-    if(channel.getTMode() && (!channel.isOperator(this->nickName)))
+
+    std::getline(datas >> std::ws, newTopic);
+    if (!datas.fail())
+        newTopic = newTopic.substr(1, newTopic.length() - 1);
+
+    if (channel.getTMode() && (!channel.isOperator(this->nickName)))
     {
         server.sendTemplate(*this, ERR_CHANOPRIVSNEEDED(this->serverName, this->nickName, channel.getName()));
         return;

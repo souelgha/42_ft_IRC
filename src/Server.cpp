@@ -75,21 +75,21 @@ void    Server::serverConnect(void)
 
     this->listen_fd = socket(AF_INET, SOCK_STREAM, 0);
     if(this->listen_fd == -1)
-        throw(std::runtime_error("Failed to initialise socket\n"));
+        throw(std::runtime_error("Failed to initialise socket"));
 
     int en = 1;
 	if(setsockopt(this->listen_fd, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(en)) == -1)
-		throw(std::runtime_error("Failed to set option on socket\n"));
+		throw(std::runtime_error("Failed to set option on socket"));
     if (fcntl(this->listen_fd, F_SETFL, O_NONBLOCK) == -1) 
 		throw(std::runtime_error("Failed to set option on socket"));
 
     // lie le socket a l'adresse
     if(bind(this->listen_fd, (struct sockaddr*) &this->listenAddress, listenAddressLength) == -1)
-        throw(std::runtime_error("Failed to bind socket "));
+        throw(std::runtime_error("Failed to bind socket"));
 
     // commence a ecouter
     if(listen(this->listen_fd, MAX_CLIENTS) == -1)
-        throw(std::runtime_error("Failed to listen\n"));    
+        throw(std::runtime_error("Failed to listen"));    
 
     // permet de verifier les evenements
     struct pollfd   newPoll;
@@ -109,7 +109,7 @@ void Server::newClient(void)
     int clientAddressLength = sizeof(this->clientAddress);
     int connection_fd = accept(this->listen_fd, (struct sockaddr*) &this->clientAddress, (socklen_t *) &clientAddressLength);
     if (connection_fd == -1)
-        throw(std::runtime_error("Failed to accept\n")); 
+        throw(std::runtime_error("Failed to accept")); 
     if (this->fds.size() < MAX_CLIENTS)
     {
         struct pollfd   newPoll;
@@ -142,7 +142,7 @@ void Server::receiveMessage(Client &client)
         << YELLOW << "Message received from " << client.getNickName() << " (" << client.getFd() << "):" << WHITE << std::endl;
 
     size_t  buffer_len = std::strlen(client.buffer);
-    int     receivedBytes = recv(client.getFd(), client.buffer + buffer_len, BUFFER_SIZE -buffer_len, 0);
+    int     receivedBytes = recv(client.getFd(), client.buffer + buffer_len, BUFFER_SIZE - buffer_len, 0);
     if (receivedBytes <= 0)
     {
         std::cerr
@@ -154,9 +154,8 @@ void Server::receiveMessage(Client &client)
     if (incompleteCommand(client.buffer))
         return ;
     client.buffer[receivedBytes+ buffer_len] = '\0';
-    std::cout<<MAGENTA<< "client.buffer: " << client.buffer<< WHITE<< std::endl;
-    client.commandReact(*this);  
-        
+    std::cout<<MAGENTA<< "client.buffer " << client.buffer<< WHITE<< std::endl;
+    client.commandReact(*this);
 }
 
 void Server::closeFds(void)
@@ -212,7 +211,7 @@ Client &Server::findClient(std::string const &name)
         if (this->clients[i].getNickName() == name)
             return (this->clients[i]);
     }
-    throw (std::runtime_error("Nickname does not exist\n"));
+    throw (std::runtime_error("Nickname does not exist"));
 }
 
 bool    Server::isClient(std::string const &nickname) {

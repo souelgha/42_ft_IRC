@@ -23,7 +23,7 @@ int main()
     socketAdress.sin_family = AF_INET;
     socketAdress.sin_port = htons(LISTENING_PORT);
     
-   int inetReturnCode = inet_pton(AF_INET, CONNECTION_HOST, &socketAdress.sin_addr);
+    int inetReturnCode = inet_pton(AF_INET, CONNECTION_HOST, &socketAdress.sin_addr);
     if (inetReturnCode == -1)
     {
         std::cout << "<client> Adress invalid "<< std::endl;

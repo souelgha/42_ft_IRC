@@ -1,5 +1,7 @@
 {
 	"files.associations": {
+		"stdexcept": "cpp",
+		"iostream": "cpp",
 		"array": "cpp",
 		"atomic": "cpp",
 		"bit": "cpp",
@@ -39,7 +41,6 @@
 		"utility": "cpp",
 		"initializer_list": "cpp",
 		"iosfwd": "cpp",
-		"iostream": "cpp",
 		"istream": "cpp",
 		"limits": "cpp",
 		"new": "cpp",
@@ -48,7 +49,6 @@
 		"ranges": "cpp",
 		"span": "cpp",
 		"sstream": "cpp",
-		"stdexcept": "cpp",
 		"streambuf": "cpp",
 		"typeinfo": "cpp"
 	}

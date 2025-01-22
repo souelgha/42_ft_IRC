@@ -7,6 +7,7 @@
 #include <sstream>
 #include <signal.h>
 #include <vector>
+#include <map>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -53,7 +54,7 @@ class   Server
         struct sockaddr_in              clientAddress;  // socket client        
         std::vector<Client>             clients;        // liste des clients
         std::map<std::string, Channel>  channels;       // map le nom des channel vers les obj Channel
-        
+
         /* CONSTRUCTOR */
         Server(void);
 

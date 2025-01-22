@@ -42,11 +42,12 @@ class   Client
     public:
 
         char            buffer[BUFFER_SIZE];    
+
         /* CONSTRUCTORS */
         Client(void);
 
         /* DESTRUCTORS */
-        ~Client(void);
+        virtual ~Client(void);
 
         /* GETTERS */
         int                 getFd(void) const;
