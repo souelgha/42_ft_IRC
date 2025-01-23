@@ -17,7 +17,20 @@ Client::Client(void) : pass_command(false), authentification(false) {
     std::fill(buffer, buffer + BUFFER_SIZE, 0);
 }
 
-Client::~Client(void) { }
+Client::~Client(void) {
+        
+    std::cout << "client destructor" << std::endl;
+    size_t it;
+    for(it = 0; it < listchannel.size(); it++)
+    {
+        std::cout << "In the loop" << std::endl;
+        this->listchannel[it]->remUser(*this);
+        this->listchannel[it]->remOper(this->nickName);
+        this->listchannel[it]->remInvited(this->nickName);
+
+    }
+ 
+ }
 
 int Client::getFd(void) const {
 
@@ -412,6 +425,8 @@ void    Client::commandPrivmsg(Server &server, std::string const &parameter)
             return ;
         }
         Channel &channel = channelIt->second;
+        for (size_t it = 0; it < channel.getUsers().size(); it++)
+            std::cout << channel.getUsers()[it]->getNickName() << std::endl;
         try {
             server.replyPrivmsgChannel(*this, channel, message);
         }

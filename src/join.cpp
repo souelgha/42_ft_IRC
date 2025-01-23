@@ -37,8 +37,10 @@ void    Client::commandJoin(Server &server, std::string const &parameter)
             server.sendTemplate(*this, ERR_BADCHANNELKEY(this->serverName, this->nickName, channel.getName()));
         else
         {
-            channel.addUser(*this);
+            std::cout << "Client joins" << std::endl;
+            channel.addUser(this);
             server.replyJoin(*this, channel);
+            listchannel.push_back(&channel);
         }
     }
     catch (std::exception &e) {

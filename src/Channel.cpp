@@ -73,7 +73,7 @@ std::string const   &Channel::getStringMode(void) const {
     return (this->stringMode);
 }
 
-std::vector<Client> const   &Channel::getUsers(void) const {
+std::vector<Client *> const   &Channel::getUsers(void) const {
 
     return (this->users);
 }
@@ -133,7 +133,7 @@ void    Channel::setStringMode(void) {
         this->stringMode += " " + this->key;
 }
 
-void    Channel::addUser(Client const &client) {
+void    Channel::addUser(Client * client) {
 
     users.push_back(client);
 }
@@ -150,11 +150,11 @@ void    Channel::addInvited(std::string const &nickname) {
 
 void    Channel::remUser(Client const &client) {
 
-    for (std::vector<Client>::iterator it = this->users.begin(); it != this->users.end(); it++)
+    for (size_t it = 0; it < this->users.size(); it++)
     {
-        if (it->getNickName() == client.getNickName())
+        if (this->users[it]->getNickName() == client.getNickName())
         {
-            this->users.erase(it);
+            this->users.erase(this->users.begin() + it);
             break ;
         }
     }
@@ -178,7 +178,7 @@ bool    Channel::isUser(std::string const &nickname) {
 
     for (size_t i = 0; i < this->users.size(); i++)
     {
-        if (this->users[i].getNickName() == nickname)
+        if (this->users[i]->getNickName() == nickname)
             return (true);
     }
     return (false);

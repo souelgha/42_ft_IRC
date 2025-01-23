@@ -17,6 +17,7 @@
 #endif
 
 class   Server;
+class   Channel;
 
 class   Client
 {
@@ -37,6 +38,7 @@ class   Client
         std::string     mode;
 
         std::string         extractMessage(std::string const &buffer);
+        std::vector< Channel *> listchannel;
 
     public:
 
@@ -59,6 +61,7 @@ class   Client
         std::string const   &getSourceName(void) const;
         std::string const   &getMode(void) const;
         bool                getAuthentification(void) const;
+        std::vector<Channel>  &getListChannel(void) const;
 
         /* SETTERS */
         void                setFd(int fd);
@@ -70,6 +73,7 @@ class   Client
         void                setServerName(std::string const &serverName);
         void                setSourceName(void);
         void                setMode(std::string const &mode);
+
 
         void                commandReact(Server &server);
         void                handleCommand(Server &server, std::string const &, std::string const &command, std::string const &parameter);
