@@ -10,7 +10,7 @@ Channel::Channel(void) {
     this->tMode = false;
     this->lMode = false;
     this->kMode = false;
-    this->limitUsers = 10000;
+    this->limitUsers = 100;
 
 }
 
@@ -24,7 +24,7 @@ Channel::Channel(std::string const &name){
     this->tMode = false;
     this->lMode = false;
     this->kMode = false;
-    this->limitUsers = 10000;
+    this->limitUsers = 100;
 
 }
 
@@ -133,7 +133,7 @@ void    Channel::setStringMode(void) {
         this->stringMode += " " + this->key;
 }
 
-void    Channel::addUser(Client * client) {
+void    Channel::addUser(Client *client) {
 
     users.push_back(client);
 }
@@ -158,9 +158,13 @@ void    Channel::remUser(Client const &client) {
             break ;
         }
     }
+    if (isOperator(client.getNickName()))
+        remOperator(client.getNickName());
+    if (isInvited(client.getNickName()))
+        remInvited(client.getNickName());
 }
 
-void    Channel::remOper(std::string const &nickname) {
+void    Channel::remOperator(std::string const &nickname) {
 
     if (!isOperator(nickname))
         return ;

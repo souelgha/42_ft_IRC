@@ -12,35 +12,33 @@ void    Client::commandJoin(Server &server, std::string const &parameter)
     datas >> channelName;
     datas >> keyvalue;
 
-    if (channelName [0] != '#')
-        channelName = '#' +channelName;
-    std::cout<<"joinchannel name:" << channelName<< std::endl;   
-    std::cout<<"keyvalue: " << keyvalue<< std::endl;  
-
+    // if (channelName [0] != '#')
+    //     channelName = '#' + channelName;
 
     if (server.getChannels().find(channelName) == server.getChannels().end())
         server.createChannel(*this, channelName, keyvalue);
 
-    std::map<std::string, Channel>::iterator    channelIt = server.getChannels().find(channelName);
+    std::map<std::string, Channel *>::iterator  channelIt = server.getChannels().find(channelName);
     if (channelIt == server.getChannels().end())
     {
         server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, channelName));
         return ;
     }
-    Channel &channel = channelIt->second;
+    Channel *channel = channelIt->second;
     try {
-        if(channel.getLMode() && channel.getUsers().size() >=channel.getLimitUsers())
-            server.sendTemplate(*this, ERR_CHANNELISFULL(this->serverName, this->nickName, channel.getName()));
-        else if (channel.getIMode() && !channel.isInvited(this->nickName))
-            server.sendTemplate(*this, ERR_INVITEONLYCHAN(this->serverName, this->nickName, channel.getName()));
-        else if (!channel.getIMode() && channel.getKMode() && (keyvalue == "" || keyvalue != channel.getKey()))
-            server.sendTemplate(*this, ERR_BADCHANNELKEY(this->serverName, this->nickName, channel.getName()));
+        if(channel->getLMode() && channel->getUsers().size() >=channel->getLimitUsers())
+            server.sendTemplate(*this, ERR_CHANNELISFULL(this->serverName, this->nickName, channel->getName()));
+        else if (channel->getIMode() && !channel->isInvited(this->nickName))
+            server.sendTemplate(*this, ERR_INVITEONLYCHAN(this->serverName, this->nickName, channel->getName()));
+        else if (!channel->getIMode() && channel->getKMode() && (keyvalue == "" || keyvalue != channel->getKey()))
+            server.sendTemplate(*this, ERR_BADCHANNELKEY(this->serverName, this->nickName, channel->getName()));
         else
         {
-            std::cout << "Client joins" << std::endl;
-            channel.addUser(this);
-            server.replyJoin(*this, channel);
-            listchannel.push_back(&channel);
+            if (channel->isUser(this->getNickName()))
+                return ;
+            channel->addUser(this);
+            server.replyJoin(*this, *channel);
+            listChannels.push_back(channel);
         }
     }
     catch (std::exception &e) {
@@ -52,7 +50,7 @@ void    Server::replyJoin(Client const &client, Channel &channel) {
 
     {
         for (size_t i = 0; i < channel.getUsers().size(); i++)
-            sendTemplate(channel.getUsers()[i], RPL_JOIN(client.getSourceName(), channel.getName()));
+            sendTemplate(*channel.getUsers()[i], RPL_JOIN(client.getSourceName(), channel.getName()));
     }
 
     {
@@ -60,9 +58,9 @@ void    Server::replyJoin(Client const &client, Channel &channel) {
 
         for (size_t i = 0; i < channel.getUsers().size(); i++)
         {
-            if (channel.isOperator(channel.getUsers()[i].getNickName()))
+            if (channel.isOperator(channel.getUsers()[i]->getNickName()))
                 message += "@";
-            message += channel.getUsers()[i].getNickName() + " ";
+            message += channel.getUsers()[i]->getNickName() + " ";
         }
         message += CRLF;
         sendTemplate(client, message);

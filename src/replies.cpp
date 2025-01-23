@@ -36,9 +36,9 @@ void    Server::replyWho(Client const &client, Channel &channel)
     for (size_t i = 0; i < channel.getUsers().size(); i++)
     {
         std::string message = RPL_WHOREPLY(client.getServerName(), client.getNickName(), 
-                                channel.getName(), channel.getUsers()[i].getNickName(), 
-                                channel.getUsers()[i].getUserName(), channel.getUsers()[i].getHostName(), 
-                                channel.getUsers()[i].getRealName());
+                                channel.getName(), channel.getUsers()[i]->getNickName(), 
+                                channel.getUsers()[i]->getUserName(), channel.getUsers()[i]->getHostName(), 
+                                channel.getUsers()[i]->getRealName());
         sendTemplate(client, message);
     }
     std::string message = RPL_ENDOFWHO(client.getServerName(), client.getNickName(), channel.getName());
@@ -60,8 +60,8 @@ void    Server::replyPrivmsgChannel(Client const &sender, Channel &channel, std:
     std::cout << GREEN << ">> " << message << WHITE << std::flush;
     for (size_t i = 0; i < channel.getUsers().size(); i++)
     {
-        if (channel.getUsers()[i].getNickName() != sender.getNickName())
-            sendTemplate(channel.getUsers()[i], message);
+        if (channel.getUsers()[i]->getNickName() != sender.getNickName())
+            sendTemplate(*channel.getUsers()[i], message);
     }
 }
 
@@ -70,7 +70,7 @@ void    Server::replyTopic(Client const &client, Channel &channel, std::string c
     std::string message = RPL_TOPIC(client.getSourceName(), channel.getName(), topic);
 
     for (size_t i = 0; i < channel.getUsers().size(); i++)
-        sendTemplate(channel.getUsers()[i], message);
+        sendTemplate(*channel.getUsers()[i], message);
 }
 
 void    Server::replyPing(Client const &client, std::string const &pong) {
@@ -87,32 +87,31 @@ void    Server::replyUnknown(Client const &client, std::string const &command) {
     sendTemplate(client, message);
 }
 
-void    Server::replyKick(Client const &client, Channel &channel, Client const &recipient, std::string const &reason) {
+void    Server::replyKick(Client const &client, Channel *channel, Client *recipient, std::string const &reason) {
 
-    std::string message = RPL_KICK(client.getSourceName(), channel.getName(), recipient.getNickName(), reason);
+    std::string message = RPL_KICK(client.getSourceName(), channel->getName(), recipient->getNickName(), reason);
 
     std::cout << GREEN << ">> " << message << WHITE << std::flush;
-    for (size_t i = 0; i < channel.getUsers().size(); i++)
+    for (size_t i = 0; i < channel->getUsers().size(); i++)
+        sendTemplate(*channel->getUsers()[i], message);
+    channel->remUser(*recipient);
+    for (size_t i = 0; i < recipient->getListChannels().size(); i++)
     {
-        sendTemplate(channel.getUsers()[i], message);
+        if (recipient->getListChannels()[i]->getName() == channel->getName())
+            recipient->getListChannels().erase(recipient->getListChannels().begin() + i);
     }
-    channel.remUser(recipient);
-    channel.remOper(recipient.getNickName());
-    channel.remInvited(recipient.getNickName());
 }
 
-void    Server::replyPart(Client const &client, Channel &channel) {
+void    Server::replyPart(Client const &client, Channel *channel) {
 
-    std::string message = ":" + client.getSourceName() + " PART " + channel.getName() + "\r\n";
+    std::string message = ":" + client.getSourceName() + " PART " + channel->getName() + "\r\n";
 
     std::cout << GREEN << ">> " << message << WHITE << std::flush;
-    for (size_t i = 0; i < channel.getUsers().size(); i++)
-        sendTemplate(channel.getUsers()[i], message);
-    channel.remUser(client);
-    channel.remOper(client.getNickName());
-    channel.remInvited(client.getNickName());
-    if (channel.getUsers().empty())
-        this->deleteChannel(channel.getName());
+    for (size_t i = 0; i < channel->getUsers().size(); i++)
+        sendTemplate(*channel->getUsers()[i], message);
+    channel->remUser(client);
+    if (channel->getUsers().empty())
+        this->deleteChannel(channel);
 }
 
 void    Server::replyQuit(Client &client, std::string const &reason) {
@@ -126,6 +125,6 @@ void    Server::replyQuit(Client &client, std::string const &reason) {
     message += CRLF;
 
     sendTemplate(client, message);
-    clearClient(client.getFd());
+    clearClient(&client);
 }
 

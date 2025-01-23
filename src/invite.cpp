@@ -7,7 +7,7 @@ void    Client::commandInvite(Server &server, std::string const &parameter) {
     std::istringstream  datas(parameter);
     std::string         nickname;
     std::string         channelName;
-    Client              recipient;
+    Client              *recipient;
 
     datas >> nickname;
     datas >> channelName;
@@ -21,34 +21,34 @@ void    Client::commandInvite(Server &server, std::string const &parameter) {
         server.sendTemplate(*this, ERR_NOSUCHNICK(this->serverName, this->nickName, nickname));
         return ;
     }
-    std::map<std::string, Channel>::iterator    channelIt = server.getChannels().find(channelName);
+    std::map<std::string, Channel *>::iterator    channelIt = server.getChannels().find(channelName);
     if (channelIt == server.getChannels().end())
     {
         server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, channelName));
         return ;
     }
-    Channel &channel = channelIt->second;
-    if (!channel.isUser(this->nickName))
+    Channel *channel = channelIt->second;
+    if (!channel->isUser(this->nickName))
     {
-        server.sendTemplate(*this, ERR_NOTONCHANNEL(this->serverName, this->nickName, channel.getName()));
+        server.sendTemplate(*this, ERR_NOTONCHANNEL(this->serverName, this->nickName, channel->getName()));
         return ;
     }
-    if (!channel.isOperator(this->nickName))
+    if (!channel->isOperator(this->nickName))
     {
-        server.sendTemplate(*this, ERR_CHANOPRIVSNEEDED(this->serverName, this->nickName, channel.getName()));
+        server.sendTemplate(*this, ERR_CHANOPRIVSNEEDED(this->serverName, this->nickName, channel->getName()));
         return ;
     }
-    if (channel.isUser(nickname))
+    if (channel->isUser(nickname))
     {
-        server.sendTemplate(*this, ERR_USERONCHANNEL(this->serverName, nickName, channel.getName()));
+        server.sendTemplate(*this, ERR_USERONCHANNEL(this->serverName, nickName, channel->getName()));
         return ;
     }
-    for (size_t i = 0; i < server.getClients().size(); i++)
+    for (size_t i = 0; i < server.getMaxClients(); i++)
     {
-        if (server.getClients()[i].getNickName() == nickname)
+        if (server.getClients()[i]->getNickName() == nickname)
             recipient = server.getClients()[i];
     }
-    server.replyInvite(*this, recipient, channel);
+    server.replyInvite(*this, *recipient, *channel);
 }
 
 void    Server::replyInvite(Client const &sender, Client const &recipient, Channel &channel) {

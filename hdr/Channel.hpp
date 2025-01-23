@@ -14,6 +14,7 @@ class   Client;
 class Channel
 {
     private:
+
         std::string                                         name;
         std::string                                         topic;
         std::string                                         key;
@@ -28,7 +29,7 @@ class Channel
         bool                                                kMode;
         std::string                                         stringMode;
 
-        std::vector<Client *>                                 users;
+        std::vector<Client *>                               users;
         std::set<std::string>                               operators;
         std::set<std::string>                               invited;
     
@@ -56,7 +57,7 @@ class Channel
         bool                                                    getKMode(void) const;
         std::string const                                       &getStringMode(void) const ;
         size_t                                                  getLimitUsers(void) const;
-        std::vector<Client *> const                               &getUsers(void) const;
+        std::vector<Client *> const                             &getUsers(void) const;
         std::set<std::string> const                             &getOpers(void) const;
         std::set<std::string> const                             &getInvited(void) const;
 
@@ -74,7 +75,7 @@ class Channel
         void                                                    addOper(std::string const &nickname);
         void                                                    addInvited(std::string const &nickname);
         void                                                    remUser(Client const &client);
-        void                                                    remOper(std::string const &nickname);
+        void                                                    remOperator(std::string const &nickname);
         void                                                    remInvited(std::string const &nickname);
         bool                                                    isUser(std::string const &nickname);
         bool                                                    isOperator(std::string const &nickname);

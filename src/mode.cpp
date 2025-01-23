@@ -21,7 +21,7 @@ void    Server::replyModeChannel(Client const &client, Channel &channel, std::st
         message = RPL_CHANNELMODE(client.getServerName(), client.getNickName(), channel.getName(), mode);
 
     for (size_t i = 0; i < channel.getUsers().size(); i++)
-        sendTemplate(channel.getUsers()[i], message);
+        sendTemplate(*channel.getUsers()[i], message);
 }
 
 void    Channel::insertNewMode(Server &server, Client &client, char sign, char sent, std::istringstream &parameter) {
@@ -124,24 +124,24 @@ void    Client::commandMode(Server &server, std::string const &parameter) {
         }
         else
         {
-            Channel &channel = server.getChannels()[recipient];
-            channel.adjustMode(server, *this, value); 
+            Channel *channel = server.getChannels()[recipient];
+            channel->adjustMode(server, *this, value); 
             if (value.empty())
             {
-                channel.setStringMode();
-                server.sendTemplate(*this, RPL_CHANNELMODE(this->serverName, this->nickName, channel.getName(), channel.getStringMode()));
+                channel->setStringMode();
+                server.sendTemplate(*this, RPL_CHANNELMODE(this->serverName, this->nickName, channel->getName(), channel->getStringMode()));
             }
-            else if (channel.getMode().empty())
+            else if (channel->getMode().empty())
             {
                 if (value == "b")
-                    server.sendTemplate(*this, RPL_ENDOFBANLIST(this->serverName, this->nickName, channel.getName()));
+                    server.sendTemplate(*this, RPL_ENDOFBANLIST(this->serverName, this->nickName, channel->getName()));
                 return ;
             }
-            else if (channel.isOperator(this->nickName))
-                server.replyModeChannel(*this, channel, channel.modeToSend());
+            else if (channel->isOperator(this->nickName))
+                server.replyModeChannel(*this, *channel, channel->modeToSend());
             else
-                server.sendTemplate(*this, ERR_CHANOPRIVSNEEDED(this->serverName, this->nickName, channel.getName()));
-            channel.clearMode();
+                server.sendTemplate(*this, ERR_CHANOPRIVSNEEDED(this->serverName, this->nickName, channel->getName()));
+            channel->clearMode();
         }
     }
     catch (std::exception &e) {
@@ -235,7 +235,7 @@ void Channel:: modeO(std::vector<std::pair<std::string, std::string> >::iterator
     {  
         for (size_t i = 0; i < users.size(); i++)
         {
-            if(users[i].getNickName() == it->second)
+            if(users[i]->getNickName() == it->second)
             {
                 addOper(it->second); 
                 break;
@@ -245,7 +245,7 @@ void Channel:: modeO(std::vector<std::pair<std::string, std::string> >::iterator
     else if(it->first == "-o" && it->second != "")
     {
         if(operators.find(it->second) != operators.end())
-            remOper(it->second);
+            remOperator(it->second);
     }    
 }
 
