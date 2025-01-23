@@ -3,7 +3,6 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 
-
 void    Client::commandKick(Server &server, std::string const &parameter) {
 
     std::istringstream  datas(parameter);
@@ -58,4 +57,3 @@ void    Client::commandKick(Server &server, std::string const &parameter) {
         reason = this->nickName;
     server.replyKick(*this, channel, recipient, reason);
 }
-//done

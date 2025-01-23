@@ -106,8 +106,6 @@ class   Server
         void                            replyPing(Client const &client, std::string const &pong);
        
        /* REPLY ERRORS */
-        void                            replyNotRegistered(Client &client);
-        void                            replyWrongPwd(Client &client);
         void                            replyErrNick(Client &client);
         void                            replyErronNickUse(Client &client);
         void                            replyMissPara(Client &client, std::string &command);

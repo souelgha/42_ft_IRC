@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/22 17:31:57 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/23 11:05:32 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,7 +130,7 @@ std::string Client::extractMessage(std::string const &buffer) {
     return (message);
 }
 
-std::string extractPrefix(std::string &message) {
+static std::string  extractPrefix(std::string &message) {
 
     std::istringstream  split(message);
     std::string         prefix = "";
@@ -141,7 +141,7 @@ std::string extractPrefix(std::string &message) {
     return (prefix);
 }
 
-std::string extractCommand(std::string &message) {
+static std::string  extractCommand(std::string &message) {
 
     std::istringstream  split(message);
     std::string         command;
@@ -185,10 +185,10 @@ void    Client::handleCommand(Server &server, std::string const &, std::string c
   
     void        (Client::*actions[14])(Server &, std::string const &) =
         {&Client::commandPass, &Client::commandNick, &Client::commandUser, &Client::commandQuit,
-        &Client::commandJoin, &Client::commandPart, &Client::commandPrivmsg,
+        &Client::commandPrivmsg, &Client::commandJoin, &Client::commandPart,
         &Client::commandKick, &Client::commandInvite, &Client::commandTopic, &Client::commandMode,
         &Client::commandWho, &Client::commandPing, &Client::commandCap};
-    std::string sent[] = {"PASS", "NICK", "USER", "QUIT", "JOIN", "PART", "PRIVMSG", "KICK", "INVITE", "TOPIC", "MODE", "WHO", "PING", "CAP"};
+    std::string sent[] = {"PASS", "NICK", "USER", "QUIT", "PRIVMSG", "JOIN", "PART", "KICK", "INVITE", "TOPIC", "MODE", "WHO", "PING", "CAP"};
     int         i;
 
     for (i = 0; i < 14; i++)
@@ -421,6 +421,30 @@ void    Client::commandPrivmsg(Server &server, std::string const &parameter)
     }
 }
 
+void    Client::commandPart(Server &server, std::string const &parameter) {
+
+    std::string      channelName = "";
+
+    if (parameter [0] != '#')
+        channelName = "#";
+    channelName += parameter;
+
+    std::map<std::string, Channel>::iterator    channelIt = server.getChannels().find(channelName);
+    if (channelIt == server.getChannels().end())
+    {
+        server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, channelName));
+        return ;
+    }
+    Channel &channel = channelIt->second;
+
+    try {
+        server.replyPart(*this, channel);
+    }
+    catch (std::exception &e) {
+        throw ;
+    }
+}
+
 void    Client::commandWho(Server &server, std::string const &parameter) 
 {
     std::size_t found = parameter.find('#');
@@ -454,66 +478,4 @@ void    Client::commandUnknown(Server &server, std::string const &parameter) {
     catch (std::exception &e) {
         throw ;
     }
-}
-
-void    Client::commandPart(Server &server, std::string const &parameter) {
-
-    std::string      channelName = "";
-
-    if (parameter [0] != '#')
-        channelName = "#";
-    channelName += parameter;
-
-    std::map<std::string, Channel>::iterator    channelIt = server.getChannels().find(channelName);
-    if (channelIt == server.getChannels().end())
-    {
-        server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, channelName));
-        return ;
-    }
-    Channel &channel = channelIt->second;
-
-    try {
-        server.replyPart(*this, channel);
-    }
-    catch (std::exception &e) {
-        throw ;
-    }
-}
-
-void    Client::commandTopic(Server &server, std::string const &parameter) {
-
-    if (parameter.empty())
-    {   
-        server.sendTemplate(*this, ERR_NEEDMOREPARAMS(this->serverName, this->nickName, "TOPIC"));
-        return;
-    }   
-
-    std::istringstream  datas(parameter);
-    std::string         channelName;
-    std::string         newTopic;
-    
-    datas >> channelName;
-    std::map<std::string, Channel>::iterator    channelIt = server.getChannels().find(channelName);
-    if (channelIt == server.getChannels().end())
-    {
-        server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, channelName));
-        return ;
-    }
-    Channel &channel = channelIt->second;
-
-    std::getline(datas >> std::ws, newTopic);
-    if (!datas.fail())
-        newTopic = newTopic.substr(1, newTopic.length() - 1);
-
-    if (channel.getTMode() && (!channel.isOperator(this->nickName)))
-    {
-        server.sendTemplate(*this, ERR_CHANOPRIVSNEEDED(this->serverName, this->nickName, channel.getName()));
-        return;
-    }
-    server.replyTopic(*this, channel, newTopic);
-}
-
-void    Client::commandCap(Server &, std::string const &) {
-
-    return;
 }

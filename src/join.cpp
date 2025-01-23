@@ -5,7 +5,6 @@
 
 void    Client::commandJoin(Server &server, std::string const &parameter)
 {  
-    // std::string channelName = "";
     std::istringstream  datas(parameter);
     std::string         channelName;
     std::string         keyvalue;

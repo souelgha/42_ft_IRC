@@ -1,12 +1,6 @@
 #include"Server.hpp"
 #include"Client.hpp"
 
-void    Server::replyWrongPwd(Client &client) {
-
-    std::string const message = ERR_PASSWDMISMATCH(client.getServerName(), client.getNickName());
-    sendTemplate(client, message);  
-
-}
 void    Server::replyMissPara(Client &client, std::string &command) {
 
     std::string const message = ERR_NEEDMOREPARAMS(client.getServerName(), client.getNickName(), command);

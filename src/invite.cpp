@@ -2,7 +2,6 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 
-
 void    Client::commandInvite(Server &server, std::string const &parameter) {
 
     std::istringstream  datas(parameter);

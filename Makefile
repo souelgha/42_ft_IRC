@@ -4,27 +4,24 @@ NAME = ircserv
 SRC_DIR = src
 SRC = main.cpp \
 	Server.cpp \
-	mode.cpp \
 	Client.cpp \
 	Channel.cpp \
-	Reply.cpp \
-	Join.cpp \
-	Kick.cpp \
-	Invite.cpp
+	join.cpp \
+	kick.cpp \
+	invite.cpp \
+	topic.cpp \
+	mode.cpp \
+	replies.cpp
 
 OBJ_DIR = obj
 OBJ = ${addprefix ${OBJ_DIR}/, ${SRC:.cpp=.o}}
 
 
 HDR_DIR = hdr
-HDR = Client.hpp \
-	Server.hpp \
+HDR = Server.hpp \
+	Client.hpp \
 	Channel.hpp
 INCLUDE = ${addprefix ${HDR_DIR}/, ${HDR}}
-
-TPL_DIR = tpl
-TPL = 
-TEMPLATES = ${addprefix ${TPL_DIR}/, ${TPL}}
 
 
 CC = c++
