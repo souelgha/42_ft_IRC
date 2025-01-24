@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/24 17:24:04 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/24 22:23:36 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -261,36 +261,45 @@ void    Client::commandNick(Server &server, std::string const &parameter)
             throw ;
         }
     }
-    try {
-        for (size_t i = 0; i < server.getMaxClients(); i++)
-        {
-            if (server.getClients()[i] && server.getClients()[i]->getNickName() == parameter)
+    else
+    {
+        try {
+            if (parameter.empty())
             {
-                server.sendTemplate(*this, ERR_NICKNAMEINUSE(this->getServerName(), this->getNickName()));
+                server.sendTemplate(*this, ERR_NONICKNAMEGIVEN(server.getName(), "*"));
                 server.clearClient(this);
                 return ;
             }
-        }
-        if (parameter.length() > 9 || (!std::isalnum(parameter[0])))
-        {
-            server.sendTemplate(*this, ERR_ERRONEUSNICKNAME(this->getServerName(), this->getNickName()));
-            server.clearClient(this);
-            return ;
-        }
-        for (size_t i = 1; i < parameter.size(); i++)
-        {
-            if (!std::isalnum(parameter[i]) && (parameter[i] != '-' || parameter[i] != '_' || parameter[i] != '|' ))
+            for (size_t i = 0; i < server.getMaxClients(); i++)
+            {
+                if (server.getClients()[i] && server.getClients()[i]->getNickName() == parameter)
+                {
+                    server.sendTemplate(*this, ERR_NICKNAMEINUSE(this->getServerName(), this->getNickName()));
+                    server.clearClient(this);
+                    return ;
+                }
+            }
+            if (parameter.length() > 9 || (!std::isalnum(parameter[0])))
             {
                 server.sendTemplate(*this, ERR_ERRONEUSNICKNAME(this->getServerName(), this->getNickName()));
                 server.clearClient(this);
                 return ;
             }
+            for (size_t i = 1; i < parameter.size(); i++)
+            {
+                if (!std::isalnum(parameter[i]) && (parameter[i] != '-' || parameter[i] != '_' || parameter[i] != '|' ))
+                {
+                    server.sendTemplate(*this, ERR_ERRONEUSNICKNAME(this->getServerName(), this->getNickName()));
+                    server.clearClient(this);
+                    return ;
+                }
+            }
+            if (!this->nickName.empty())
+                server.replyNick(*this, parameter);
         }
-        if (!this->nickName.empty())
-            server.replyNick(*this, parameter);
-    }
-    catch (std::exception &e) {
-        throw ;
+        catch (std::exception &e) {
+            throw ;
+        }
     }
     this->setNickName(parameter);
 }
@@ -306,7 +315,7 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
     if (this->nickName.empty())
     {
         try {
-            server.sendTemplate(*this, ERR_NONICKNAMEGIVEN(this->serverName, this->nickName));
+            server.sendTemplate(*this, ERR_NONICKNAMEGIVEN(server.getName(), "*"));
             server.clearClient(this);
             return;
         }
@@ -328,7 +337,6 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
             server.clearClient(this);
             return ;
         }
-        std::cout << "real name: " << realName << std::endl;
         this->setRealName(realName);
         this->setSourceName();
 
