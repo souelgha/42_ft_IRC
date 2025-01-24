@@ -236,9 +236,11 @@ void    Client::commandNick(Server &server, std::string const &parameter)
     {
         try {
             if (this->pass_command == false)
+            
                 server.sendTemplate(*this, ERR_NOTREGISTERED(server.getName(), parameter));
             else
                 server.sendTemplate(*this, ERR_PASSWDMISMATCH(server.getName(), parameter));
+            std::cout<<"client refuse"<< std::endl;
             server.clearClient(this);
             return;
         }

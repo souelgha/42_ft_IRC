@@ -3,6 +3,16 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 
+static std::string const    extractLast(std::string const &parameter) {
+
+    size_t  i = parameter.find(':');
+    if (i == std::string::npos)
+        return (parameter);
+
+    std::string reason = parameter.substr(i + 1, parameter.length() - i);
+    return (reason);
+}
+
 void    Client::commandKick(Server &server, std::string const &parameter) {
 
     std::istringstream  datas(parameter);
@@ -19,7 +29,7 @@ void    Client::commandKick(Server &server, std::string const &parameter) {
         return ;
     }
     std::getline(datas >> std::ws, reason);
-    reason = reason.substr(1, reason.length() - 1);
+    reason = extractLast(reason);
 
     std::map<std::string, Channel *>::iterator    channelIt = server.getChannels().find(channelName);
     if (channelIt == server.getChannels().end())
