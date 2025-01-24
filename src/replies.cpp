@@ -9,12 +9,14 @@ void    Server::replyMissPara(Client &client, std::string &command) {
 
 void    Server::sendTemplate(Client const &client, std::string const &message){
     
+    std::cout << ">> " << message << std::flush;
     int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
     if (sentBytes == -1)
         throw(std::runtime_error("Failed to send message to client\n")) ;
 }
 
 void    Server::replyNick(Client &client, std::string const &newnick) {
+
     std::string const message = ":"+client.getSourceName()+  " NICK :"+newnick+ CRLF;
     sendTemplate(client, message);
 }
@@ -57,7 +59,6 @@ void    Server::replyPrivmsgChannel(Client const &sender, Channel &channel, std:
 
     std::string message = ":" + sender.getSourceName() + " PRIVMSG " + channel.getName() + " :" + toSend + "\r\n";
 
-    std::cout << GREEN << ">> " << message << WHITE << std::flush;
     for (size_t i = 0; i < channel.getUsers().size(); i++)
     {
         if (channel.getUsers()[i]->getNickName() != sender.getNickName())

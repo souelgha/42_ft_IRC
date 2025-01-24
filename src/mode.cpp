@@ -213,8 +213,10 @@ void Channel:: modeI(std::vector<std::pair<std::string, std::string> >::iterator
     if(it->first == "+i")
         this->iMode = true;       
     else if(it->first == "-i")
+    {
         this->iMode = false;
-    
+        this->invited.clear();
+    }
 }
 void Channel:: modeT(std::vector<std::pair<std::string, std::string> >::iterator &it) 
 {

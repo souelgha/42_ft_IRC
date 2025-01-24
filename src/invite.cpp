@@ -45,7 +45,7 @@ void    Client::commandInvite(Server &server, std::string const &parameter) {
     }
     for (size_t i = 0; i < server.getMaxClients(); i++)
     {
-        if (server.getClients()[i]->getNickName() == nickname)
+        if (server.getClients()[i] && server.getClients()[i]->getNickName() == nickname)
             recipient = server.getClients()[i];
     }
     server.replyInvite(*this, *recipient, *channel);

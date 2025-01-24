@@ -76,11 +76,7 @@ void    Server::serverInit(void)
                     if (this->fds[i].fd == this->listen_fd)  // si cet evenement a lieu sur le port d'ecoute => ajouter un nouveau client
                         this->newClient();
                     else
-                    {
-                        std::cout<<RED<<"serverinit: client add <"<< this->findClient(this->fds[i].fd)<<">"<<WHITE<< std::endl;
                         this->receiveMessage(this->findClient(this->fds[i].fd));
-                        std::cout<<"sortie receivedmess"<< std::endl;                        
-                    }
                     this->deleteClients();
                 }
                 catch (std::exception &e) {
@@ -88,8 +84,6 @@ void    Server::serverInit(void)
                 }
             }
         }
-        for (int i = 0; i<3; i++)
-            std::cout<< "nb client en dehor du for ,client[i]: " <<this->clients[i]<< std::endl;
     }   
 }
 
@@ -166,30 +160,22 @@ static bool incompleteCommand(char *buffer) {
 void Server::receiveMessage(Client *client)
 {
     std::cout
-        << YELLOW << "Message received from " << client->getNickName() << " (" << client->getFd() << "):" << WHITE << std::endl;
+        << YELLOW << "Message received (" << client->getFd() << "):" << WHITE << std::endl;
 
     size_t  buffer_len = std::strlen(client->buffer);
     int     receivedBytes = recv(client->getFd(), client->buffer + buffer_len, BUFFER_SIZE - buffer_len, 0);
-    if (receivedBytes == -1)
+    if (receivedBytes <= 0)
     {
-        std::cerr
-            << "Failed to receive client's message" << std::endl;
-        this->clearClient(client);
-        return ;
-    }
-    if (receivedBytes == 0)
-    {
-        std::cerr
-            << "Failed to receive client's message" << std::endl;
-        // this->replyPart(client)
-        std::cout<< "Adr client:< "<<client<<">"<< std::endl;
+        if (receivedBytes == -1)
+            std::cerr
+                << "Failed to receive client's message" << std::endl;
         this->clearClient(client);
         return ;
     }
     if (incompleteCommand(client->buffer))
         return ;
     client->buffer[receivedBytes + buffer_len] = '\0';
-    std::cout << MAGENTA << "client->buffer " << client->buffer<< WHITE<< std::endl;
+    std::cout << YELLOW << client->buffer << WHITE << std::flush;
     client->commandReact(*this);
 }
 
@@ -202,9 +188,6 @@ void    Server::addClient(Client *client) {
     if (i == this->maxClients)
         throw (std::runtime_error("Too many clients are connected"));
     this->clients[i] = client;
-    //
-    for (i = 0; i<3; i++)
-        std::cout<< "addcleient,client[i]: " <<this->clients[i]<< std::endl;
 }
 
 void    Server::addToDelete(Client *client) {
@@ -214,10 +197,8 @@ void    Server::addToDelete(Client *client) {
     while (this->toDelete[i])
         i++;
     if (i == this->maxClients)
-        throw (std::runtime_error("Too many clients must be deleted"));
+        throw (std::runtime_error("Too many clients to be deleted"));
     this->toDelete[i] = client;
-    for (i = 0; i<3; i++)
-        std::cout<< "dans addtodelete,client[i]" <<this->toDelete[i]<< std::endl;
 }
 
 void    Server::closeFds(void) {
@@ -230,7 +211,6 @@ void    Server::closeFds(void) {
 
 void    Server::clearClient(Client *client) {
 
-  std::cout<< "Adr clientdans clearclient:< "<<client<<">"<< std::endl;
     for (size_t i = 0; i < this->maxClients; i++)
     {
         if (this->clients[i])
@@ -239,7 +219,6 @@ void    Server::clearClient(Client *client) {
             {
                 try {
                     this->addToDelete(this->clients[i]);
-                    std::cout<< "Adr clientdans clearclient try:< "<<this->clients[i]<<">"<< std::endl;
                     this->clients[i] = NULL;
                     break;
                 }
@@ -270,7 +249,6 @@ void    Server::deleteClients(void) {
     {
         if (this->toDelete[i])
         {
-            std::cout<<"delete:" << toDelete[i]<< std::endl; //ici
             delete this->toDelete[i];
             this->toDelete[i] = NULL;
         }
@@ -301,7 +279,7 @@ Client *Server::findClient(std::string const &name)
         if (this->clients[i] && this->clients[i]->getNickName() == name)
             return (this->clients[i]);
     }
-    throw (std::runtime_error("Nickname does not exist"));
+    return (NULL);
 }
 
 Client *Server::findClient(int fd)
@@ -311,14 +289,14 @@ Client *Server::findClient(int fd)
         if (this->clients[i] && this->clients[i]->getFd() == fd)
             return (this->clients[i]);
     }
-    throw (std::runtime_error("Nickname does not exist"));
+    throw (std::runtime_error("Fd does not exist"));
 }
 
 bool    Server::isClient(std::string const &nickname) {
 
     for (size_t i = 0; i < this->maxClients; i++)
     {
-        if (this->clients[i]->getNickName() == nickname)
+        if (this->clients[i] && this->clients[i]->getNickName() == nickname)
             return (true);
     }
     return (false);
