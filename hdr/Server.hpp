@@ -82,7 +82,7 @@ class   Server
         static void                         signalCatch(int signum);
         bool                                isClient(std::string const &nickname);
         Client                              *findClient(std::string const &name);
-
+        Client                              *findClient(int fd);
 
         /* REPLIES */
         void                                replyNick(Client &client, std::string const &newnick);
