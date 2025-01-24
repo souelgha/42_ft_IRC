@@ -21,6 +21,8 @@ void    Client::commandInvite(Server &server, std::string const &parameter) {
         server.sendTemplate(*this, ERR_NOSUCHNICK(this->serverName, this->nickName, nickname));
         return ;
     }
+    if (channelName[0] != '#')
+        channelName = "#" + channelName;
     std::map<std::string, Channel *>::iterator    channelIt = server.getChannels().find(channelName);
     if (channelIt == server.getChannels().end())
     {

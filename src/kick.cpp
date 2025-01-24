@@ -3,16 +3,6 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 
-static std::string const    extractLast(std::string const &parameter) {
-
-    size_t  i = parameter.find(':');
-    if (i == std::string::npos)
-        return (parameter);
-
-    std::string reason = parameter.substr(i + 1, parameter.length() - i);
-    return (reason);
-}
-
 void    Client::commandKick(Server &server, std::string const &parameter) {
 
     std::istringstream  datas(parameter);
@@ -28,8 +18,12 @@ void    Client::commandKick(Server &server, std::string const &parameter) {
         server.sendTemplate(*this, ERR_NEEDMOREPARAMS(this->serverName, this->nickName, "KICK"));
         return ;
     }
+    if (channelName[0] != '#')
+        channelName = "#" + channelName;
     std::getline(datas >> std::ws, reason);
-    reason = extractLast(reason);
+    reason = this->extractLast(reason);
+    if (reason.empty())
+        reason = this->nickName;
 
     std::map<std::string, Channel *>::iterator    channelIt = server.getChannels().find(channelName);
     if (channelIt == server.getChannels().end())
@@ -63,7 +57,5 @@ void    Client::commandKick(Server &server, std::string const &parameter) {
             recipient = channel->getUsers()[i];
     }
     
-    if (reason.empty())
-        reason = this->nickName;
     server.replyKick(*this, channel, recipient, reason);
 }

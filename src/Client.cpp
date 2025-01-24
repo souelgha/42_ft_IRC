@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/24 13:30:47 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/24 17:24:04 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,6 +122,18 @@ void    Client::setSourceName(void) {
 void    Client::setMode(std::string const &mode) {
 
     this->mode = mode;
+}
+
+std::string const   Client::extractLast(std::string const &parameter) {
+
+    if (parameter.empty())
+        return ("");
+    size_t  i = parameter.find(':');
+    if (i == std::string::npos)
+        return (parameter);
+
+    std::string reason = parameter.substr(i + 1, parameter.length() - i);
+    return (reason);
 }
 
 std::string Client::extractMessage(std::string const &buffer) {
@@ -240,7 +252,8 @@ void    Client::commandNick(Server &server, std::string const &parameter)
                 server.sendTemplate(*this, ERR_NOTREGISTERED(server.getName(), parameter));
             else
                 server.sendTemplate(*this, ERR_PASSWDMISMATCH(server.getName(), parameter));
-            std::cout<<"client refuse"<< std::endl;
+            std::cout
+                << "Client refused" << std::endl;
             server.clearClient(this);
             return;
         }
@@ -258,7 +271,7 @@ void    Client::commandNick(Server &server, std::string const &parameter)
                 return ;
             }
         }
-        if(parameter.length() > 9 || (!std::isalnum(parameter[0])))
+        if (parameter.length() > 9 || (!std::isalnum(parameter[0])))
         {
             server.sendTemplate(*this, ERR_ERRONEUSNICKNAME(this->getServerName(), this->getNickName()));
             server.clearClient(this);
@@ -280,19 +293,6 @@ void    Client::commandNick(Server &server, std::string const &parameter)
         throw ;
     }
     this->setNickName(parameter);
-}
-
-static std::string extractRealName(std::string parameter) {
-
-    if (parameter.empty())
-        return ("");
-
-    size_t i = parameter.find(':');
-    if (i == std::string::npos)
-        return ("");
-
-    std::string realName = parameter.substr(i + 1, parameter.length() - i);
-    return (realName);
 }
 
 void    Client::commandUser(Server &server, std::string const &parameter) {
@@ -321,13 +321,14 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
         this->setHostName(hostName);
         datas >> serverName;
         this->setServerName(server.getName());
-        realName = extractRealName(parameter);
+        realName = extractLast(parameter);
         if (realName.empty() || datas.fail())
         {
             std::cerr << "Wrong format in USER command" << std::endl;
             server.clearClient(this);
             return ;
         }
+        std::cout << "real name: " << realName << std::endl;
         this->setRealName(realName);
         this->setSourceName();
 
@@ -338,22 +339,14 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
     }
 }
 
-static std::string const    extractLast(std::string const &parameter) {
-
-    size_t  i = parameter.find(':');
-    if (i == std::string::npos)
-        return (parameter);
-
-    std::string reason = parameter.substr(i + 1, parameter.length() - i);
-    return (reason);
-}
-
 void    Client::commandQuit(Server &server, std::string const &parameter) {
 
     std::string reason = parameter;
+
     try {
-        if (!parameter.empty())
-            reason = extractLast(parameter);
+        reason = extractLast(parameter);
+        if (reason.empty())
+            reason = "leaving";
         server.replyQuit(*this, reason);
     }
     catch (std::exception &e) {
@@ -380,7 +373,10 @@ void    Client::commandPrivmsg(Server &server, std::string const &parameter)
         }
     }
     message = extractLast(message);
-    if (server.getChannels().find(recipient) == server.getChannels().end())
+    std::string channelName = recipient;
+    if (channelName[0] != '#')
+        channelName = "#" + channelName;
+    if (server.getChannels().find(channelName) == server.getChannels().end())
     {
             if (!server.isClient(recipient))
             {
@@ -402,6 +398,7 @@ void    Client::commandPrivmsg(Server &server, std::string const &parameter)
     }
     else
     {
+        recipient = channelName;
         std::map<std::string, Channel *>::iterator  channelIt = server.getChannels().find(recipient);
         if (channelIt == server.getChannels().end())
         {
@@ -425,11 +422,16 @@ void    Client::commandPrivmsg(Server &server, std::string const &parameter)
 
 void    Client::commandPart(Server &server, std::string const &parameter) {
 
+    std::string channelName = parameter;
+
+    if (channelName[0] != '#')
+        channelName = "#" + channelName;
+
     try {
-        std::map<std::string, Channel *>::iterator  channelIt = server.getChannels().find(parameter);
+        std::map<std::string, Channel *>::iterator  channelIt = server.getChannels().find(channelName);
         if (channelIt == server.getChannels().end())
         {
-            server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, parameter));
+            server.sendTemplate(*this, ERR_NOSUCHCHANNEL(this->serverName, this->nickName, channelName));
             return ;
         }
         Channel *channel = channelIt->second;

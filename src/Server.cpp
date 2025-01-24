@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 13:26:29 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/24 13:26:30 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/24 14:39:32 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -285,6 +285,7 @@ void    Server::clearClient(Client *client) {
             throw ;
         }
     }
+    std::fill(client->buffer, client->buffer + BUFFER_SIZE, 0);
 }
 
 bool    Server::isClient(std::string const &nickname) {

@@ -12,8 +12,8 @@ void    Client::commandJoin(Server &server, std::string const &parameter)
     datas >> channelName;
     datas >> keyvalue;
 
-    // if (channelName [0] != '#')
-    //     channelName = '#' + channelName;
+    if (channelName [0] != '#')
+        channelName = '#' + channelName;
 
     if (server.getChannels().find(channelName) == server.getChannels().end())
         server.createChannel(*this, channelName, keyvalue);

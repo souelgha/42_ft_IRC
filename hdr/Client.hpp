@@ -39,6 +39,7 @@ class   Client
 
         std::vector<Channel *>  listChannels;
 
+        std::string const       extractLast(std::string const &parameter);
         std::string             extractMessage(std::string const &buffer);
 
     public:

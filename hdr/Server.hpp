@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 12:44:16 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/24 13:30:54 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/24 16:26:59 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,21 +100,19 @@ class   Server
         void                                createChannel(Client const &client, std::string const &name, std::string const &key);
 
         /* REPLIES */
+        void                                sendTemplate(Client const &client, std::string const &message);
         void                                replyNick(Client &client, std::string const &newnick);
-        void                                replyModeClient(Client const &client);
-        void                                replyModeChannel(Client const &client, Channel &channel, std::string const &mode);
         void                                replyQuit(Client &client, std::string const &reason);
-        void                                replyJoin(Client const &client, Channel &channel);
-        void                                replyPart(Client const &client, Channel *channel);
         void                                replyPrivmsgClient(Client const &sender, Client const &recipient, std::string const &toSend);
         void                                replyPrivmsgChannel(Client const &client, Channel &channel, std::string const &toSend);
+        void                                replyJoin(Client const &client, Channel &channel);
+        void                                replyPart(Client const &client, Channel *channel);
         void                                replyKick(Client const &client, Channel *channel, Client *recipient, std::string const &reason);
         void                                replyInvite(Client const &sender, Client const &recipient, Channel &channel);
         void                                replyTopic(Client const &client, Channel &channel, std::string const &topic);
+        void                                replyModeClient(Client const &client);
+        void                                replyModeChannel(Client const &client, Channel &channel, std::string const &mode);
         void                                replyWho(Client const &client, Channel &channel);
         void                                replyPing(Client const &client, std::string const &pong);
-       
-       /* REPLY ERRORS */
-        void                                sendTemplate(Client const &client, std::string const &message);
         void                                replyUnknown(Client const &client, std::string const &command);
 };

@@ -109,7 +109,7 @@ void    Client::commandMode(Server &server, std::string const &parameter) {
 
     datas >> recipient;
     std::getline(datas >> std::ws, value);
-   
+
     try {
         if (server.getChannels().find(recipient) == server.getChannels().end())
         {
@@ -123,21 +123,24 @@ void    Client::commandMode(Server &server, std::string const &parameter) {
         }
         else
         {
+            if (recipient[0] != '#')
+                recipient = "#" + recipient;
             Channel *channel = server.getChannels()[recipient];
-            channel->adjustMode(server, *this, value); 
             if (value.empty())
             {
                 channel->setStringMode();
                 server.sendTemplate(*this, RPL_CHANNELMODE(this->serverName, this->nickName, channel->getName(), channel->getStringMode()));
             }
-            else if (channel->getMode().empty())
+            else if (value == "b")
             {
-                if (value == "b")
-                    server.sendTemplate(*this, RPL_ENDOFBANLIST(this->serverName, this->nickName, channel->getName()));
+                server.sendTemplate(*this, RPL_ENDOFBANLIST(this->serverName, this->nickName, channel->getName()));
                 return ;
             }
             else if (channel->isOperator(this->nickName))
+            {
+                channel->adjustMode(server, *this, value);
                 server.replyModeChannel(*this, *channel, channel->modeToSend());
+            }
             else
                 server.sendTemplate(*this, ERR_CHANOPRIVSNEEDED(this->serverName, this->nickName, channel->getName()));
             channel->clearMode();
@@ -230,7 +233,7 @@ void Channel:: modeT(std::vector<std::pair<std::string, std::string> >::iterator
     
 }
 
-void Channel:: modeO(std::vector<std::pair<std::string, std::string> >::iterator &it) 
+void    Channel::modeO(std::vector<std::pair<std::string, std::string> >::iterator &it) 
 {
     if(it->first == "+o" && it->second != "")
     {  
@@ -251,6 +254,9 @@ void Channel:: modeO(std::vector<std::pair<std::string, std::string> >::iterator
 }
 
 std::string const   Channel::modeToSend(void) {
+
+    if (this->mode.empty())
+        return ("");
 
     std::vector<std::pair<std::string, std::string> >::iterator    it = this->mode.begin();
     std::string                                     mode = it->first;

@@ -3,15 +3,6 @@
 #include "Channel.hpp"
 
 
-static std::string const    extractLast(std::string const &parameter) {
-
-    size_t  i = parameter.find(':');
-    if (i == std::string::npos)
-        return (parameter);
-
-    std::string reason = parameter.substr(i + 1, parameter.length() - i);
-    return (reason);
-}
 void    Client::commandTopic(Server &server, std::string const &parameter) {
 
     if (parameter.empty())
@@ -25,6 +16,8 @@ void    Client::commandTopic(Server &server, std::string const &parameter) {
     std::string         newTopic;
     
     datas >> channelName;
+    if (channelName[0] != '#')
+        channelName = "#" + channelName;
     std::map<std::string, Channel *>::iterator    channelIt = server.getChannels().find(channelName);
     if (channelIt == server.getChannels().end())
     {
@@ -35,7 +28,7 @@ void    Client::commandTopic(Server &server, std::string const &parameter) {
 
     std::getline(datas >> std::ws, newTopic);
     if (!datas.fail())
-        newTopic = extractLast(newTopic);
+        newTopic = this->extractLast(newTopic);
 
     if (channel->getTMode() && (!channel->isOperator(this->nickName)))
     {
