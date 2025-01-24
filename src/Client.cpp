@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/24 22:23:36 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/24 22:27:46 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -315,7 +315,7 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
     if (this->nickName.empty())
     {
         try {
-            server.sendTemplate(*this, ERR_NONICKNAMEGIVEN(server.getName(), "*"));
+            server.sendTemplate(*this, ERR_NOTREGISTERED(server.getName(), "*"));
             server.clearClient(this);
             return;
         }
