@@ -238,7 +238,7 @@ void Channel:: modeO(std::vector<std::pair<std::string, std::string> >::iterator
         {
             if(users[i]->getNickName() == it->second)
             {
-                addOper(it->second); 
+                addOperator(it->second); 
                 break;
             }
         }    

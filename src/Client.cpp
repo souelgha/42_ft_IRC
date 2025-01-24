@@ -6,20 +6,21 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/24 12:23:11 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/24 13:30:47 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client(void) : pass_command(false), authentification(false) {
+Client::Client(void) : fd(-1), pass_command(false), authentification(false) {
 
     std::fill(buffer, buffer + BUFFER_SIZE, 0);
 }
 
 Client::~Client(void) {
-        
-    close (this->fd);
+
+    if (this->fd != -1)
+        close (this->fd);
 }
 
 int Client::getFd(void) const {
@@ -250,14 +251,14 @@ void    Client::commandNick(Server &server, std::string const &parameter)
         {
             if (server.getClients()[i] && server.getClients()[i]->getNickName() == parameter)
             {
-                server.replyErrNick(*this);
+                server.sendTemplate(*this, ERR_NICKNAMEINUSE(this->getServerName(), this->getNickName()));
                 server.clearClient(this);
                 return ;
             }
         }
         if(parameter.length() > 9 || (!std::isalnum(parameter[0])))
         {
-            server.replyErronNickUse(*this);
+            server.sendTemplate(*this, ERR_ERRONEUSNICKNAME(this->getServerName(), this->getNickName()));
             server.clearClient(this);
             return ;
         }
@@ -265,7 +266,7 @@ void    Client::commandNick(Server &server, std::string const &parameter)
         {
             if (!std::isalnum(parameter[i]) && (parameter[i] != '-' || parameter[i] != '_' || parameter[i] != '|' ))
             {
-                server.replyErronNickUse(*this);
+                server.sendTemplate(*this, ERR_ERRONEUSNICKNAME(this->getServerName(), this->getNickName()));
                 server.clearClient(this);
                 return ;
             }
@@ -328,7 +329,7 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
         this->setRealName(realName);
         this->setSourceName();
 
-        server.replyUser(*this);
+        server.sendTemplate(*this, RPL_WELCOME(this->getServerName(), this->getNickName()));
     }
     catch (std::exception &e) {
             throw;

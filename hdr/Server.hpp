@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Server.hpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/24 12:44:16 by stouitou          #+#    #+#             */
+/*   Updated: 2025/01/24 13:30:54 by stouitou         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #pragma once
 
 #include <cstring>
@@ -14,10 +26,11 @@
 #include <fcntl.h>
 #include <poll.h>
 
+#include "RPL_ERR.hpp"
 #include "Client.hpp"
 #include "Channel.hpp"
-#include "RPL_ERR.hpp"
 
+/* COLORS */
 #define RED "\033[0;31m"
 #define GREEN "\033[0;32m"
 #define YELLOW "\033[0;33m"
@@ -37,8 +50,8 @@ class   Server
         static bool                         signal;                 // track du signal
 
         std::string const                   name;
-
         std::string const                   password;               // mot de passe pour se connecter au serveur
+
         int                                 listen_port;            // port d'ecoute
         int                                 listen_fd;              // fd server
         std::vector<struct pollfd>          fds;                    // liste des fds
@@ -50,6 +63,12 @@ class   Server
 
         /* CONSTRUCTOR */
         Server(void);
+
+        /* UTILS */
+        void                                addClient(Client *client);
+        void                                addToDelete(Client *client);
+        void                                deleteClients(void);
+        void                                deleteChannel(Channel *channel);
 
     public:
 
@@ -73,20 +92,15 @@ class   Server
         void                                receiveMessage(Client *client);
 
         /* UTILS */
-        void                                addClient(Client *client);
-        void                                addToDelete(Client *client);
-        void                                closeFds(void);
-        void                                clearClient(Client *client);
-        void                                deleteClients(void);
-        void                                clearbuffer(char *buffer);
         static void                         signalCatch(int signum);
+        void                                clearClient(Client *client);
         bool                                isClient(std::string const &nickname);
         Client                              *findClient(std::string const &name);
         Client                              *findClient(int fd);
+        void                                createChannel(Client const &client, std::string const &name, std::string const &key);
 
         /* REPLIES */
         void                                replyNick(Client &client, std::string const &newnick);
-        void                                replyUser(Client const &client);
         void                                replyModeClient(Client const &client);
         void                                replyModeChannel(Client const &client, Channel &channel, std::string const &mode);
         void                                replyQuit(Client &client, std::string const &reason);
@@ -101,14 +115,6 @@ class   Server
         void                                replyPing(Client const &client, std::string const &pong);
        
        /* REPLY ERRORS */
-        void                                replyErrNick(Client &client);
-        void                                replyErronNickUse(Client &client);
-        void                                replyMissPara(Client &client, std::string &command);
         void                                sendTemplate(Client const &client, std::string const &message);
         void                                replyUnknown(Client const &client, std::string const &command);
-
-        /* CHANNEL FUNCTIONS*/
-        void                                createChannel(Client const &client, std::string const &name, std::string const &key);
-        void                                deleteChannel(Channel *channel);
-        void                                clearChannels(void);
 };

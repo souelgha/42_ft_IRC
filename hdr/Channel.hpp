@@ -72,7 +72,7 @@ class Channel
 
         /* OPERATIONS */
         void                                                    addUser(Client *client);
-        void                                                    addOper(std::string const &nickname);
+        void                                                    addOperator(std::string const &nickname);
         void                                                    addInvited(std::string const &nickname);
         void                                                    remUser(Client const &client);
         void                                                    remOperator(std::string const &nickname);

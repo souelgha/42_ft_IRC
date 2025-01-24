@@ -1,35 +1,29 @@
-#include"Server.hpp"
-#include"Client.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   replies.cpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/24 13:26:33 by stouitou          #+#    #+#             */
+/*   Updated: 2025/01/24 13:31:23 by stouitou         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-void    Server::replyMissPara(Client &client, std::string &command) {
-
-    std::string const message = ERR_NEEDMOREPARAMS(client.getServerName(), client.getNickName(), command);
-    sendTemplate(client, message);
-}
+#include "Server.hpp"
+#include "Client.hpp"
 
 void    Server::sendTemplate(Client const &client, std::string const &message){
     
     std::cout << ">> " << message << std::flush;
     int sentBytes = send(client.getFd(), message.c_str(), message.length(), 0);
     if (sentBytes == -1)
-        throw(std::runtime_error("Failed to send message to client\n")) ;
+        throw (std::runtime_error("Failed to send message to client")) ;
 }
 
 void    Server::replyNick(Client &client, std::string const &newnick) {
 
-    std::string const message = ":"+client.getSourceName()+  " NICK :"+newnick+ CRLF;
-    sendTemplate(client, message);
-}
-
-void    Server::replyErrNick(Client &client) {
-    
-    std::string const message = ERR_NICKNAMEINUSE(client.getServerName(), client.getNickName());
-    sendTemplate(client, message);
-}
-
-void    Server::replyErronNickUse(Client &client) {
-    
-    std::string const message = ERR_ERRONEUSNICKNAME(client.getServerName(), client.getNickName());
+    std::string const message = ":" + client.getSourceName() + " NICK :"+ newnick + CRLF;
     sendTemplate(client, message);
 }
 

@@ -1,7 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   RPL_ERR.hpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/24 12:42:49 by stouitou          #+#    #+#             */
+/*   Updated: 2025/01/24 12:44:08 by stouitou         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #pragma once
 
-#define CRLF "\r\n"
-
+#ifndef CRLF
+# define CRLF "\r\n"
+#endif
 
 /************************************************                 RESPONSES              **************************************************************/
 
@@ -37,11 +50,9 @@
 /************************************************                 ERRORS             **************************************************************/
 
 /* COMMAND PRIVMSG / INVITE */
-/* ERRORS communes des plusieurs  COMMAND ==> PASS / USER/ OPER /SQUIT /JOIN /PART /MODE /TOPIC /INVITE /KICK /CONNECT et USERMODES  */
 #define ERR_NEEDMOREPARAMS(servername, nickname, command) (std::string(":") + servername  + " 461 " + nickname + " " + command + " :Not enough parameters" + CRLF)
 
 /* COMMAND PRIVMSG / KILL / INVITE  ERRORS */
-//Used to indicate the nickname parameter supplied to a command is currently unused.
 #define ERR_NOSUCHNICK(servername, sender, recipient) (std::string(":") + servername + " 401 " + sender + " " + recipient + " :No such nick/channel" + CRLF )
 
 /* COMMAND PRIVMSG ERRORS */
@@ -51,24 +62,20 @@
 #define ERR_ALREADYREGISTRED(servername, nickname) (std::string(":") + servername  + " 462 " + nickname + " :Unauthorized command (already registered)" + CRLF )
 
 /****** COMMAND MODE -k ERRORS : ********/
-/*si oper essaie de modifier la cle sans supprimer l ancienne (commande suppr=>/MODE #channel -k) => operateur fait MODE #channel +k newkey*/
 #define ERR_KEYSET(servername,nickname, channelname) (std::string(":") + servername + " 467 " + nickname + " #" + channelname + " :Channel key already set" + CRLF)
 
 /****** COMMAND MODE ERRORS sur le CHANNEL char => mode inconnu par ex j de -j********/
 #define ERR_UNKNOWNMODE(servername,nickname,char, channelname) (std::string(":") + servername + " 472 " + nickname + " " + char + " :is unknown mode char to me for " + channelname + CRLF)
 
 /* COMMAND MODE / TOPIC / INVITE ERRORS */
-//un utilisateur qui n a pas ls droits. des qu une commande est faite ss les droits oper*/
 #define ERR_CHANOPRIVSNEEDED(servername, nickname, channelname) (std::string(":") + servername + " 482 " + nickname + " " + channelname + " :You're not a channel operator" + CRLF)
 
 /* COMMAND OPER ERRORS */
 #define ERR_PASSWDMISMATCH(servername,nickname) (std::string(":") + servername + " 464 " + nickname + " :Password incorrect" + CRLF )
 
 /* COMMAND NICK ERRORS */
-//Returned when a nickname parameter expected for a command and isn't found.
 #define ERR_NONICKNAMEGIVEN(servername, nickname) (std::string(":") + servername  + " 431 " + nickname + " :No nickname given" + CRLF )
 #define ERR_NICKNAMEINUSE(servername, nickname) (std::string(":") + servername +" 433 " + nickname + " :Nickname is already in use" + CRLF)
-//quand le pseudo est invalid : ne respecte pas les regles 
 #define ERR_ERRONEUSNICKNAME(servername,nickname) (std::string(":") + servername  + " 432 " + nickname + " " + nickname +  " :Erroneus nickname" + CRLF)
 
 /**** COMMAND JOIN / PART / KICK / INVITE ERRORS */

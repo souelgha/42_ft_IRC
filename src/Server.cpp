@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/24 13:26:29 by stouitou          #+#    #+#             */
+/*   Updated: 2025/01/24 13:26:30 by stouitou         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Server.hpp"
 
 bool    Server::signal = false;
@@ -14,13 +26,14 @@ Server::Server(int listening_port, std::string const &password) : name("our_IRC"
 
 Server::~Server(void) {
 
-    this->closeFds();
     for (std::map<std::string, Channel *>::iterator it = this->channels.begin(); it != this->channels.end(); it++)
         delete it->second;
     for (size_t i = 0; i < this->maxClients; i++)
         delete this->clients[i];
     for (size_t i = 0; i < this->maxClients; i++)
         delete this->toDelete[i];
+    if (this->listen_fd != -1)
+        close (this->listen_fd);
 }
 
 size_t  Server::getMaxClients(void) const {
@@ -95,21 +108,21 @@ void    Server::serverConnect(void)
     socklen_t   listenAddressLength = sizeof(this->listenAddress);  
 
     this->listen_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if(this->listen_fd == -1)
+    if (this->listen_fd == -1)
         throw (std::runtime_error("Failed to initialise socket"));
 
     int en = 1;
-	if(setsockopt(this->listen_fd, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(en)) == -1)
+	if (setsockopt(this->listen_fd, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(en)) == -1)
 		throw (std::runtime_error("Failed to set option on socket"));
     if (fcntl(this->listen_fd, F_SETFL, O_NONBLOCK) == -1) 
 		throw (std::runtime_error("Failed to set option on socket"));
 
     // lie le socket a l'adresse
-    if(bind(this->listen_fd, (struct sockaddr*) &this->listenAddress, listenAddressLength) == -1)
+    if (bind(this->listen_fd, (struct sockaddr*) &this->listenAddress, listenAddressLength) == -1)
         throw (std::runtime_error("Failed to bind socket"));
 
     // commence a ecouter
-    if(listen(this->listen_fd, this->maxClients) == -1)
+    if (listen(this->listen_fd, this->maxClients) == -1)
         throw  (std::runtime_error("Failed to listen"));    
 
     // permet de verifier les evenements
@@ -120,7 +133,7 @@ void    Server::serverConnect(void)
     this->fds.push_back(newPoll);
 }
 
-void Server::newClient(void)
+void    Server::newClient(void)
 {
     std::cout
         << BLUE << "New Client" << WHITE << std::endl;
@@ -146,12 +159,15 @@ void Server::newClient(void)
     {
         std::cerr
             << "Too many clients" << std::endl;
-        close(connection_fd);
+        delete newClient;
+        close (connection_fd);
     }
 }
 
 static bool incompleteCommand(char *buffer) {
 
+    if (buffer == NULL)
+        return (true);
     if (strstr(buffer, DELIMITER))
         return (false);
     return (true);
@@ -162,6 +178,8 @@ void Server::receiveMessage(Client *client)
     std::cout
         << YELLOW << "Message received (" << client->getFd() << "):" << WHITE << std::endl;
 
+    if (client == NULL)
+        return ;
     size_t  buffer_len = std::strlen(client->buffer);
     int     receivedBytes = recv(client->getFd(), client->buffer + buffer_len, BUFFER_SIZE - buffer_len, 0);
     if (receivedBytes <= 0)
@@ -182,6 +200,8 @@ void    Server::addClient(Client *client) {
 
     size_t  i = 0;
 
+    if (client == NULL)
+        return ;
     while (this->clients[i])
         i++;
     if (i == this->maxClients)
@@ -193,53 +213,13 @@ void    Server::addToDelete(Client *client) {
 
     size_t  i = 0;
 
+    if (client == NULL)
+        return ;
     while (this->toDelete[i])
         i++;
     if (i == this->maxClients)
         throw (std::runtime_error("Too many clients to be deleted"));
     this->toDelete[i] = client;
-}
-
-void    Server::closeFds(void) {
-
-    for (size_t i = 1; i < fds.size(); i++)
-        close(fds[i].fd);
-    if (listen_fd != -1)
-        close(listen_fd);
-}
-
-void    Server::clearClient(Client *client) {
-
-    for (size_t i = 0; i < this->maxClients; i++)
-    {
-        if (this->clients[i])
-        {
-            if (this->clients[i]->getNickName() == client->getNickName())
-            {
-                try {
-                    this->addToDelete(this->clients[i]);
-                    this->clients[i] = NULL;
-                    break;
-                }
-                catch (std::exception &e) {
-                    throw ;
-                }
-            }
-        }
-    }
-    for (size_t i = 0; i < this->fds.size(); i++)
-    {
-        if (this->fds[i].fd == client->getFd())
-        {
-            this->fds.erase(this->fds.begin() + i);
-            break;
-        }
-    }
-    for (size_t i = 0; i < client->getListChannels().size(); i++)
-    {
-        client->getListChannels()[i]->remUser(*client);
-        this->replyPart(*client, client->getListChannels()[i]);
-    }
 }
 
 void    Server::deleteClients(void) {
@@ -254,9 +234,13 @@ void    Server::deleteClients(void) {
     }
 }
 
-void    Server::clearbuffer(char *buffer) {
-
-    std::fill(buffer, buffer + BUFFER_SIZE, 0);
+void    Server::deleteChannel(Channel *channel)
+{
+    if (channel == NULL)
+        return ;
+    if (channels.find(channel->getName()) != channels.end())
+        channels.erase(channel->getName());
+    delete channel;
 }
 
 void    Server::signalCatch(int) {
@@ -265,10 +249,52 @@ void    Server::signalCatch(int) {
     throw (std::runtime_error(""));
 }
 
-void    Server::replyUser(Client const &client) {
+void    Server::clearClient(Client *client) {
 
-    std::string const message = RPL_WELCOME(client.getServerName(), client.getNickName());
-    sendTemplate(client, message);
+    if (client == NULL)
+        return ;
+    for (size_t i = 0; i < this->maxClients; i++)
+    {
+        if (this->clients[i] && this->clients[i]->getNickName() == client->getNickName())
+        {
+            try {
+                this->addToDelete(this->clients[i]);
+                this->clients[i] = NULL;
+                break;
+            }
+            catch (std::exception &e) {
+                throw ;
+            }
+        }
+    }
+    for (size_t i = 0; i < this->fds.size(); i++)
+    {
+        if (this->fds[i].fd == client->getFd())
+        {
+            this->fds.erase(this->fds.begin() + i);
+            break;
+        }
+    }
+    for (size_t i = 0; i < client->getListChannels().size(); i++)
+    {
+        try {
+            client->getListChannels()[i]->remUser(*client);
+            this->replyPart(*client, client->getListChannels()[i]);
+        }
+        catch (std::exception &e) {
+            throw ;
+        }
+    }
+}
+
+bool    Server::isClient(std::string const &nickname) {
+
+    for (size_t i = 0; i < this->maxClients; i++)
+    {
+        if (this->clients[i] && this->clients[i]->getNickName() == nickname)
+            return (true);
+    }
+    return (false);
 }
 
 Client *Server::findClient(std::string const &name)
@@ -288,38 +314,16 @@ Client *Server::findClient(int fd)
         if (this->clients[i] && this->clients[i]->getFd() == fd)
             return (this->clients[i]);
     }
-    throw (std::runtime_error("Fd does not exist"));
-}
-
-bool    Server::isClient(std::string const &nickname) {
-
-    for (size_t i = 0; i < this->maxClients; i++)
-    {
-        if (this->clients[i] && this->clients[i]->getNickName() == nickname)
-            return (true);
-    }
-    return (false);
+    return (NULL);
 }
 
 void    Server::createChannel(Client const &client, std::string const &name, std::string const &key)
 {
     this->channels[name] = new Channel(name);
-    this->channels[name]->addOper(client.getNickName());
-    if(key != "")
+    this->channels[name]->addOperator(client.getNickName());
+    if (key != "")
     {
         this->channels[name]->setKey(key);
         this->channels[name]->setKMode(true);
     }
-}
-
-void    Server::deleteChannel(Channel *channel)
-{
-    if (channels.find(channel->getName()) != channels.end())
-        channels.erase(channel->getName());
-    delete channel;
-}
-
-void    Server::clearChannels(void) {
-
-    this->channels.clear();
 }

@@ -138,7 +138,7 @@ void    Channel::addUser(Client *client) {
     users.push_back(client);
 }
 
-void    Channel::addOper(std::string const &nickname) {
+void    Channel::addOperator(std::string const &nickname) {
 
     operators.insert(nickname);
 }
