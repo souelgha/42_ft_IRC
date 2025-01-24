@@ -69,7 +69,6 @@ void    Channel::insertNewMode(Server &server, Client &client, char sign, char s
     }
     else if (sent == 'i' || sent == 't' || key == "-l")
         value = "";
-    std::cout << "mode inserted: key = " << key << ", value = " << value << std::endl;
     mode.push_back(std::make_pair(key, value));
 }
 
@@ -171,7 +170,7 @@ std::vector<std::pair<std::string, std::string> > const    &Channel::getMode() c
 
     return (this->mode);
 }
-//done
+
 void Channel:: modeKey(std::vector<std::pair<std::string, std::string> >::iterator &it) 
 {
     if(it->first == "+k")
@@ -188,9 +187,8 @@ void Channel:: modeKey(std::vector<std::pair<std::string, std::string> >::iterat
         this->key = "";
         this->kMode = false;
     }
-    std::cout<<"modekey value : "<< kMode<< " ; keyvalue "<< this->key<< std::endl; 
 }
-//done
+
 void Channel:: modeL(std::vector<std::pair<std::string, std::string> >::iterator &it) 
 {
     if(it->first == "+l" && it->second!= "")
@@ -207,7 +205,7 @@ void Channel:: modeL(std::vector<std::pair<std::string, std::string> >::iterator
     }
     
 }
-//done
+
 void Channel:: modeI(std::vector<std::pair<std::string, std::string> >::iterator &it) 
 {
     if(it->first == "+i")
@@ -218,6 +216,7 @@ void Channel:: modeI(std::vector<std::pair<std::string, std::string> >::iterator
         this->invited.clear();
     }
 }
+
 void Channel:: modeT(std::vector<std::pair<std::string, std::string> >::iterator &it) 
 {
     if(it->first == "+t")
@@ -230,7 +229,7 @@ void Channel:: modeT(std::vector<std::pair<std::string, std::string> >::iterator
     }
     
 }
-//done
+
 void Channel:: modeO(std::vector<std::pair<std::string, std::string> >::iterator &it) 
 {
     if(it->first == "+o" && it->second != "")
@@ -257,9 +256,9 @@ std::string const   Channel::modeToSend(void) {
     std::string                                     mode = it->first;
     char                                            sign = it->first[0];
 
-    std::cout << "Modes:" <<std::endl;
-    for (std::vector<std::pair<std::string, std::string> >::iterator i = this->mode.begin(); i != this->mode.end(); i++)
-        std::cout << i->first << " = " << i->second << std::endl;
+    // std::cout << "Modes:" <<std::endl;
+    // for (std::vector<std::pair<std::string, std::string> >::iterator i = this->mode.begin(); i != this->mode.end(); i++)
+    //     std::cout << i->first << " = " << i->second << std::endl;
     it++;
     for (; it != this->mode.end(); it++)
     {
@@ -276,7 +275,6 @@ std::string const   Channel::modeToSend(void) {
         if (!it->second.empty())
             mode += " " + it->second;
     }
-    std::cout << "stringMode pour modechannel: "<< mode<<std::endl;
     return(mode);
 }
 

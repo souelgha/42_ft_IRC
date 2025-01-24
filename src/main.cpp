@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:23 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/22 10:41:31 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/24 12:37:33 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ int main(int argc, char **argv) {
     catch(const std::exception& e) {
         std::cerr << e.what() << std::endl;    
     }
-    std::cout << "Server Closed" << std::endl;
+    std::cout
+        << RED << "Server Closed" << WHITE << std::endl;
     return(0);
 }

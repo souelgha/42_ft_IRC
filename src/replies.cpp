@@ -92,7 +92,6 @@ void    Server::replyKick(Client const &client, Channel *channel, Client *recipi
 
     std::string message = RPL_KICK(client.getSourceName(), channel->getName(), recipient->getNickName(), reason);
 
-    std::cout << GREEN << ">> " << message << WHITE << std::flush;
     for (size_t i = 0; i < channel->getUsers().size(); i++)
         sendTemplate(*channel->getUsers()[i], message);
     channel->remUser(*recipient);
@@ -105,9 +104,8 @@ void    Server::replyKick(Client const &client, Channel *channel, Client *recipi
 
 void    Server::replyPart(Client const &client, Channel *channel) {
 
-    std::string message = ":" + client.getSourceName() + " PART " + channel->getName() + "\r\n";
+    std::string message = ":" + client.getSourceName() + " PART " + channel->getName() + DELIMITER;
 
-    std::cout << GREEN << ">> " << message << WHITE << std::flush;
     for (size_t i = 0; i < channel->getUsers().size(); i++)
         sendTemplate(*channel->getUsers()[i], message);
     channel->remUser(client);

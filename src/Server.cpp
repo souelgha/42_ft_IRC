@@ -175,7 +175,6 @@ void Server::receiveMessage(Client *client)
     if (incompleteCommand(client->buffer))
         return ;
     client->buffer[receivedBytes + buffer_len] = '\0';
-    std::cout << YELLOW << client->buffer << WHITE << std::flush;
     client->commandReact(*this);
 }
 
