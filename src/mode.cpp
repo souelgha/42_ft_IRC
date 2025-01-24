@@ -256,9 +256,6 @@ std::string const   Channel::modeToSend(void) {
     std::string                                     mode = it->first;
     char                                            sign = it->first[0];
 
-    // std::cout << "Modes:" <<std::endl;
-    // for (std::vector<std::pair<std::string, std::string> >::iterator i = this->mode.begin(); i != this->mode.end(); i++)
-    //     std::cout << i->first << " = " << i->second << std::endl;
     it++;
     for (; it != this->mode.end(); it++)
     {

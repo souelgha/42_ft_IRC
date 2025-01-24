@@ -55,7 +55,6 @@ void    Server::replyInvite(Client const &sender, Client const &recipient, Chann
 
     std::string message = RPL_INVITING(sender.getServerName(), sender.getNickName(), recipient.getNickName(), channel.getName());
 
-    std::cout << GREEN << ">> " << message << WHITE << std::flush;
     sendTemplate(sender, message);
     sendTemplate(recipient, message);
     channel.addInvited(recipient.getNickName());
