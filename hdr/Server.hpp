@@ -106,7 +106,8 @@ class   Server
         void                                replyPrivmsgClient(Client const &sender, Client const &recipient, std::string const &toSend);
         void                                replyPrivmsgChannel(Client const &client, Channel &channel, std::string const &toSend);
         void                                replyJoin(Client const &client, Channel &channel);
-        void                                replyPart(Client const &client, Channel *channel);
+        void                                replyPart(Client &client, Channel *channel);
+        // void                                replyPart(Client const &client, Channel *channel);
         void                                replyKick(Client const &client, Channel *channel, Client *recipient, std::string const &reason);
         void                                replyInvite(Client const &sender, Client const &recipient, Channel &channel);
         void                                replyTopic(Client const &client, Channel &channel, std::string const &topic);

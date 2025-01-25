@@ -12,7 +12,7 @@
 
 #include "Client.hpp"
 
-Client::Client(void) : fd(-1), pass_command(false), authentification(false) {
+Client::Client(void) : fd(-1), pass_command(false), authentification(false), registered(false) {
 
     std::fill(buffer, buffer + BUFFER_SIZE, 0);
 }
@@ -268,6 +268,7 @@ void    Client::commandNick(Server &server, std::string const &parameter)
             {
                 server.sendTemplate(*this, ERR_NONICKNAMEGIVEN(server.getName(), "*"));
                 server.clearClient(this);
+                std::cout<<"client refused"<<std::endl;
                 return ;
             }
             for (size_t i = 0; i < server.getMaxClients(); i++)
@@ -275,14 +276,22 @@ void    Client::commandNick(Server &server, std::string const &parameter)
                 if (server.getClients()[i] && server.getClients()[i]->getNickName() == parameter)
                 {
                     server.sendTemplate(*this, ERR_NICKNAMEINUSE(this->getServerName(), this->getNickName()));
-                    server.clearClient(this);
+                    if(this->registered == false)
+                    {
+                        server.clearClient(this);
+                        std::cout<<"client refused"<<std::endl;
+                    }
                     return ;
                 }
             }
             if (parameter.length() > 9 || (!std::isalnum(parameter[0])))
             {
                 server.sendTemplate(*this, ERR_ERRONEUSNICKNAME(this->getServerName(), this->getNickName()));
-                server.clearClient(this);
+                if(this->registered == false)
+                {
+                    server.clearClient(this);
+                    std::cout<<"client refused"<<std::endl;
+                }
                 return ;
             }
             for (size_t i = 1; i < parameter.size(); i++)
@@ -290,7 +299,11 @@ void    Client::commandNick(Server &server, std::string const &parameter)
                 if (!std::isalnum(parameter[i]) && (parameter[i] != '-' || parameter[i] != '_' || parameter[i] != '|' ))
                 {
                     server.sendTemplate(*this, ERR_ERRONEUSNICKNAME(this->getServerName(), this->getNickName()));
-                    server.clearClient(this);
+                    if(this->registered == false)
+                    {
+                        server.clearClient(this);
+                        std::cout<<"client refused"<<std::endl;
+                    }
                     return ;
                 }
             }
@@ -302,6 +315,7 @@ void    Client::commandNick(Server &server, std::string const &parameter)
         }
     }
     this->setNickName(parameter);
+    
 }
 
 void    Client::commandUser(Server &server, std::string const &parameter) {
@@ -341,6 +355,8 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
         this->setSourceName();
 
         server.sendTemplate(*this, RPL_WELCOME(this->getServerName(), this->getNickName()));
+        this->registered = true;
+
     }
     catch (std::exception &e) {
             throw;

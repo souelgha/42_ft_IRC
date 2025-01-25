@@ -28,6 +28,7 @@ class   Client
 
         bool                    pass_command;
         bool                    authentification;
+        bool                    registered;
 
         std::string             realName;
         std::string             hostName;

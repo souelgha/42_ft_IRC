@@ -68,10 +68,19 @@ void    Server::replyPrivmsgChannel(Client const &sender, Channel &channel, std:
     }
 }
 
-void    Server::replyPart(Client const &client, Channel *channel) {
+void    Server::replyPart(Client &client, Channel *channel) {
 
     std::string message = ":" + client.getSourceName() + " PART " + channel->getName() + DELIMITER;
 
+    std::vector<Channel *> &listChannels = client.getListChannels(); 
+    for (size_t i = 0; i < listChannels.size(); i++) 
+    {
+        if (listChannels[i] == channel) 
+        {
+            listChannels.erase(listChannels.begin() + i);
+            break;
+        }
+    }
     try {
         for (size_t i = 0; i < channel->getUsers().size(); i++)
             sendTemplate(*channel->getUsers()[i], message);
