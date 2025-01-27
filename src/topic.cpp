@@ -5,6 +5,18 @@
 
 void    Client::commandTopic(Server &server, std::string const &parameter) {
 
+    try {
+        if (this->registered == false)
+        {
+            server.sendTemplate(*this, ERR_NOTREGISTERED(server.getName(), "*"));
+            server.clearClient(this);
+            return;
+        }
+    }
+    catch (std::exception &e) {
+        throw ;
+    }
+
     if (parameter.empty())
     {   
         server.sendTemplate(*this, ERR_NEEDMOREPARAMS(this->serverName, this->nickName, "TOPIC"));
@@ -36,9 +48,4 @@ void    Client::commandTopic(Server &server, std::string const &parameter) {
         return;
     }
     server.replyTopic(*this, *channel, newTopic);
-}
-
-void    Client::commandCap(Server &, std::string const &) {
-
-    return;
 }

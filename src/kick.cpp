@@ -5,6 +5,18 @@
 
 void    Client::commandKick(Server &server, std::string const &parameter) {
 
+    try {
+        if (this->registered == false)
+        {
+            server.sendTemplate(*this, ERR_NOTREGISTERED(server.getName(), "*"));
+            server.clearClient(this);
+            return;
+        }
+    }
+    catch (std::exception &e) {
+        throw ;
+    }
+
     std::istringstream  datas(parameter);
     std::string         channelName;
     std::string         nickname;

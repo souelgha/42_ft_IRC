@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:45:30 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/24 22:27:46 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/27 10:55:34 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -268,29 +268,31 @@ void    Client::commandNick(Server &server, std::string const &parameter)
             {
                 server.sendTemplate(*this, ERR_NONICKNAMEGIVEN(server.getName(), "*"));
                 server.clearClient(this);
-                std::cout<<"client refused"<<std::endl;
+                std::cout << "Client refused" << std::endl;
                 return ;
             }
             for (size_t i = 0; i < server.getMaxClients(); i++)
             {
                 if (server.getClients()[i] && server.getClients()[i]->getNickName() == parameter)
                 {
-                    server.sendTemplate(*this, ERR_NICKNAMEINUSE(this->getServerName(), this->getNickName()));
+                    server.sendTemplate(*this, ERR_NICKNAMEINUSE(server.getName(), parameter));
                     if(this->registered == false)
                     {
                         server.clearClient(this);
-                        std::cout<<"client refused"<<std::endl;
+                        std::cout << "Client refused" << std::endl;
                     }
                     return ;
                 }
             }
             if (parameter.length() > 9 || (!std::isalnum(parameter[0])))
             {
-                server.sendTemplate(*this, ERR_ERRONEUSNICKNAME(this->getServerName(), this->getNickName()));
+                if (this->nickName.empty())
+                    this->nickName = "*";
+                server.sendTemplate(*this, ERR_ERRONEUSNICKNAME(server.getName(), this->getNickName(), parameter));
                 if(this->registered == false)
                 {
                     server.clearClient(this);
-                    std::cout<<"client refused"<<std::endl;
+                    std::cout << "Client refused" << std::endl;
                 }
                 return ;
             }
@@ -298,11 +300,13 @@ void    Client::commandNick(Server &server, std::string const &parameter)
             {
                 if (!std::isalnum(parameter[i]) && (parameter[i] != '-' || parameter[i] != '_' || parameter[i] != '|' ))
                 {
-                    server.sendTemplate(*this, ERR_ERRONEUSNICKNAME(this->getServerName(), this->getNickName()));
+                    if (this->nickName.empty())
+                        this->nickName = "*";
+                    server.sendTemplate(*this, ERR_ERRONEUSNICKNAME(server.getName(), this->getNickName(), parameter));
                     if(this->registered == false)
                     {
                         server.clearClient(this);
-                        std::cout<<"client refused"<<std::endl;
+                        std::cout << "Client refused" << std::endl;
                     }
                     return ;
                 }
@@ -347,7 +351,7 @@ void    Client::commandUser(Server &server, std::string const &parameter) {
         realName = extractLast(parameter);
         if (realName.empty() || datas.fail())
         {
-            std::cerr << "Wrong format in USER command" << std::endl;
+            server.sendTemplate(*this, ERR_NEEDMOREPARAMS(server.getName(), this->nickName, "USER"));
             server.clearClient(this);
             return ;
         }
@@ -368,6 +372,13 @@ void    Client::commandQuit(Server &server, std::string const &parameter) {
     std::string reason = parameter;
 
     try {
+        if (this->registered == false)
+        {
+            server.sendTemplate(*this, ERR_NOTREGISTERED(server.getName(), "*"));
+            server.clearClient(this);
+            return;
+        }
+
         reason = extractLast(parameter);
         if (reason.empty())
             reason = "leaving";
@@ -383,6 +394,18 @@ void    Client::commandPrivmsg(Server &server, std::string const &parameter)
     std::istringstream  datas(parameter);
     std::string         recipient;
     std::string         message;
+
+    try {
+        if (this->registered == false)
+        {
+            server.sendTemplate(*this, ERR_NOTREGISTERED(server.getName(), "*"));
+            server.clearClient(this);
+            return;
+        }
+    }
+    catch (std::exception &e) {
+        throw ;
+    }
 
     datas >> recipient;
     std::getline(datas >> std::ws, message);
@@ -446,6 +469,18 @@ void    Client::commandPrivmsg(Server &server, std::string const &parameter)
 
 void    Client::commandPart(Server &server, std::string const &parameter) {
 
+    try {
+        if (this->registered == false)
+        {
+            server.sendTemplate(*this, ERR_NOTREGISTERED(server.getName(), "*"));
+            server.clearClient(this);
+            return;
+        }
+    }
+    catch (std::exception &e) {
+        throw ;
+    }
+
     std::string channelName = parameter;
 
     if (channelName[0] != '#')
@@ -469,6 +504,18 @@ void    Client::commandPart(Server &server, std::string const &parameter) {
 
 void    Client::commandWho(Server &server, std::string const &parameter) 
 {
+    try {
+        if (this->registered == false)
+        {
+            server.sendTemplate(*this, ERR_NOTREGISTERED(server.getName(), "*"));
+            server.clearClient(this);
+            return;
+        }
+    }
+    catch (std::exception &e) {
+        throw ;
+    }
+
     std::size_t found = parameter.find('#');
     if (found != std::string::npos)
     {
@@ -485,6 +532,12 @@ void    Client::commandWho(Server &server, std::string const &parameter)
 void    Client::commandPing(Server &server, std::string const &parameter) {
 
     try {
+        if (this->registered == false)
+        {
+            server.sendTemplate(*this, ERR_NOTREGISTERED(server.getName(), "*"));
+            server.clearClient(this);
+            return;
+        }
         server.replyPing(*this, parameter);
     }
     catch (std::exception &e) {
@@ -492,9 +545,20 @@ void    Client::commandPing(Server &server, std::string const &parameter) {
     }
 }
 
+void    Client::commandCap(Server &, std::string const &) {
+
+    return;
+}
+
 void    Client::commandUnknown(Server &server, std::string const &parameter) {
 
     try {
+        if (this->registered == false)
+        {
+            server.sendTemplate(*this, ERR_NOTREGISTERED(server.getName(), "*"));
+            server.clearClient(this);
+            return;
+        }
         server.replyUnknown(*this, parameter);
     }
     catch (std::exception &e) {

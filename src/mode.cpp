@@ -102,6 +102,18 @@ void    Channel::adjustMode(Server &server, Client &client, std::string &value) 
 
 void    Client::commandMode(Server &server, std::string const &parameter) {
 
+    try {
+        if (this->registered == false)
+        {
+            server.sendTemplate(*this, ERR_NOTREGISTERED(server.getName(), "*"));
+            server.clearClient(this);
+            return;
+        }
+    }
+    catch (std::exception &e) {
+        throw ;
+    }
+
     std::istringstream                      datas(parameter);
     std::string                             recipient;
     std::string                             value;

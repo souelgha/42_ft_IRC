@@ -6,7 +6,7 @@
 /*   By: stouitou <stouitou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 12:42:49 by stouitou          #+#    #+#             */
-/*   Updated: 2025/01/24 12:44:08 by stouitou         ###   ########.fr       */
+/*   Updated: 2025/01/27 10:34:58 by stouitou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,8 +75,8 @@
 
 /* COMMAND NICK ERRORS */
 #define ERR_NONICKNAMEGIVEN(servername, nickname) (std::string(":") + servername  + " 431 " + nickname + " :No nickname given" + CRLF )
-#define ERR_NICKNAMEINUSE(servername, nickname) (std::string(":") + servername +" 433 " + nickname + " :Nickname is already in use" + CRLF)
-#define ERR_ERRONEUSNICKNAME(servername,nickname) (std::string(":") + servername  + " 432 " + nickname + " " + nickname +  " :Erroneus nickname" + CRLF)
+#define ERR_NICKNAMEINUSE(servername, nickname) (std::string(":") + servername + " 433 " + nickname + " :Nickname is already in use" + CRLF)
+#define ERR_ERRONEUSNICKNAME(servername, previous_nickname, new_nickname) (std::string(":") + servername  + " 432 " + previous_nickname + " " + new_nickname +  " :Erroneus nickname" + CRLF)
 
 /**** COMMAND JOIN / PART / KICK / INVITE ERRORS */
 #define ERR_NOSUCHCHANNEL(servername, nickname, channelname) (std::string(":") + servername + " 403 " + nickname + " " + channelname + " :No such channel" + CRLF)
