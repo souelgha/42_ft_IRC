@@ -1,5 +1,9 @@
 # FT_IRC Project
 this is a project group and we have to ceate our own IRC server in C++98 from scratch. 
+```
+FINAL GRADE: 115/100
+```
+
 
 ## Purpose
 - We used an actual IRC client (IRSSI or netcat) to connect to our server and test it.
