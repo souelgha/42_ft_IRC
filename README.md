@@ -27,5 +27,7 @@ nc <IP ADDRESS> <PORT>
 - PORT: The PORT that the server listening on.
 You can also use an IRC Client IRSSI.
 
+![apercu](/irc-chat.png)
+
 
 
